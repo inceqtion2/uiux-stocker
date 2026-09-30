@@ -566,6 +566,18 @@ h1,h2,h3,p{margin:0}
 .src-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
 .src-list li{display:grid;gap:0;font-size:14px}
 .src-list small{font-size:12px;color:var(--ink-2)}
+.refbox{display:grid;gap:10px;border:1.5px solid var(--soft);border-radius:16px;padding:14px}
+.refbox .sublabel{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.refbox .sublabel .opt{font-family:var(--f-jp);font-weight:500;letter-spacing:0;text-transform:none;margin-left:8px}
+.ref-official{display:flex;align-items:center;gap:10px;background:var(--field);border-radius:12px;padding:10px 12px;margin:0;font-size:14px}
+.ro-badge{flex:none;font-size:11px;font-weight:700;background:var(--ink);color:var(--primary);border-radius:999px;padding:2px 9px}
+.ro-main{display:grid;min-width:0;line-height:1.5}
+.ro-main small{font-size:12px;color:var(--ink-2)}
+.ro-lock{margin-left:auto;font-size:13px;opacity:.6}
+.dc-refs{display:grid;gap:8px;border-top:1px dashed var(--soft);padding-top:12px}
+.dc-refs .k{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.dc-refs .ref-list li{background:var(--field)}
+.dc-addref{justify-self:start;font-size:13px}
 .dc-mean{font-size:16px;line-height:1.85}
 .dc-note{font-size:14px;line-height:1.75;background:var(--field);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
 .dc-note .k,.dc-foot .k{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
@@ -689,7 +701,7 @@ h1,h2,h3,p{margin:0}
   .side{position:fixed;left:0;top:0;bottom:0;width:min(300px,86vw);transform:translateX(-105%);transition:transform .26s var(--ease);padding-top:calc(20px + env(safe-area-inset-top,0px))}
   .side.open{transform:none;box-shadow:6px 0 0 var(--ink)}
   .side-x{display:block}
-  .side .btn.cta{display:none}
+  .side .btn.cta,.side .btn.cta2,.side-cta{display:none}
   .side-scrim{display:block;position:fixed;inset:0;background:rgba(27,26,24,.3);z-index:65}
   .side-scrim[hidden]{display:none}
   .mtop{display:flex;align-items:center;gap:10px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--bg);z-index:40}
@@ -820,15 +832,19 @@ h1,h2,h3,p{margin:0}
         <button type="button" class="ach" data-sec="secFile" aria-expanded="false" aria-controls="secFile">添付ファイル</button>
         <button type="button" class="ach" data-sec="secMemo" aria-expanded="false" aria-controls="secMemo">メモ</button>
       </div>
+      <section class="refbox" id="refBox" hidden aria-labelledby="refBoxH">
+        <span class="flabel" id="refBoxH">Reference<span class="opt">出典・URL・ファイル</span></span>
+        <div class="ref-official" id="fSrc" hidden></div>
       <div class="asec" id="secUrl" hidden>
-        <span class="flabel">URL</span>
+        <span class="sublabel">URL</span>
         <div class="refs" id="fRefs"></div>
       </div>
       <div class="asec" id="secFile" hidden>
-        <span class="flabel">Files<span class="opt">画像・PDFなど。画像は自動で軽くします</span></span>
+        <span class="sublabel">Files<span class="opt">画像・PDFなど。画像は自動で軽くします</span></span>
         <ul class="files" id="fFiles"></ul>
         <label class="btn small file-btn"><input type="file" id="fFileIn" multiple accept="image/*,application/pdf,.txt,.md">ファイルを選ぶ</label>
       </div>
+      </section>
       <div class="asec field" id="secMemo" hidden>
         <label for="fNote">Memo<span class="opt">自分の言葉で</span></label>
         <textarea id="fNote" placeholder="例：得する話より、損する話のほうが心に刺さる"></textarea>
@@ -1870,10 +1886,13 @@ function renderDrawer() {
     </header>
     <div class="dc-body">
       ${c.meaning ? `<p class="dc-mean">${esc(c.meaning)}</p>` : `<button type="button" class="link" data-edit="fMeaning">意味を書く</button>`}
-      ${c.src ? `<p class="dc-src"><span class="k">Source</span>${srcLink(c.src)}${c.srcItem ? `<span>／${esc(c.srcItem)}</span>` : ""}</p>` : ""}
       ${c.note ? `<p class="dc-note"><span class="k">My words</span>${esc(c.note)}</p>` : ""}
-      ${refs.length ? `<ul class="ref-list">${refs.map(refHTML).join("")}</ul>` : ""}
-      ${(c.files || []).length ? `<ul class="dfiles">${c.files.map((f, i) => f.type.startsWith("image/") ? `<li><button type="button" class="dfile img" data-file="${i}" aria-label="${esc(f.name)}をひらく"><img src="${f.data}" alt=""></button></li>` : `<li><button type="button" class="dfile" data-file="${i}"><span class="fi-ext">${esc(extOf(f.name))}</span><span class="fi-n">${esc(f.name)}</span></button></li>`).join("")}</ul>` : ""}
+      ${c.src || refs.length || (c.files || []).length ? `<section class="dc-refs" aria-label="Reference"><span class="k">Reference</span>
+        ${c.src ? `<p class="ref-official"><span class="ro-badge">公式</span><span class="ro-main">${srcLink(c.src)}${c.srcItem ? `<small>${esc(c.srcItem)}</small>` : ""}</span></p>` : ""}
+        ${refs.length ? `<ul class="ref-list">${refs.map(refHTML).join("")}</ul>` : ""}
+        ${(c.files || []).length ? `<ul class="dfiles">${c.files.map((f, i) => f.type.startsWith("image/") ? `<li><button type="button" class="dfile img" data-file="${i}" aria-label="${esc(f.name)}をひらく"><img src="${f.data}" alt=""></button></li>` : `<li><button type="button" class="dfile" data-file="${i}"><span class="fi-ext">${esc(extOf(f.name))}</span><span class="fi-n">${esc(f.name)}</span></button></li>`).join("")}</ul>` : ""}
+        <button type="button" class="link dc-addref" data-edit="fRefs">＋ URL・ファイルを足す</button>
+      </section>` : `<button type="button" class="link dc-addref" data-edit="fRefs">＋ Reference（URL・ファイル）を足す</button>`}
     </div>
     <footer class="dc-foot">
       <span class="k" id="lvlTitle">Understanding<span class="opt">いまの理解度</span></span>
@@ -2001,7 +2020,8 @@ let sheetReturn = null, tagsOpen = false, sugT = 0;
 // テキスト欄は中身に合わせて伸ばす
 const fitTA = (t) => { t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight + 4, 320) + "px"; };
 $("cardForm").addEventListener("input", (e) => { if (e.target.tagName === "TEXTAREA") fitTA(e.target); });
-function setSec(id, open) { $(id).hidden = !open; const ch = document.querySelector(`.ach[data-sec="${id}"]`); if (!ch.classList.contains("multi")) ch.setAttribute("aria-expanded", String(open)); else ch.classList.toggle("on", open); }
+const syncRefBox = () => { $("refBox").hidden = $("fSrc").hidden && $("secUrl").hidden && $("secFile").hidden; };
+function setSec(id, open) { $(id).hidden = !open; syncRefBox(); const ch = document.querySelector(`.ach[data-sec="${id}"]`); if (!ch.classList.contains("multi")) ch.setAttribute("aria-expanded", String(open)); else ch.classList.toggle("on", open); }
 function openSheet(card, opts = {}) {
   S.editing = card || null;
   sheetReturn = document.activeElement;
@@ -2016,7 +2036,9 @@ function openSheet(card, opts = {}) {
   S.tagOrder = dl.slice();
   tagsOpen = !!card;
   S.tagTouched = !!card || dl.length > 0;
-  S.meanTouched = !!card; meanFor = ""; S.aiTags = null; $("fMeanHint").textContent = "";
+  S.meanTouched = !!card; meanFor = ""; S.aiTags = null; $("fMeanHint").textContent = !card && !S.sample ? "自分の言葉でひとこと（Claudeの自動下書きはclaude.ai版のみ）" : "";
+  $("fSrc").hidden = !(card && card.src);
+  $("fSrc").innerHTML = card && card.src ? `<span class="ro-badge">公式</span><span class="ro-main">${srcLink(card.src)}${card.srcItem ? `<small>${esc(card.srcItem)}</small>` : ""}</span><span class="ro-lock" title="最初から入っている出典のため編集できません" aria-label="編集できません">🔒</span>` : "";
   setSec("secUrl", !!(d.refs && d.refs.length) || opts.focus === "fRefs");
   setSec("secFile", S.fFiles.length > 0);
   setSec("secMemo", !!d.note || opts.focus === "fNote");
@@ -2028,6 +2050,7 @@ function openSheet(card, opts = {}) {
   refreshAssist();
   requestAnimationFrame(() => ["fMeaning", "fNote"].forEach((id) => fitTA($(id))));
   if (opts.term) setTimeout(autoMeaning, 50);
+  if (opts.focus === "fRefs") { setTimeout(() => { const v = $("fRefs").querySelector(".ref-val"); if (v && !v.value) v.focus(); else addRefRow(); $("refBox").scrollIntoView({ block: "nearest" }); }, 30); return; }
   setTimeout(() => $(opts.focus === "fTerm" ? "fName" : opts.focus && $(opts.focus) ? opts.focus : "fName").focus(), 30);
 }
 document.querySelector(".attach-chips").addEventListener("click", (e) => {
@@ -2116,8 +2139,9 @@ function suggestTags(text) {
   if (text.replace(/\s/g, "").length < 2) return [];
   const cv = conceptsOf(text); for (const k in cv) cv[k] *= 0.6;
   const probe = { _c: cv, _gw: weigh(grams(text)) };
+  const nt = norm(text);
   const w = {};
-  S.cards.filter((c) => c.id !== S.editing?.id).map((c) => ({ c, s: simCards(probe, c) })).filter((x) => x.s > 0.12)
+  S.cards.filter((c) => c.id !== S.editing?.id).map((c) => { const hit = [c.ja, c.term].some((n) => n && norm(n).length >= 3 && nt.includes(norm(n))) ? 0.5 : 0; return { c, s: Math.max(simCards(probe, c), 0.9 * cos(probe._gw, c._gw), hit) }; }).filter((x) => x.s > 0.12)
     .sort((a, b) => b.s - a.s).slice(0, 6)
     .forEach(({ c, s }) => c.labels.forEach((t, i) => (w[t] = (w[t] || 0) + s * (i === 0 ? 1 : 0.5))));
   const top = Math.max(0, ...Object.values(w));
@@ -2146,7 +2170,7 @@ function refreshAssist() {
   $("fTagsMore").hidden = !hiddenN;
   $("fTagsMore").textContent = `ほかのタグ（${hiddenN}）`;
   { const fl = (S.tagOrder || []).filter((k) => $("fTag-" + k).checked); $("cardForm").className = "sheet nc " + (fl[0] ? "t-" + fl[0] : sug[0] && !S.editing ? "t-" + sug[0] : "t-none"); }
-  $("fTagsHint").textContent = S.editing ? "" : sug.length && !S.tagTouched ? "自動で選びました。違えば押して変更" : !sug.length ? "言葉を入れると自動で選びます" : "";
+  $("fTagsHint").textContent = S.editing ? "" : sug.length && !S.tagTouched ? "自動で選びました。違えば押して変更" : !sug.length ? (f.name ? "近い言葉が見つからないので、押して選んでください" : "言葉を入れると自動で選びます") : "";
 }
 $("fTags").addEventListener("change", (e) => { S.tagTouched = true; const k = e.target.value; S.tagOrder = (S.tagOrder || []).filter((x) => x !== k); if (e.target.checked) S.tagOrder.push(k); refreshAssist(); });
 $("fTagsMore").onclick = () => { tagsOpen = true; refreshAssist(); $("fTags").querySelector("label:not([hidden])")?.focus(); };
