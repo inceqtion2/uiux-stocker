@@ -1,0 +1,2269 @@
+<title>UIUX Stocker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Noto+Sans+JP:wght@400;500;700&family=Syne:wght@600;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<style>
+[hidden]{display:none!important}
+/* Layout: 左に細いサイドバー、右は全面の「積み上げ」ステージ。検索窓はステージの上に浮かべる。
+   Look: 参照(ネオブルータリズムのフードアプリ)に倣い、クリーム地・墨・少数の鮮やかな色面・細長い大文字の英字・ピル型ボタン。単一テーマ。 */
+:root{
+  --bg:#F4EEE3;
+  --surface:#FFFAF2;
+  --field:#EAE2D4;
+  --ink:#1B1A18;
+  --ink-2:#5F594F;
+  --soft:#D8CEBD;
+  --primary:#62E394;
+  /* タグの色：カードの地色(1つ目のタグ)。色だけで区別させず、タグ名も必ず出す */
+  --t-cog:#D7A6F6;
+  --t-be:#FF9270;
+  --t-ui:#66E097;
+  --t-research:#8ECFFF;
+  --t-eval:#FFD45C;
+  --t-process:#F5B58A;
+  --t-ethics:#F7A6C8;
+  --t-ix:#C6EF5A;
+  --t-biz:#A9BAD0;
+  --t-ai:#9FE0D6;
+  --t-none:#E4DCCD;
+
+  /* 見出し・ロゴ：丸みのある極太(和欧とも)。英語の添え字：小さくても読める癖のあるサンセリフ。本文：読みやすいゴシック */
+  --f-disp:"Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+  --f-en:"Syne", "Noto Sans JP", system-ui, sans-serif;
+  /* ホーム以外：英字は横に広い Syne、日本語は落ち着いた Noto Sans JP */
+  --f-ui:"Syne", "Noto Sans JP", system-ui, sans-serif;
+  --f-num:"Inter", "Noto Sans JP", system-ui, sans-serif;
+  --f-jp:"Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+  --f-body:"Syne", "Noto Sans JP", system-ui, sans-serif;
+
+  --line:2px solid var(--ink);
+  --sh:3px 3px 0 var(--ink);
+  --sh-sm:2px 2px 0 var(--ink);
+  --ease:cubic-bezier(.2,.8,.2,1);
+  color-scheme:light;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-jp);font-weight:500;font-size:16px;line-height:1.7;overflow:hidden}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+h1,h2,h3,p{margin:0}
+.t-cog{--tag:var(--t-cog)} .t-be{--tag:var(--t-be)} .t-ui{--tag:var(--t-ui)} .t-research{--tag:var(--t-research)} .t-eval{--tag:var(--t-eval)} .t-process{--tag:var(--t-process)} .t-ethics{--tag:var(--t-ethics)} .t-ix{--tag:var(--t-ix)} .t-biz{--tag:var(--t-biz)} .t-ai{--tag:var(--t-ai)} .t-none{--tag:var(--t-none)}
+
+/* ---------- ホーム以外の書体 ---------- */
+.side,.page,.drawer,.sheet,.toast{font-family:var(--f-jp)}
+.side .btn,.side-nav button,.side-sec h2,.page-title,.sheet-head h2,.drawer .btn,.sheet .btn,.page .filters button,.page .sel{font-family:var(--f-ui)}
+/* Syneは800だと字形が独特(dが読み違えやすい)ので、ボタンやナビは700/600に抑え、800は大見出しだけ */
+.side .btn,.drawer .btn,.sheet .btn{font-weight:700}
+.side-nav button,.page .filters button{font-weight:600}
+.page-title{font-family:var(--f-ui);font-weight:800;font-size:40px;letter-spacing:-.02em;line-height:1.1}
+.page-title small{font-family:var(--f-jp)}
+.sheet-head h2{font-family:var(--f-ui)!important;font-weight:800;font-size:28px;letter-spacing:-.02em}
+.page .title,.drawer .title,.page .head-jp,.drawer .head-jp{font-family:var(--f-jp);font-weight:700;letter-spacing:0}
+.page .en,.drawer .en{font-family:var(--f-ui);font-weight:700}
+.page .rank{font-family:var(--f-ui)}
+.side-sec h2{font-weight:700;letter-spacing:.06em}
+.sheet .name-input{font-family:var(--f-jp)!important;font-weight:700}
+.mini b{font-family:var(--f-jp)!important;font-weight:700!important}
+
+/* ---------- 部品 ---------- */
+.btn{font-family:var(--f-ui);display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 20px;border:var(--line);border-radius:999px;background:var(--surface);
+  box-shadow:var(--sh);font-weight:700;font-size:15px;white-space:nowrap;transition:transform .1s, box-shadow .1s}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.primary{background:var(--primary)}
+.btn.small{min-height:36px;padding:0 14px;font-size:14px;box-shadow:var(--sh-sm)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.55;cursor:progress}
+.link{font-family:var(--f-ui);border:0;background:none;padding:0;min-height:32px;font-weight:700;font-size:14px;color:var(--ink);text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--tag,var(--t-none));border:1.5px solid var(--ink);box-sizing:border-box;flex:none}
+.eyebrow{font-size:13px;font-weight:700;color:var(--ink-2)}
+.help{font-size:13px;color:var(--ink-2)}
+.term{font-family:var(--f-en);font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.head-jp{font-family:var(--f-jp);font-weight:700;letter-spacing:.01em;line-height:1.4}
+
+/* ---------- 骨格 ---------- */
+.shell{height:100%;display:grid;grid-template-columns:256px minmax(0,1fr)}
+.side{background:var(--surface);border-right:var(--line);display:flex;flex-direction:column;gap:24px;padding:20px 18px 24px;overflow-y:auto;min-height:0;z-index:70}
+.side-head{display:flex;align-items:center;justify-content:space-between}
+.logo{border:0;background:none;padding:0;display:inline-flex}
+/* ロゴ：ANSI Shadow書体のアスキーアート。淡い色でも読めるよう墨のプレートに載せる */
+.logo-plate{display:block;background:var(--ink);border:2px solid var(--ink);border-radius:14px;padding:12px 12px 10px;box-shadow:3px 3px 0 var(--primary);transition:transform .15s var(--ease), box-shadow .15s}
+.logo:hover .logo-plate{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--primary)}
+/* 文字は10pxで組み、zoomで縮める(最小フォントサイズ設定で崩れないように) */
+.logo-ascii{display:block;zoom:.6}
+.logo-ascii pre{margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:10px;line-height:1;white-space:pre;text-align:left}
+.logo-ascii .a{color:var(--primary)}
+.logo-ascii .b{color:var(--t-cog);margin-top:4px}
+.logo:hover .logo-ascii{filter:drop-shadow(0 0 3px rgba(98,227,148,.55))}
+.side-x{display:none;border:0;background:none;font-size:26px;font-weight:900;min-width:44px;min-height:44px}
+.side-nav{display:grid;gap:4px}
+.side-nav button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-radius:999px;background:none;padding:0 14px;min-height:44px;font-weight:600;font-size:15px;color:var(--ink-2)}
+.side-nav button:hover{background:var(--field)}
+.side-nav button[aria-current="page"]{background:var(--field);color:var(--ink);font-weight:700}
+/* 主要な操作：Add Card はナビより一段強く */
+.side .btn.cta{min-height:56px;font-size:17px;font-weight:700;gap:10px;box-shadow:4px 4px 0 var(--ink)}
+.side .btn.cta .plus{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:999px;background:var(--ink);color:var(--primary);font-size:18px;line-height:1}
+.side-nav svg{width:20px;height:20px;flex:none}
+.side-sec{display:grid;gap:6px}
+.side-cta{display:grid;gap:12px}
+.taglist li{position:relative}
+.taglist .tag-x{padding:0;min-height:0;justify-content:center;gap:0;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);font-weight:800;font-size:14px;line-height:1;display:grid;place-items:center}
+.taglist .tag-x:hover{background:var(--ink);color:var(--surface)}
+.taglist button[aria-current="true"] .n{visibility:hidden}
+.side-sec h2{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--ink-2);padding:0 14px;display:flex;gap:8px;align-items:baseline}
+.side-sec h2 span{font-family:var(--f-jp);font-weight:500;font-size:12px;letter-spacing:0}
+.taglist{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.taglist button{width:100%;display:flex;align-items:center;gap:10px;border:0;border-radius:999px;background:none;padding:0 14px;min-height:38px;font-size:14px;font-weight:700;text-align:left}
+.taglist button:hover{background:var(--field)}
+.taglist button[aria-current="true"]{background:var(--tag);box-shadow:inset 0 0 0 2px var(--ink)}
+.taglist .n{font-family:var(--f-num);margin-left:auto;font-size:12px;font-weight:500;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.side-scrim{display:none}
+
+.main{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;height:100%}
+.mtop{display:none}
+.page{flex:1;overflow-y:auto;min-height:0}
+.page-in{max-width:1120px;margin:0 auto;padding:40px 32px 96px;display:grid;gap:28px}
+.page-title{font-size:32px}
+.page-title small{font-size:15px;font-weight:700;color:var(--ink-2);margin-left:10px}
+
+/* ---------- ステージ ---------- */
+.stage{font-family:var(--f-ui);position:relative;flex:1;min-height:0;overflow:hidden;background:var(--bg)}
+.overlay{position:absolute;left:0;right:0;top:0;z-index:30;pointer-events:none;padding:28px 32px 0;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:14px}
+.overlay > *{pointer-events:auto}
+.search{position:relative;display:flex;gap:10px;width:min(620px,100%)}
+.sbox{flex:1;min-width:0;display:flex;align-items:center;background:var(--surface);border-radius:999px;border:var(--line);box-shadow:3px 3px 0 var(--ink);transition:box-shadow .15s, transform .15s}
+.sbox:focus-within{box-shadow:4px 4px 0 var(--primary);transform:translate(-1px,-1px)}
+.kbd{flex:none;font-family:var(--f-ui);font-weight:700;font-size:12px;color:var(--ink-2);border:1.5px solid var(--soft);border-bottom-width:3px;border-radius:7px;padding:0 7px;margin-right:16px;line-height:20px}
+.sbox:focus-within .kbd{display:none}
+.sbox svg{flex:none;width:18px;height:18px;margin-left:18px;color:var(--ink-2)}
+.sbox input{font-family:var(--f-jp);flex:1;min-width:0;border:0;background:transparent;padding:13px 12px;font-size:16px;font-weight:700;outline:none}
+.sbox input::placeholder{color:#8A8377;font-weight:500}
+.sbox input::-webkit-search-cancel-button{display:none}
+.clear{flex:none;border:0;background:none;min-width:44px;min-height:44px;font-size:20px;font-weight:900;color:var(--ink-2);border-radius:999px}
+.go{flex:none;width:52px;height:52px;border:var(--line);border-radius:999px;background:var(--primary);box-shadow:var(--sh);display:grid;place-items:center}
+.go:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.go svg{width:22px;height:22px}
+.st-head{display:grid;justify-items:center;gap:12px;text-align:center;width:min(760px,100%)}
+.st-meta{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;align-items:center;font-size:14px;color:var(--ink-2)}
+.st-meta b{color:var(--ink);font-weight:700}
+.st-meta .sep{opacity:.5}
+.sugg{position:absolute;left:0;right:62px;top:calc(100% + 10px);z-index:40;background:var(--surface);border:var(--line);border-radius:22px;box-shadow:5px 5px 0 var(--ink);padding:8px;max-height:min(62vh,480px);overflow:auto;text-align:left;font-family:var(--f-jp);animation:sgIn .16s var(--ease)}
+@keyframes sgIn{from{opacity:0;transform:translateY(-6px)}}
+.sg-h{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);padding:10px 12px 4px;display:flex;gap:8px;align-items:baseline}
+.sg-h span{font-family:var(--f-jp);font-weight:500;font-size:11px;letter-spacing:0;text-transform:none;color:var(--ink-2)}
+.sg-row{display:flex;gap:12px;align-items:center;padding:8px 12px;min-height:46px;border-radius:14px;cursor:pointer}
+.sg-row:hover,.sg-row[aria-selected="true"]{background:var(--field)}
+.sg-row[aria-selected="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.sg-sw{flex:none;width:16px;height:22px;border-radius:5px;border:2px solid var(--ink);background:var(--tag)}
+.sg-ico{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--field);font-family:var(--f-ui);font-weight:800;font-size:13px;color:var(--ink-2)}
+.sg-ico.go-ico{background:var(--ink);color:var(--primary)}
+.sg-ico.add-ico{background:var(--primary);color:var(--ink);border:2px solid var(--ink)}
+.sg-t{display:grid;min-width:0;line-height:1.4}
+.sg-row.act .sg-t b{white-space:normal}
+.sg-t b{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sg-t small{font-size:12px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sg-t mark{background:#C8F1D5;color:inherit;border-radius:3px;padding:0 1px}
+@media (max-width: 480px){ .sugg{right:0;max-height:56vh} .kbd{display:none} }
+.layout-fab{position:absolute;right:24px;bottom:24px;z-index:35;display:inline-flex;align-items:center;gap:8px;border:var(--line);border-radius:999px;background:var(--surface);box-shadow:3px 3px 0 var(--ink);min-height:44px;padding:0 16px 0 12px;font-family:var(--f-jp);font-weight:700;font-size:14px}
+.layout-fab svg{width:18px;height:18px}
+.layout-fab:hover{background:var(--ink);color:var(--surface)}
+.layout-fab:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+/* 新しいカード(Add Card) */
+.sheet.nc{width:min(540px,100%);height:auto;max-height:100%;background:var(--tag,var(--surface));border:var(--line);border-radius:28px;box-shadow:6px 6px 0 var(--ink);overflow:hidden;display:flex;flex-direction:column;animation:ncIn .34s cubic-bezier(.3,1.35,.5,1) both;transition:background-color .3s}
+@keyframes ncIn{from{opacity:0;transform:translateY(24px) scale(.94) rotate(2deg)}}
+.nc-head{padding:14px 20px 16px;display:grid;gap:2px;flex:none}
+.nc-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.nc-bar .spacer{flex:1}
+.nc-kicker{font-family:var(--f-ui);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--primary);border-radius:999px;padding:4px 12px}
+.nc-word{border:0;border-bottom:2px dashed rgba(27,26,24,.45);background:transparent;font-family:var(--f-jp);font-weight:900;font-size:clamp(24px,5vw,30px);line-height:1.35;padding:4px 0;width:100%;color:var(--ink);border-radius:0}
+.nc-word:focus{outline:none;border-bottom-style:solid;border-bottom-color:var(--ink)}
+.nc-word::placeholder,.nc-alias::placeholder{color:rgba(27,26,24,.38)}
+.nc-alias{border:0;background:transparent;font-family:var(--f-ui);font-weight:700;font-size:15px;padding:4px 0;width:100%;color:var(--ink)}
+.nc-alias:focus{outline:none;text-decoration:underline;text-underline-offset:4px}
+.nc .dup{background:rgba(255,255,255,.75);margin-top:6px}
+.nc .draft-note{margin-top:4px;color:var(--ink)}
+.nc-body{background:var(--surface);margin:0 12px;border:var(--line);border-radius:20px;padding:18px;display:grid;gap:18px;overflow:auto;min-height:0;align-content:start}
+.nc .field textarea,.nc .ref-val{background:var(--field)}
+.nc .field textarea:focus,.nc .ref-val:focus{background:var(--surface)}
+.nc .sheet-foot{background:transparent;border-top:0;padding:14px 16px 16px;position:static}
+.nc .sheet-foot .cancel{color:var(--ink)}
+.nc .ref-row{grid-template-columns:minmax(0,1fr) auto}
+.nc select,.nc .link,.nc .dup,.nc .tagpick label,.nc .file-btn,.nc .ach,.nc .danger,.nc .err,.nc .draft-note{font-family:var(--f-jp)}
+.attach-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ach{font-weight:700;font-size:13px;border:1.5px dashed var(--ink-2);background:none;border-radius:999px;min-height:36px;padding:0 14px;display:inline-flex;gap:6px;align-items:center;color:var(--ink)}
+.ach::before{content:"＋";font-weight:900}
+.ach:hover{border-color:var(--ink)}
+.ach[aria-expanded="true"]{border-style:solid;border-color:var(--ink);background:var(--ink);color:var(--surface)}
+.ach[aria-expanded="true"]::before{content:"－"}
+.asec{display:grid;gap:8px}
+.files{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.files:empty{display:none}
+.files li,.dfile{display:flex;align-items:center;gap:10px;background:var(--field);border-radius:12px;padding:6px 8px}
+.files img{width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--ink)}
+.fi-ext{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:8px;border:1.5px solid var(--ink);background:var(--surface);font-family:var(--f-ui);font-weight:800;font-size:11px;text-transform:uppercase}
+.fi-n{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.file-btn{justify-self:start;position:relative;cursor:pointer}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.file-btn:focus-within{outline:3px solid var(--ink);outline-offset:2px}
+.dfiles{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.dfile{border:0;cursor:pointer;font-family:var(--f-jp)}
+.dfile.img{padding:0;background:none}
+.dfile.img img{width:88px;height:88px;object-fit:cover;border-radius:12px;border:2px solid var(--ink);display:block}
+.dfile:hover{box-shadow:0 0 0 2px var(--ink)}
+/* Progress：積み上がるブロック */
+.lvl-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch;background:var(--field);border-radius:24px;padding:22px 22px 18px}
+.lvl-col{display:grid;grid-template-rows:auto 1fr auto;gap:10px;min-width:0}
+.lvl-col .blocks,.tag-col .blocks{align-self:end}
+.lc-n{font-family:var(--f-num);letter-spacing:-.02em;font-weight:800;font-size:40px;line-height:1}
+.lc-n small{font-family:var(--f-jp);font-size:14px;font-weight:700;margin-left:4px}
+.blocks{display:flex;flex-wrap:wrap-reverse;gap:3px;width:100%;align-content:flex-start}
+.blocks i{display:block;width:14px;height:14px;border-radius:3px;border:1.5px solid var(--ink);box-sizing:border-box;animation:blk .35s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--k) * 12ms)}
+@keyframes blk{from{opacity:0;transform:translateY(-16px)}}
+.lc-l{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;border-top:3px solid var(--ink);padding-top:8px}
+.lc-l i{width:12px;height:12px;border-radius:3px;border:1.5px solid var(--ink)}
+.fviewer{position:fixed;inset:0;z-index:300;background:rgba(27,26,24,.6);display:grid;place-items:center;padding:16px}
+.fv-in{width:min(900px,100%);max-height:100%;display:flex;flex-direction:column;background:var(--surface);border:var(--line);border-radius:22px;box-shadow:6px 6px 0 var(--ink);overflow:hidden}
+.fv-bar{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 18px;font-weight:700;font-size:14px}
+.fv-bar span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fv-body{overflow:auto;min-height:0;display:grid;place-items:center;background:var(--field)}
+.fv-body img{max-width:100%;max-height:80vh;display:block}
+.fv-body object{width:100%;height:80vh}
+.fv-body pre{white-space:pre-wrap;padding:18px;margin:0;width:100%;font-size:14px}
+.fv-body p{padding:24px}
+.p-sec > .glegend{display:flex;flex-wrap:wrap;gap:8px 20px}
+.tag-cols{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:14px 10px;align-items:stretch;background:var(--field);border-radius:24px;padding:18px}
+.tag-col{display:grid;grid-template-rows:auto 1fr auto;gap:6px;border:0;background:none;padding:8px;border-radius:14px;text-align:left;height:100%;min-width:0;font-family:var(--f-jp)}
+.tag-col:hover{background:var(--surface)}
+.tc-n{font-family:var(--f-num);letter-spacing:-.02em;font-weight:800;font-size:22px;line-height:1}
+.blocks.sm{gap:2px}
+.blocks.sm i{width:10px;height:10px;border-width:1px;border-radius:2px}
+.tc-l{display:flex;align-items:flex-start;gap:6px;font-size:12px;font-weight:700;line-height:1.35;border-top:2.5px solid var(--ink);padding-top:6px;height:calc(2.7em + 6px);overflow:hidden}
+.tc-l .dot{flex:none;margin-top:4px}
+@media (max-width: 600px){ .lvl-cols{gap:10px;padding:16px} .lc-n{font-size:28px} .blocks i{width:11px;height:11px} .layout-fab{right:16px;bottom:16px} }
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.restart{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;background:var(--ink);color:var(--surface);border-radius:999px;padding:6px 6px 6px 18px;font-size:14px;font-weight:500;box-shadow:3px 3px 0 var(--primary)}
+.restart .btn{box-shadow:none;border-color:var(--primary)}
+.restart-x{border:0;background:none;color:var(--surface);min-width:36px;min-height:36px;border-radius:999px;font-size:18px;font-weight:700}
+.chips-label{align-self:center;font-size:13px;font-weight:700;color:var(--ink-2);margin-right:2px;white-space:nowrap}
+.chip{font-family:var(--f-ui);border:0;background:var(--field);border-radius:999px;padding:0 14px;min-height:34px;font-size:14px;font-weight:700;white-space:nowrap}
+.chip:hover{background:var(--ink);color:var(--surface)}
+.trail{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;font-size:13px;color:var(--ink-2)}
+.trail button{border:0;background:none;padding:0 4px;font-weight:700;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;font-size:13px;min-height:28px;max-width:14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trail .cur{font-weight:700;color:var(--ink);max-width:14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-empty{max-width:480px;background:var(--surface);border:var(--line);border-radius:20px;box-shadow:var(--sh);padding:24px;text-align:left;display:grid;gap:12px}
+.st-empty h2{font-size:22px}
+.st-empty p{font-size:15px;color:var(--ink-2)}
+
+.pile{position:absolute;inset:0;overflow:hidden;touch-action:none;z-index:1}
+.pile.hovering{cursor:grab}
+.pile.grabbing{cursor:grabbing}
+.gridwrap{position:absolute;left:0;right:0;bottom:0;overflow-y:auto;z-index:1;padding:12px 32px 64px}
+.gridwrap .inner{max-width:1120px;margin:0 auto}
+
+/* ---------- カード(積み上げ・一覧共通の見た目) ---------- */
+.pc,.card{border:var(--line);border-radius:16px;background:var(--tag,var(--surface));text-align:left;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+.pc.seed,.card.seed{background:var(--surface);border-style:dashed}
+.pc-top{display:flex;align-items:center;gap:8px;min-height:22px}
+.pc-tag{font-size:11px;font-weight:700;background:var(--surface);border:1.5px solid var(--ink);border-radius:999px;padding:0 9px;line-height:19px;white-space:nowrap}
+.rank{margin-left:auto;flex:none;font-family:var(--f-en);font-weight:800;font-size:12px;letter-spacing:.02em;line-height:22px;padding:0 10px;border-radius:999px;background:var(--ink);color:var(--surface)}
+.rank.first{color:var(--primary)}
+.title{font-family:var(--f-jp);font-weight:700;letter-spacing:0;line-height:1.35;overflow-wrap:anywhere}
+.en{font-family:var(--f-ui);font-weight:700;letter-spacing:0;line-height:1.25;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-mean,.card .mean{font-family:var(--f-jp);font-size:13px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-height:calc(1.55em * 2);flex:none}
+
+.pc{position:absolute;left:0;top:0;pointer-events:none;padding:10px 14px 12px;box-shadow:var(--sh);
+  transform-origin:50% 50%;will-change:transform;visibility:hidden;transition:scale .18s var(--ease), box-shadow .15s}
+.pc.in{visibility:visible}
+.pc .title{font-family:var(--f-jp);font-weight:700;letter-spacing:0;font-size:18px;margin-top:2px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc .en{font-family:var(--f-ui);font-weight:700;font-size:13px;flex:none}
+.pc.big .title{font-size:22px}
+.pc.big .en{font-size:15px}
+.pc.big .pc-mean{-webkit-line-clamp:3;max-height:calc(1.55em * 3)}
+.pc.hover,.pc:focus-visible{box-shadow:6px 6px 0 var(--ink);z-index:1000!important}
+.pc.hold{box-shadow:9px 9px 0 var(--ink);z-index:1001!important}
+.pc.tiny{padding:0;border:0;background:transparent;box-shadow:none;overflow:visible;border-radius:0}
+.pc.tiny .tile,.ft .tile{position:absolute;left:0;top:0;transform-origin:0 0;box-sizing:border-box;display:flex;flex-direction:column;gap:4px;padding:14px 16px 16px;
+  border:2px solid var(--ink);border-radius:16px;background:var(--tag,var(--surface));box-shadow:3px 3px 0 var(--ink);overflow:hidden;text-align:left;font-family:var(--f-jp)}
+.pc.tiny.memo .tile{box-shadow:4px 4px 0 var(--ink)}
+.memo-tag{position:absolute;left:50%;top:-12px;transform:translateX(-50%);z-index:2;white-space:nowrap;background:var(--ink);color:var(--primary);font-family:var(--f-ui);font-weight:700;font-size:12px;border-radius:999px;padding:2px 10px;box-shadow:2px 2px 0 var(--primary)}
+.pc.tiny .tile.seed,.ft .tile.seed{background:var(--surface);border-style:dashed}
+.pc.tiny .tile .title,.ft .tile .title{font-family:var(--f-jp);font-weight:700;font-size:20px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc.tiny .tile .en,.ft .tile .en{font-family:var(--f-ui);font-weight:700;font-size:14px}
+.pc.tiny .tile .pc-mean,.ft .tile .pc-mean{font-size:13px}
+/* ホバーで少し大きく、手前に出す */
+.pc.tiny .zoom{position:absolute;inset:0;transform-origin:50% 50%;transition:transform .22s var(--ease)}
+.pc.tiny.hover .zoom,.pc.tiny:focus-visible .zoom,.pc.tiny.hold .zoom{transform:scale(1.5)}
+.pc.tiny.hover,.pc.tiny:focus-visible,.pc.tiny.hold{scale:none!important;box-shadow:none!important;z-index:1000!important}
+.pc.tiny.hover .tile,.pc.tiny:focus-visible .tile{box-shadow:5px 5px 0 var(--ink)}
+.pc.tiny:focus-visible{outline:none}
+.pc.tiny:focus-visible .tile{outline:4px solid var(--ink);outline-offset:3px}
+.st-meta .total{font-family:var(--f-disp);font-weight:400;font-size:20px;color:var(--ink);line-height:1}
+.pc.leaving{opacity:0;transition:opacity .3s .12s}
+
+.gridwrap.fit{padding:8px 24px 80px}
+.gridwrap.fit .inner{max-width:none}
+.fit-grid{display:grid;justify-content:center;align-content:start}
+.ft{position:relative;padding:0;border:0;background:none;transition:transform .15s var(--ease)}
+.ft .tile{pointer-events:none}
+.ft:hover,.ft:focus-visible{transform:translate(-2px,-3px);z-index:2;outline:none}
+.ft:hover .tile,.ft:focus-visible .tile{box-shadow:5px 5px 0 var(--ink)}
+.ft:focus-visible .tile{outline:4px solid var(--ink);outline-offset:3px}
+.fit-grid.anim .ft{animation:ftIn .45s cubic-bezier(.3,1.3,.5,1) both;animation-delay:calc(var(--i) * 7ms)}
+@keyframes ftIn{from{opacity:0;transform:translateY(-18px) rotate(-4deg) scale(.9)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.card{position:relative;padding:14px 16px 16px;box-shadow:var(--sh);transition:transform .15s var(--ease), box-shadow .15s}
+.card:hover,.card:focus-within{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.card .title{font-size:20px;margin-top:4px}
+.card .en{font-size:14px}
+.card .mean{-webkit-line-clamp:3;font-size:14px;max-height:calc(1.55em * 3)}
+.card .why{font-size:12px;font-weight:700;margin-top:6px}
+.card-hit{position:absolute;inset:0;border:0;background:transparent;border-radius:inherit;z-index:1}
+.card.drop{animation:drop .7s var(--ease) both;animation-delay:calc(var(--i) * 40ms)}
+@keyframes drop{0%{transform:translateY(-50vh) rotate(var(--r));opacity:0}35%{opacity:1}75%{transform:translateY(6px) rotate(calc(var(--r) * -.15))}100%{transform:none;opacity:1}}
+
+/* ---------- すべての言葉 / 振り返り ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--field);border-radius:999px;padding:0 12px;min-height:34px;font-size:13px;font-weight:700}
+.filters button .n{font-weight:500;color:var(--ink-2)}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.filters button[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.sel{min-height:38px;border:0;border-radius:999px;background:var(--field);padding:0 14px;font-weight:700;font-size:14px}
+.panel{border:var(--line);border-radius:20px;box-shadow:var(--sh);background:var(--surface);padding:24px;display:grid;gap:12px;align-content:start;min-width:0}
+.panel h2{font-size:24px}
+/* Progress */
+.p-sec{display:grid;gap:12px}
+.p-h{font-family:var(--f-ui);font-weight:700;font-size:20px;letter-spacing:-.01em}
+.p-h .opt{font-family:var(--f-jp);font-weight:500;font-size:12px;letter-spacing:0;color:var(--ink-2);margin-left:10px}
+@media (max-width: 600px){ .stats{grid-template-columns:1fr} .tagrow{grid-template-columns:minmax(0,120px) minmax(0,1fr) 30px} }
+.glegend{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
+.glegend li{display:flex;align-items:center;gap:8px;font-size:14px}
+.glegend .sw{width:14px;height:14px;border-radius:4px;flex:none}
+.glegend b{margin-left:auto;font-variant-numeric:tabular-nums}
+
+/* ---------- 詳細パネル ---------- */
+.drawer-wrap{position:fixed;inset:0;z-index:80;pointer-events:none}
+.drawer-wrap .scrim{position:absolute;inset:0;background:rgba(27,26,24,.22);pointer-events:auto;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.drawer{position:absolute;right:0;top:0;bottom:0;width:min(480px,100%);background:var(--bg);border-left:var(--line);pointer-events:auto;display:flex;flex-direction:column;animation:slide .26s var(--ease)}
+@keyframes slide{from{transform:translateX(32px);opacity:0}}
+.d-top{display:flex;align-items:center;gap:8px;padding:14px 18px}
+.d-top .spacer{flex:1}
+.iconbtn{width:40px;height:40px;border:0;border-radius:999px;background:var(--field);font-size:22px;font-weight:700;line-height:1;display:grid;place-items:center;color:var(--ink)}
+.iconbtn:hover{background:var(--soft)}
+.d-body{overflow:auto;padding:4px 24px 32px;display:grid;gap:24px;align-content:start}
+.d-tags{display:flex;flex-wrap:wrap;gap:6px}
+.ref-link{color:var(--ink);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.d-head2{display:grid;gap:6px;padding:4px 0 2px}
+.d-head2 .title{font-size:clamp(26px,5.5vw,32px);line-height:1.3}
+.d-head2 .en{font-size:17px;white-space:normal;color:var(--ink-2);opacity:1}
+.d-swatch{width:36px;height:8px;border-radius:999px;background:var(--tag)}
+.d-head2 .d-tags{margin-top:6px}
+.d-tags button{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--field);border-radius:999px;padding:0 12px;min-height:32px;font-family:var(--f-jp);font-size:13px;font-weight:500}
+.d-tags button:hover{background:var(--soft)}
+.d-sec{display:grid;gap:8px}
+.d-sec h3{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+.d-sec h3 .opt{font-family:var(--f-jp);font-weight:500;font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink-2);margin-left:8px}
+.d-sec p{font-size:16px;line-height:1.85;font-family:var(--f-jp)}
+.drawer .panel-soft .d-sec p{background:var(--surface);border-radius:14px;padding:12px 14px}
+.side-rank{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;text-align:left;border:var(--line);border-radius:18px;background:var(--surface);color:var(--ink);padding:12px;box-shadow:3px 3px 0 var(--ink);font-family:var(--f-jp)}
+.side-rank:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.sr-id{display:grid;min-width:0;line-height:1.35}
+.sr-id b{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sr-id span{font-size:11px;color:var(--ink-2);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avatar{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;border:var(--line);background:var(--t-cog);font-weight:900;font-size:28px;box-shadow:3px 3px 0 var(--ink);flex:none}
+.avatar.sm{width:40px;height:40px;font-size:18px;box-shadow:2px 2px 0 var(--ink)}
+.case{list-style:none;margin:0;padding:10px 12px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:8px;background:rgba(0,0,0,.25);border-radius:14px}
+.case li{display:grid;place-items:center}
+.case .gym-svg{width:100%;max-width:44px}
+.case.sm{grid-column:1 / -1;background:var(--field);padding:6px 8px;gap:4px;border-radius:10px}
+.case.sm .gym-svg{max-width:20px}
+.case.sm .gs-n{display:none}
+.gym-svg{display:block;width:72px;height:auto;overflow:visible}
+.gym-svg .gs-base > *{fill:var(--field);stroke:var(--ink-2);stroke-width:3;stroke-dasharray:7 6}
+.gym-svg .gs-n{font-family:var(--f-ui);font-weight:800;font-size:28px;fill:var(--ink-2)}
+.gym-svg.got{filter:drop-shadow(3px 3px 0 var(--ink))}
+.gym-svg.got .gs-base > *{fill:var(--gc);stroke:var(--ink);stroke-width:4;stroke-dasharray:none}
+.gym-svg.got .gs-inner > *{fill:none;stroke:rgba(255,255,255,.7);stroke-width:5}
+.gym-svg .gs-shine{fill:rgba(255,255,255,.75)}
+.back-link{justify-self:start}
+.blocks i:not(.un),.lc-l i,.glegend .sw:not(.un){border:0;border-radius:0;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1.5c.6 3.4 2.6 5.3 4.4 7.3 1.9 2.1 3.6 4.2 3.6 7.2A8 8 0 0 1 12 23a8 8 0 0 1-8-7.9c0-2.7 1.3-4.6 2.9-6.2.2 1.9 1 3.1 2.3 3.8-.4-4.2 1.2-8.2 2.8-11.2z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1.5c.6 3.4 2.6 5.3 4.4 7.3 1.9 2.1 3.6 4.2 3.6 7.2A8 8 0 0 1 12 23a8 8 0 0 1-8-7.9c0-2.7 1.3-4.6 2.9-6.2.2 1.9 1 3.1 2.3 3.8-.4-4.2 1.2-8.2 2.8-11.2z'/%3E%3C/svg%3E") center/contain no-repeat}
+.blocks i:not(.un){width:16px;height:18px}
+.blocks.sm i:not(.un){width:11px;height:13px}
+.lc-l i,.glegend .sw:not(.un){width:14px;height:16px}
+.blocks i.un{background:transparent;border-style:dashed;border-color:var(--ink-2);opacity:.6;animation:none}
+.glegend .sw.un{background:transparent;border:1.5px dashed var(--ink-2)}
+.tag-now{display:inline-flex;align-items:center;gap:8px;background:var(--tag);border:var(--line);border-radius:999px;padding:4px 6px 4px 14px;font-family:var(--f-jp);font-size:15px;font-weight:700;box-shadow:3px 3px 0 var(--ink)}
+.tag-now .dot{background:var(--surface)}
+.tag-now .n{font-size:12px;font-weight:500}
+.tag-now-x{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);font-weight:800;display:grid;place-items:center;padding:0}
+.tag-now-x:hover{background:var(--ink);color:var(--surface)}
+.btn.small.mstack{padding:0 12px 0 10px;flex:none;gap:6px;font-size:13px}
+.mstack svg{width:20px;height:20px}
+/* Stack・Profile：余白を広く */
+#stackIn,#profileIn{max-width:980px;gap:56px}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:24px 40px;flex-wrap:wrap;padding:4px 0 32px;border-bottom:2px solid var(--ink);margin-top:-24px}
+.sh-l{font-size:14px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+.sh-n{display:block;font-family:var(--f-num);font-weight:800;font-size:clamp(72px,11vw,128px);line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.sh-n small{font-family:var(--f-jp);font-size:20px;font-weight:700;margin-left:10px;letter-spacing:0}
+.sh-delta{display:flex;gap:36px;margin:0}
+.sh-delta div{display:grid;gap:4px}
+.sh-delta dt{font-size:12px;font-weight:700;color:var(--ink-2)}
+.sh-delta dd{margin:0;font-family:var(--f-num);letter-spacing:-.02em;font-weight:800;font-size:34px;line-height:1}
+.sh-delta .muted dd{color:var(--ink-2)}
+#stackIn .p-sec{gap:20px}
+#stackIn .p-h,#profileIn .p-h{font-size:22px}
+#stackIn .lvl-cols{padding:36px 36px 28px;gap:40px;border-radius:28px}
+#stackIn .blocks{gap:4px}
+#stackIn .blocks i{width:16px;height:16px}
+#stackIn .lc-l{padding-top:12px;font-size:15px}
+#stackIn .tag-cols{padding:32px 28px 24px;gap:32px 24px;border-radius:28px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+#stackIn .blocks.sm{gap:3px}
+#stackIn .blocks.sm i{width:12px;height:12px}
+#stackIn .tc-n{font-size:28px}
+#stackIn .tc-l{font-size:13px;padding-top:8px}
+.pf2{display:flex;gap:32px;align-items:center;flex-wrap:wrap;padding-bottom:40px;border-bottom:2px solid var(--ink)}
+.avatar.xl{width:120px;height:120px;font-size:52px;box-shadow:5px 5px 0 var(--ink);flex:none}
+.pf2-id{display:grid;gap:10px;min-width:0}
+.pf2-eyebrow{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.pf2-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pf2-name{font-size:clamp(28px,4.4vw,44px);font-weight:900;line-height:1.15;overflow-wrap:anywhere}
+.icon-edit{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--soft);background:none;display:grid;place-items:center;color:var(--ink-2)}
+.icon-edit svg{width:18px;height:18px}
+.icon-edit:hover{border-color:var(--ink);color:var(--ink)}
+.pf2-title-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.pf2-title{display:inline-flex;align-items:center;background:var(--gc);border:2px solid var(--ink);border-radius:999px;padding:5px 16px;font-weight:700;font-size:15px;box-shadow:2px 2px 0 var(--ink)}
+.pf2-title-row .tr-edit{color:var(--ink-2);font-size:12px}
+.pf2-stats{margin:0 0 0 auto;display:flex;gap:36px;align-self:flex-end}
+.pf2-stats div{display:grid;gap:4px}
+.pf2-stats dt{font-size:12px;font-weight:700;color:var(--ink-2)}
+.pf2-stats dd{margin:0;font-family:var(--f-num);letter-spacing:-.02em;font-weight:800;font-size:34px;line-height:1}
+.pf2-stats dd small{font-family:var(--f-jp);font-size:13px;font-weight:700;margin-left:4px}
+.bd-head{display:grid;gap:4px}
+.bd-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px}
+.bd-row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:18px;align-items:center;background:var(--surface);border:2px solid var(--soft);border-radius:22px;padding:18px 20px}
+.bd-row.got{border-color:var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.bd-row.next{border:2px dashed var(--ink)}
+.bd-row .gym-svg{width:64px}
+.bd-row:not(.got) .gym-svg{opacity:.55}
+.bd-row .gs-n{display:none}
+.bd-main{display:grid;gap:4px;min-width:0}
+.bd-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bd-top b{font-size:15px;font-weight:700}
+.bd-pill{font-size:11px;font-weight:700;background:var(--ink);color:var(--primary);border-radius:999px;padding:1px 9px}
+.bd-title{font-size:12px;color:var(--ink-2)}
+.bd-bar{display:block;height:8px;border-radius:999px;background:var(--field);overflow:hidden;margin-top:6px}
+.bd-bar i{display:block;height:100%;background:var(--ink);border-radius:999px}
+.bd-row.next .bd-bar i{background:var(--primary);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.bd-reqs{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px;font-size:12px;color:var(--ink-2)}
+.bd-reqs li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:baseline}
+.bd-reqs .bd-bar{grid-column:1 / -1;margin-top:0}
+.bd-reqs li b{font-family:var(--f-num);font-weight:700;color:var(--ink);white-space:nowrap}
+.bd-reqs li.done{color:var(--ink)}
+.bd-reqs li.done .bd-bar i{background:#3FC57A}
+.bd-state{font-family:var(--f-num);font-weight:800;font-size:22px;align-self:start;white-space:nowrap}
+.bd-state small{font-size:12px;margin-left:2px}
+.bd-got{display:inline-block;font-family:var(--f-jp);font-size:12px;font-weight:700;background:var(--primary);border:1.5px solid var(--ink);border-radius:999px;padding:2px 10px}
+.pf2 .tr-input{border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);font-family:var(--f-jp);border-radius:12px;padding:8px 12px;font-size:16px}
+.pf2-sec{gap:28px}
+@media (max-width: 600px){
+  #stackIn,#profileIn{gap:40px}
+  .sh{margin-top:-12px}
+  .sh-delta{gap:24px}
+  .sh-delta dd{font-size:26px}
+  #stackIn .lvl-cols{padding:20px 16px;gap:14px}
+  #stackIn .lc-l{font-size:12px;white-space:nowrap;gap:4px}
+  #stackIn .lc-n{font-size:30px}
+  #stackIn .blocks i{width:12px;height:12px}
+  #stackIn .blocks{gap:3px}
+  #stackIn .tag-cols{padding:20px 16px;gap:24px 14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pf2{flex-direction:column;align-items:flex-start;gap:20px}
+  .pf2-stats{margin:0;gap:24px;align-self:stretch}
+  .pf2-stats dd{font-size:26px}
+  .bd-list{grid-template-columns:1fr}
+  .bd-row{grid-template-columns:48px minmax(0,1fr) auto;gap:14px;padding:16px}
+  .bd-row .gym-svg{width:48px}
+  .avatar.xl{width:88px;height:88px;font-size:38px}
+  .bd-next{flex-direction:column;align-items:flex-start;padding:24px 20px}
+}
+.sh-note{flex-basis:100%;font-size:12px;color:var(--ink-2);margin-top:-8px}
+.lv-hint{font-size:13px;color:var(--ink);opacity:.8}
+#profileIn .pf2-sec .set-row + .set-row{margin-top:-14px}
+.set-row{display:flex;justify-content:space-between;align-items:center;gap:20px;background:var(--surface);border:2px solid var(--soft);border-radius:20px;padding:18px 20px}
+.set-row b{font-size:15px}
+.switch{flex:none;position:relative;box-sizing:border-box;width:56px;height:32px;border-radius:999px;border:2px solid var(--ink);background:var(--field);padding:0}
+.switch i{position:absolute;top:50%;left:3px;width:22px;height:22px;box-sizing:border-box;border-radius:50%;background:var(--surface);border:2px solid var(--ink);transform:translateY(-50%);transition:left .18s var(--ease)}
+.switch[aria-checked="true"]{background:var(--primary)}
+.switch[aria-checked="true"] i{left:calc(100% - 25px)}
+.ach.multi.on{border-style:solid;border-color:var(--ink);background:var(--ink);color:var(--surface)}
+.taglist .tag-x::after{content:"";position:absolute;inset:-8px}
+.stk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.side .btn.cta2{min-height:56px;font-size:17px;font-weight:700;gap:10px;background:var(--surface);box-shadow:4px 4px 0 var(--ink)}
+.side .btn.cta2 svg{width:26px;height:26px}
+.side .btn.cta2[aria-current="page"]{background:var(--ink);color:var(--surface);box-shadow:3px 3px 0 var(--primary)}
+.side-rank[aria-current="page"]{box-shadow:3px 3px 0 var(--primary)}
+#profileIn .trainer{max-width:720px}
+.trainer,.streak-card{border:var(--line);border-radius:24px;padding:18px 20px;display:grid;gap:14px;align-content:start}
+.trainer{background:var(--ink);color:var(--surface);box-shadow:4px 4px 0 var(--primary);background-image:radial-gradient(circle at 100% 0,rgba(98,227,148,.18),transparent 55%)}
+.tr-top{display:flex;justify-content:space-between}
+.trainer .k{color:var(--primary)}
+.tr-main{display:flex;gap:16px;align-items:center}
+.tr-id{display:grid;gap:2px;min-width:0}
+.tr-title-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tr-name-row{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.tr-edit{color:#B9B2A6;font-size:12px;min-height:24px}
+.tr-input{border:0;border-radius:10px;padding:6px 10px;font:inherit;font-size:15px;min-width:0;width:12em}
+.tr-title{font-weight:900;font-size:clamp(20px,2.3vw,28px);line-height:1.3}
+.trainer .u{font-size:12px;color:#B9B2A6}
+/* トレカ：色だけ。枠＋内枠＋斜めの光沢で「カード」に見せる */
+  background:linear-gradient(135deg,rgba(255,255,255,.0) 40%,rgba(255,255,255,.45) 50%,rgba(255,255,255,0) 60%),var(--tag,var(--surface));
+  box-shadow:inset 0 0 0 calc(var(--cw) * .07) var(--surface),inset 0 0 0 calc(var(--cw) * .07 + 1.5px) var(--ink),2px 2px 0 var(--ink);
+  transform:translateX(calc(-50% + var(--x))) rotate(var(--r));transition:transform .15s var(--ease)}
+.gym:not(.got):not(.next) .gym-svg{opacity:.6}
+.reqs{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:6px;width:100%;text-align:left}
+.reqs li{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12px;color:var(--ink-2)}
+.reqs .bar{grid-column:1 / -1;grid-row:2;height:6px;border-radius:999px;background:var(--field);overflow:hidden}
+.reqs .bar i{display:block;height:100%;background:var(--ink);border-radius:999px}
+.reqs li.done .bar i{background:var(--t-ui)}
+.reqs b{font-family:var(--f-ui);font-weight:700;color:var(--ink)}
+/* カード詳細：普通のカード */
+.drawer{position:absolute;left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:min(460px,calc(100% - 24px));max-height:calc(100% - 40px);background:none;border:0;display:flex;animation:none}
+.drawer.pop{animation:dcIn .36s cubic-bezier(.3,1.35,.5,1) both}
+@keyframes dcIn{from{opacity:0;transform:translate(-50%,-44%) scale(.92) rotate(-3deg)}to{opacity:1;transform:translate(-50%,-50%)}}
+.dcard{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--tag,var(--surface));border:var(--line);border-radius:26px;box-shadow:6px 6px 0 var(--ink);overflow:hidden}
+.dc-head{padding:14px 18px 16px;display:grid;gap:4px;flex:none}
+.dc-bar{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.dc-bar .spacer{flex:1}
+.dc-bar .d-tags button{background:rgba(255,255,255,.55);border:1.5px solid var(--ink);min-height:28px;font-size:12px;font-weight:700}
+.dc-btn{flex:none;min-width:36px;height:36px;border:var(--line);border-radius:999px;background:var(--surface);font-family:var(--f-ui);font-weight:700;font-size:18px;display:grid;place-items:center;padding:0 10px}
+.dc-btn.txt{font-size:13px}
+.dc-btn:hover{background:var(--ink);color:var(--surface)}
+.dcard .title{font-size:clamp(26px,5.5vw,34px);line-height:1.25}
+.dcard .en{font-size:15px;opacity:.75;white-space:normal}
+.dc-body{background:var(--surface);margin:0 12px;border:var(--line);border-radius:18px;padding:16px 18px;display:grid;gap:12px;align-content:start;overflow:auto;min-height:0}
+.dc-src{font-size:12px;color:var(--ink-2);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;border-top:1px dashed var(--soft);padding-top:10px}
+.dc-src .k{font-family:var(--f-ui);font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+.src-link{color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px;display:inline-flex;gap:2px;align-items:baseline}
+.src-link:hover{color:#1E8A4B}
+.src-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.src-list li{display:grid;gap:0;font-size:14px}
+.src-list small{font-size:12px;color:var(--ink-2)}
+.dc-mean{font-size:16px;line-height:1.85}
+.dc-note{font-size:14px;line-height:1.75;background:var(--field);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
+.dc-note .k,.dc-foot .k{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.dc-foot{padding:14px 16px 16px;display:grid;gap:10px;flex:none}
+.dc-foot .opt{font-family:var(--f-jp);font-weight:500;font-size:12px;letter-spacing:0;text-transform:none;opacity:.75;margin-left:8px}
+.dc-near{justify-self:start;font-size:13px}
+/* 理解の段階：選んだ段階まで同じ色で満ち、段階が上がるほど色が変わる */
+.levels.meter{gap:4px;background:var(--surface);border:var(--line);border-radius:16px;padding:4px}
+.levels.meter button{position:relative;display:grid;gap:0;justify-items:center;align-content:center;min-height:50px;border-radius:12px;background:transparent;border:0;color:var(--ink-2);line-height:1.25;transition:background .2s}
+.levels.meter button small{font-family:var(--f-ui);font-weight:800;font-size:10px;letter-spacing:.06em}
+.levels.meter{grid-template-columns:repeat(3,minmax(0,1fr))}
+.levels.meter button.on:nth-child(1){background:linear-gradient(160deg,#FFE27A,#FFA53A);color:var(--ink)}
+.levels.meter button.on:nth-child(2){background:linear-gradient(160deg,#FFB23F,#F2542D);color:var(--ink)}
+.levels.meter button.on:nth-child(3){background:linear-gradient(160deg,#FF6A2B,#C21D1D);color:#fff}
+.levels.meter button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.levels.meter button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink);font-weight:900}
+.levels.meter button:hover:not(.on){background:var(--field)}
+.levels.meter button.bump{animation:bump .5s cubic-bezier(.3,1.8,.5,1)}
+@keyframes bump{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:none}}
+/* 積み上げ：棒グラフ */
+.side-rank{margin-top:auto}
+.tr-name-row{align-items:center}
+.trainer .tr-input{background:#2C2A26;color:var(--surface);border:1.5px solid #8A8378;border-radius:10px;padding:8px 12px;font-size:15px;font-family:var(--f-jp)}
+.trainer .tr-input::placeholder{color:#B9B2A6}
+.trainer .tr-input:focus{outline:none;border-color:var(--primary)}
+.trainer .btn{color:var(--ink);background:var(--primary);border-color:var(--primary)}
+.cel-gyms{display:flex;justify-content:center;gap:10px}
+.cel-gyms .gym-svg{width:112px;animation:gymIn .8s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes gymIn{from{transform:scale(.2) rotate(-200deg);opacity:0}}
+.cel-next{font-size:13px;color:var(--ink-2);background:var(--field);border-radius:12px;padding:8px 12px}
+.confetti{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:400}
+.celebrate{position:fixed;inset:0;z-index:390;display:grid;place-items:center;padding:16px;background:rgba(27,26,24,.45)}
+.cel-card{width:min(440px,100%);background:var(--surface);border:var(--line);border-radius:28px;box-shadow:6px 6px 0 var(--ink);padding:28px 24px 22px;display:grid;gap:14px;text-align:center;animation:celIn .5s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes celIn{from{transform:scale(.6) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
+.cel-kicker{justify-self:center;font-family:var(--f-ui);font-weight:800;font-size:13px;letter-spacing:.14em;background:var(--ink);color:var(--primary);border-radius:999px;padding:4px 14px}
+.cel-h{font-weight:900;font-size:26px;line-height:1.35}
+.cel-sub{font-size:14px;color:var(--ink-2);margin-top:-6px}
+.cel-badges{grid-template-columns:repeat(auto-fit,minmax(96px,1fr));justify-items:center}
+@media (max-width: 760px){ .gyms{grid-template-columns:repeat(2,minmax(0,1fr))} .gym-svg{width:60px} .avatar{width:52px;height:52px;font-size:22px} .stk-hero{grid-template-columns:1fr} .towers{height:clamp(260px,46vh,380px)} .tower-sec{padding:18px 12px 12px;border-radius:22px} .tw-total{font-size:36px} .streak-n{font-size:44px} }
+.ref-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ref-list li{display:flex;align-items:baseline;gap:10px;background:var(--surface);border-radius:14px;padding:10px 14px;font-size:15px;min-width:0}
+.ref-kind{flex:none;font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--ink-2)}
+.levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.levels button{font-family:var(--f-jp);border:0;background:var(--field);border-radius:999px;min-height:40px;font-size:13px;font-weight:700;padding:0 6px}
+.levels button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.nb{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.mini{width:100%;display:flex;align-items:center;gap:10px;text-align:left;border:0;border-radius:14px;background:var(--field);padding:10px 14px}
+.mini:hover{background:var(--soft)}
+.mini b{font-family:var(--f-jp);font-weight:700;font-size:15px;line-height:1.35;min-width:0;overflow-wrap:anywhere}
+.mini small{margin-left:auto;font-size:12px;color:var(--ink-2);white-space:nowrap}
+.deep{background:var(--field);border-radius:16px;padding:16px;display:grid;gap:10px}
+.deep dl{margin:0;display:grid;gap:10px}
+.deep dt{font-size:12px;font-weight:700;color:var(--ink-2)}
+.deep dd{margin:0;font-size:15px;line-height:1.8}
+
+/* ---------- 書きとめる(参照：years の Journal / Edit goals) ----------
+   ・大きな英字の見出し＋灰色の一言
+   ・英語の小さな大文字ラベル＋日本語の補足
+   ・ベージュの面に明るい入力欄。枠線・影は使わない
+   ・下部は「Cancel」(文字)と黒いピルの「Save」 */
+.backdrop{position:fixed;inset:0;background:rgba(27,26,24,.3);z-index:95;display:flex;justify-content:center;align-items:center;padding:16px}
+.sheet{background:var(--bg);width:min(480px,100%);height:100%;overflow:auto;display:flex;flex-direction:column;animation:slide .26s var(--ease)}
+.sheet-head{padding:32px 28px 0;display:grid;gap:6px}
+.sheet-head h2{font-family:var(--f-ui)!important;font-weight:800;font-size:34px;letter-spacing:-.02em;line-height:1.1}
+.sheet-lead{font-size:13px;color:var(--ink-2)}
+.sheet-body{padding:20px 28px 28px;display:grid;gap:18px;align-content:start}
+.panel-soft{background:var(--field);border-radius:24px;padding:20px;display:grid;gap:18px}
+.field{display:grid;gap:6px;border:0;padding:0;margin:0;min-width:0}
+.field label,.field legend{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:0;color:var(--ink)}
+.field .opt{font-family:var(--f-jp);font-weight:500;font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink-2);margin-left:8px}
+.field input[type=text],.field textarea{border:1.5px solid transparent;border-radius:14px;background:var(--surface);padding:12px 14px;font-size:16px;line-height:1.7;width:100%;box-sizing:border-box;font-family:var(--f-jp)}
+.field input[type=text]::placeholder,.field textarea::placeholder{color:#A39B8D}
+.field input[type=text]:focus,.field textarea:focus{outline:none;border-color:var(--ink)}
+.field textarea{resize:vertical;min-height:96px}
+.name-input{font-family:var(--f-jp)!important;font-weight:700;font-size:20px!important}
+.err{font-size:13px;color:#A8231A;font-weight:700}
+.dup{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;font-weight:700;background:var(--surface);border-radius:12px;padding:10px 14px}
+.dup::before{content:"";width:8px;height:8px;border-radius:50%;background:#E0A000;flex:none}
+.dup .link,.draft-note .link{font-size:13px;min-height:24px}
+.draft-note{font-size:13px;color:var(--ink-2);display:flex;gap:10px;align-items:center}
+.tagpick{display:flex;flex-wrap:wrap;gap:6px}
+.tagpick input{position:absolute;opacity:0;pointer-events:none}
+.tagpick label{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:0 12px;min-height:34px;font-family:var(--f-jp);font-size:13px;font-weight:500;letter-spacing:0;text-transform:none;cursor:pointer;background:var(--surface);color:var(--ink)}
+.tagpick label[hidden]{display:none}
+.tagpick label .sug{font-size:11px;color:var(--ink-2)}
+.tagpick input:checked+label{background:var(--tag);font-weight:700;box-shadow:inset 0 0 0 1.5px var(--ink)}
+.tagpick input:focus-visible+label{outline:3px solid var(--ink);outline-offset:2px}
+.flabel{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+.flabel .opt{font-family:var(--f-jp);font-weight:500;font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink-2);margin-left:8px}
+.refs{display:grid;gap:8px}
+.refs:empty{display:none}
+.ref-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px;align-items:center}
+.ref-type{border:0;border-radius:999px;background:var(--surface);min-height:44px;padding:0 10px;font-family:var(--f-ui);font-weight:600;font-size:13px}
+.ref-val{border:1.5px solid transparent;border-radius:14px;background:var(--surface);padding:10px 12px;font-size:15px;min-width:0;font-family:var(--f-jp)}
+.ref-val:focus{outline:none;border-color:var(--ink)}
+.ref-del{border:0;background:none;min-width:44px;min-height:44px;border-radius:999px;font-size:18px;font-weight:700;color:var(--ink-2)}
+.ref-del:hover{background:var(--surface);color:var(--ink)}
+.more summary{cursor:pointer;font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;list-style:none;display:inline-flex;align-items:center;gap:8px;min-height:36px}
+.more summary .opt{font-family:var(--f-jp);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink-2);font-weight:500}
+.more summary::-webkit-details-marker{display:none}
+.more summary::before{content:"＋";font-weight:900;font-size:14px}
+.more[open] summary::before{content:"－"}
+.more .panel-soft{margin-top:10px}
+.danger{justify-self:start;border:0;background:none;color:#A8231A;font-weight:700;font-size:13px;min-height:36px;padding:0}
+.danger.confirm{background:#A8231A;color:#fff;border-radius:999px;padding:0 14px}
+.sheet-foot{margin-top:auto;position:sticky;bottom:0;background:var(--bg);padding:14px 28px calc(16px + env(safe-area-inset-bottom,0px));display:flex;gap:16px;align-items:center;border-top:1px solid var(--soft)}
+.sheet-foot .cancel{border:0;background:none;font-family:var(--f-ui);font-weight:600;font-size:15px;color:var(--ink-2);min-height:48px;padding:0 12px}
+.sheet-foot .cancel:hover{color:var(--ink)}
+.sheet-foot .save{flex:1;min-height:52px;border:0;border-radius:999px;background:var(--ink);color:var(--surface);font-family:var(--f-ui);font-weight:700;font-size:16px}
+.sheet-foot .save:hover{background:#000}
+.sheet-foot .save:disabled{opacity:.55}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);opacity:0;z-index:120;background:var(--ink);color:var(--surface);
+  padding:10px 12px 10px 20px;border-radius:999px;font-weight:700;font-size:14px;max-width:calc(100% - 32px);transition:opacity .25s, transform .25s var(--ease);display:flex;gap:12px;align-items:center;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{font-family:var(--f-ui);border:0;background:var(--primary);color:var(--ink);border-radius:999px;min-height:32px;padding:0 14px;font-weight:700;white-space:nowrap}
+.toast button[hidden]{display:none}
+
+@media (max-width: 960px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .side{position:fixed;left:0;top:0;bottom:0;width:min(300px,86vw);transform:translateX(-105%);transition:transform .26s var(--ease);padding-top:calc(20px + env(safe-area-inset-top,0px))}
+  .side.open{transform:none;box-shadow:6px 0 0 var(--ink)}
+  .side-x{display:block}
+  .side .btn.cta{display:none}
+  .side-scrim{display:block;position:fixed;inset:0;background:rgba(27,26,24,.3);z-index:65}
+  .side-scrim[hidden]{display:none}
+  .mtop{display:flex;align-items:center;gap:10px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--bg);z-index:40}
+  .mtop .logo-plate{padding:7px 8px 6px;border-radius:10px}
+  .mtop .logo-ascii{zoom:.36}
+  .mtop .spacer{flex:1}
+  .hamb{width:44px;height:44px;border:0;border-radius:999px;background:var(--field);display:grid;place-items:center}
+  .hamb svg{width:22px;height:22px}
+  .overlay{padding:6px 16px 0;gap:12px}
+  .chips{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:100%;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .page-in{padding:24px 16px 80px}
+  .gridwrap{padding:8px 16px 64px}
+}
+@media (max-width: 480px){
+  .restart{border-radius:20px;padding:10px 8px 10px 16px;font-size:13px;line-height:1.5;flex-wrap:nowrap;text-align:left}
+  .restart .btn{flex:none;padding:0 12px}
+  .restart-x{min-width:32px}
+  .mtop .btn .long{display:none}
+  .levels{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pc .en{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:0s!important;animation:none!important}
+}
+</style>
+
+<div class="shell">
+  <aside class="side" id="side" aria-label="メニュー">
+    <div class="side-head">
+      <button type="button" class="logo" data-go="stage" data-home aria-label="UIUX Stocker ホームへ"><span class="logo-plate" aria-hidden="true"><span class="logo-ascii"><pre class="a">██╗   ██╗██╗██╗   ██╗██╗  ██╗
+██║   ██║██║██║   ██║╚██╗██╔╝
+██║   ██║██║██║   ██║ ╚███╔╝ 
+██║   ██║██║██║   ██║ ██╔██╗ 
+╚██████╔╝██║╚██████╔╝██╔╝ ██╗
+ ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝</pre><pre class="b">███████╗████████╗ ██████╗  ██████╗██╗  ██╗███████╗██████╗ 
+██╔════╝╚══██╔══╝██╔═══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
+███████╗   ██║   ██║   ██║██║     █████╔╝ █████╗  ██████╔╝
+╚════██║   ██║   ██║   ██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
+███████║   ██║   ╚██████╔╝╚██████╗██║  ██╗███████╗██║  ██║
+╚══════╝   ╚═╝    ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝</pre></span></span></button>
+      <button type="button" class="side-x" id="sideClose" aria-label="メニューを閉じる">×</button>
+    </div>
+    <div class="side-cta">
+    <button type="button" class="btn primary block cta" data-add><span class="plus" aria-hidden="true">＋</span>Add Card</button>
+    <button type="button" class="btn block cta2" data-go="stack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="15" width="14" height="5" rx="1.5"/><rect x="3" y="9" width="14" height="5" rx="1.5" transform="rotate(-4 10 11.5)"/><rect x="6" y="3" width="13" height="5" rx="1.5" transform="rotate(3 12 5.5)"/></svg>Stack</button>
+    </div>
+    <section class="side-sec" aria-labelledby="sTags"><h2 id="sTags">Tags<span>分野ごとの山を見る</span></h2><ul class="taglist" id="sideTags"></ul></section>
+    <button type="button" class="side-rank" id="sideRank" data-go="profile" hidden></button>
+  </aside>
+  <div class="side-scrim" id="sideScrim" hidden></div>
+
+  <div class="main">
+    <header class="mtop">
+      <button type="button" class="hamb" id="hamb" aria-label="メニューを開く" aria-controls="side" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <button type="button" class="logo" data-go="stage" data-home aria-label="UIUX Stocker ホームへ"><span class="logo-plate" aria-hidden="true"><span class="logo-ascii"><pre class="a">██╗   ██╗██╗██╗   ██╗██╗  ██╗
+██║   ██║██║██║   ██║╚██╗██╔╝
+██║   ██║██║██║   ██║ ╚███╔╝ 
+██║   ██║██║██║   ██║ ██╔██╗ 
+╚██████╔╝██║╚██████╔╝██╔╝ ██╗
+ ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝</pre><pre class="b">███████╗████████╗ ██████╗  ██████╗██╗  ██╗███████╗██████╗ 
+██╔════╝╚══██╔══╝██╔═══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
+███████╗   ██║   ██║   ██║██║     █████╔╝ █████╗  ██████╔╝
+╚════██║   ██║   ██║   ██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
+███████║   ██║   ╚██████╔╝╚██████╗██║  ██╗███████╗██║  ██║
+╚══════╝   ╚═╝    ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝</pre></span></span></button>
+      <span class="spacer"></span>
+      <button type="button" class="btn small mstack" data-go="stack" aria-label="Stack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="15" width="14" height="5" rx="1.5"/><rect x="3" y="9" width="14" height="5" rx="1.5" transform="rotate(-4 10 11.5)"/><rect x="6" y="3" width="13" height="5" rx="1.5" transform="rotate(3 12 5.5)"/></svg>Stack</button>
+      <button type="button" class="btn small primary" data-add aria-label="Add Card">＋<span class="long" aria-hidden="true"> Add Card</span></button>
+    </header>
+
+    <section class="stage" id="vStage" aria-label="積み上げ">
+      <div class="pile" id="pile" role="group" aria-label="カードの山。Tabキーで順にたどれます"></div>
+      <div class="gridwrap" id="gridwrap" hidden><div class="inner" id="gridInner"></div></div>
+      <button type="button" class="layout-fab" id="layoutFab" hidden></button>
+      <div class="overlay" id="overlay">
+        <form class="search" id="sform" role="search">
+          <div class="sbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+            <label for="q" class="vh">言葉や、困っている場面で探す</label>
+            <input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="言葉や、困っている場面で探す" role="combobox" aria-expanded="false" aria-controls="sugg" aria-autocomplete="list">
+            <kbd class="kbd" id="qKbd" aria-hidden="true">/</kbd>
+            <button type="button" class="clear" id="clearQ" aria-label="検索をやめる" hidden>×</button>
+          </div>
+          <button class="go" type="submit" aria-label="探す">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          </button>
+          <div class="sugg" id="sugg" role="listbox" aria-label="候補" hidden></div>
+        </form>
+        <div class="st-head" id="stHead"><p class="help">用語集をひらいています…</p></div>
+      </div>
+    </section>
+
+    <section class="page" id="vStack" hidden aria-label="積み上げ"><div class="page-in" id="stackIn"></div></section>
+    <section class="page" id="vProfile" hidden aria-label="プロフィール"><div class="page-in" id="profileIn"></div></section>
+  </div>
+</div>
+
+<div class="drawer-wrap" id="drawerWrap" hidden>
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTerm"></aside>
+</div>
+
+<div class="backdrop" id="sheetWrap" hidden>
+  <form class="sheet nc t-none" id="cardForm" aria-labelledby="sheetTitle" novalidate>
+    <div class="nc-head">
+      <div class="nc-bar"><span class="nc-kicker" id="sheetTitle">New Card</span><span class="spacer"></span><button type="button" class="dc-btn" id="fX" aria-label="閉じる">×</button></div>
+      <label for="fName" class="vh">言葉</label>
+      <input type="text" id="fName" class="nc-word" required placeholder="出会った言葉" autocomplete="off" enterkeyhint="done">
+      <label for="fAlias" class="vh">英語名・別名</label>
+      <input type="text" id="fAlias" class="nc-alias" placeholder="English name" autocomplete="off">
+      <p class="err" id="fNameErr" hidden role="alert">言葉を入れてください。</p>
+      <div class="dup" id="fDup" hidden role="status"></div>
+      <p class="draft-note" id="draftNote" hidden>書きかけの内容を戻しました <button type="button" class="link" id="draftClear">消す</button></p>
+    </div>
+    <div class="nc-body">
+      <div class="field">
+        <label for="fMeaning">Meaning<span class="opt" id="fMeanHint" aria-live="polite"></span></label>
+        <textarea id="fMeaning" rows="3" placeholder="ひとことで。あとからでもOK"></textarea>
+      </div>
+      <fieldset class="field">
+        <legend><span id="fTagsLegend">Tags</span><span class="opt" id="fTagsHint"></span></legend>
+        <div class="tagpick" id="fTags"></div>
+        <div><button type="button" class="link" id="fTagsMore" hidden>ほかのタグ</button></div>
+      </fieldset>
+      <div class="attach-chips" role="group" aria-label="追加する項目">
+        <button type="button" class="ach multi" data-sec="secUrl" aria-controls="secUrl" aria-label="URLを追加">URL</button>
+        <button type="button" class="ach" data-sec="secFile" aria-expanded="false" aria-controls="secFile">添付ファイル</button>
+        <button type="button" class="ach" data-sec="secMemo" aria-expanded="false" aria-controls="secMemo">メモ</button>
+      </div>
+      <div class="asec" id="secUrl" hidden>
+        <span class="flabel">URL</span>
+        <div class="refs" id="fRefs"></div>
+      </div>
+      <div class="asec" id="secFile" hidden>
+        <span class="flabel">Files<span class="opt">画像・PDFなど。画像は自動で軽くします</span></span>
+        <ul class="files" id="fFiles"></ul>
+        <label class="btn small file-btn"><input type="file" id="fFileIn" multiple accept="image/*,application/pdf,.txt,.md">ファイルを選ぶ</label>
+      </div>
+      <div class="asec field" id="secMemo" hidden>
+        <label for="fNote">Memo<span class="opt">自分の言葉で</span></label>
+        <textarea id="fNote" placeholder="例：得する話より、損する話のほうが心に刺さる"></textarea>
+      </div>
+      <button type="button" class="danger" id="fDelete" hidden>このカードを削除</button>
+    </div>
+    <div class="sheet-foot">
+      <button type="button" class="cancel" id="fCancel">Cancel</button>
+      <button type="submit" class="save" id="fSave">Save</button>
+    </div>
+  </form>
+</div>
+
+<p class="vh" id="liveResult" aria-live="polite"></p>
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button type="button" id="toastAct" hidden></button></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ================= タグ・理解の段階 ================= */
+const TAGS = {
+  cog:      { label: "認知心理学",   color: "var(--t-cog)",      hint: "知覚・記憶・注意の法則" },
+  be:       { label: "行動経済学",   color: "var(--t-be)",       hint: "意思決定とバイアス" },
+  ui:       { label: "UIの原則",     color: "var(--t-ui)",       hint: "画面と操作の設計原則" },
+  ix:       { label: "インタラクション", color: "var(--t-ix)",  hint: "操作と反応・動きのデザイン" },
+  research: { label: "リサーチ",     color: "var(--t-research)", hint: "ユーザーを理解する手法" },
+  eval:     { label: "評価・検証",   color: "var(--t-eval)",     hint: "使いやすさを確かめる手法" },
+  process:  { label: "設計プロセス", color: "var(--t-process)",  hint: "人間中心設計の進め方" },
+  ethics:   { label: "アクセシビリティ", color: "var(--t-ethics)", hint: "年齢・障害・環境にかかわらず使えるように" },
+  biz:      { label: "ビジネス・事業", color: "var(--t-biz)", hint: "デザインを事業の成果につなぐ" },
+  ai:       { label: "生成AI", color: "var(--t-ai)", hint: "生成AIのしくみと、使うときの注意" },
+};
+const TAG_IDS = Object.keys(TAGS);
+// 用語選定の参考にした公式資料
+const SOURCES = {
+  "UX検定基礎 シラバス": { org: "UXインテリジェンス協会（2023年5月版）", url: "https://www.uxia.or.jp/certification/202305_ux_syllabus.pdf" },
+  "生成AIパスポート シラバス": { org: "生成AI活用普及協会 GUGA（2026年2月試験より適用）", url: "https://guga.or.jp/assets/syllabus.pdf" },
+  "ウェブ解析士 公式テキスト": { org: "ウェブ解析士協会 WACA", url: "https://www.waca.or.jp/course/wac/textbook/" },
+};
+const srcLink = (name) => { const x = SOURCES[name]; return x ? `<a class="src-link" href="${x.url}" target="_blank" rel="noopener noreferrer">${esc(name)}<span aria-hidden="true">↗</span><span class="vh">（新しいタブで開く）</span></a>` : esc(name); };
+// 保存先(共有データベース)を使えない環境で最初に並べる用語カード
+const SEED_CARDS = [{"id":"accessibility","term":"Accessibility","ja":"アクセシビリティ","meaning":"障害の有無や年齢、環境にかかわらず、誰もが情報や機能を使えること。WCAGが国際的な基準で、日本ではJIS X 8341-3が対応する。","example":"文字と背景のコントラスト比を4.5:1以上にする。","labels":["ethics"],"src":"UX検定基礎 シラバス","srcItem":"アクセシビリティ","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"aesthetic-usability","term":"Aesthetic-Usability Effect","ja":"美的ユーザビリティ効果","meaning":"見た目が美しいものは、使いやすいと感じられやすいという効果。ただし美しさが使いにくさを隠してしまうこともあるので、検証では注意がいる。","example":"ユーザーテストで「きれい」という感想と、実際の操作の詰まりを分けて記録する。","labels":["cog","ui"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（美的ユーザビリティ）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"affinity-diagram","term":"Affinity Diagram","ja":"親和図法（KJ法）","meaning":"調査で集めた気づきを付箋に書き、似たもの同士をまとめて構造を見つける方法。日本では川喜田二郎のKJ法として知られる。","example":"インタビューの発言を付箋にして、グループに名前を付ける。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（KJ法）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"agile","term":"Agile / Scrum","ja":"アジャイル（スクラム）","meaning":"短い期間（スプリント）で作って見直すことをくり返し、変化に合わせて開発を進める考え方。スクラムはその代表的な進め方。","example":"2週間ごとに動くものを見せ、ユーザーの反応で次の優先順位を変える。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"アジャイル（スクラム・スプリント）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ai-agent","term":"AI Agent","ja":"AIエージェント","meaning":"目標を与えると、手順を自分で考え、ツールを使いながら作業を進めるAI。外部サービスとの連携にはMCPなどの仕組みが使われる。","example":"調べ物から資料の下書きまでを、指示ひとつで順に進める。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"AIエージェント","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ai-principles","term":"Social Principles of Human-Centric AI","ja":"AI社会原則（人間中心）","meaning":"日本のAI活用の基本となる原則。人間中心の考え方、安全性・公平性、プライバシー保護、セキュリティ確保、透明性、アカウンタビリティなどを掲げる。","example":"AIの判断を使う機能では、なぜその結果なのかをユーザーに説明できるようにする。","labels":["ai","ethics"],"src":"生成AIパスポート シラバス","srcItem":"AIを取り巻く理念と原則・ガイドライン","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"anchoring","term":"Anchoring","ja":"アンカリング効果","meaning":"最初に見た数字が基準(いかり)になり、その後の判断が引きずられる傾向。","example":"定価を見せてから割引価格を出すと、安く感じる。","labels":["be"],"src":"UX検定基礎 シラバス","srcItem":"行動経済学（アンカリング効果）","cat":"be","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"business-model-canvas","term":"Business Model Canvas","ja":"ビジネスモデルキャンバス","meaning":"顧客・価値提案・チャネル・収益・コストなど9つの枠で、事業の仕組みを1枚に描く道具。デザインが事業のどこに効くかを見渡せる。","example":"新機能の案が、どの枠（顧客関係か収益か）を強めるのかを確かめる。","labels":["biz"],"src":"UX検定基礎 シラバス","srcItem":"組織開発（ビジネスモデルキャンバス）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"card-sorting","term":"Card Sorting","ja":"カードソート","meaning":"項目を書いたカードをユーザーに分類してもらい、ユーザーが自然だと感じるグループ分けや名前を知る手法。情報設計の手がかりになる。","example":"ヘルプページの分類を、社内の組織図ではなくユーザーの感覚で決める。","labels":["research","ui"],"src":"UX検定基礎 シラバス","srcItem":"アイデア創出（カードソート）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"cognitive-bias","term":"Cognitive Bias","ja":"認知バイアス","meaning":"経験や思い込みによって、判断が合理的な答えから一定の方向にずれてしまう傾向。調査やデザインの判断そのものにも入り込む。","example":"インタビューで自分の仮説に合う発言ばかり拾っていないか、チームで確かめる。","labels":["be","cog"],"src":"UX検定基礎 シラバス","srcItem":"行動経済学（認知バイアス）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"cognitive-load","term":"Cognitive Load","ja":"認知負荷","meaning":"課題をこなすために使われる頭の処理量。本質と関係ない負荷(見づらさ・余計な選択)を減らすほど、使う人は目的に集中できる。","example":"入力フォームで不要な項目を削り、1画面1テーマにする。","labels":["cog"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（認知負荷）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"cognitive-walkthrough","term":"Cognitive Walkthrough","ja":"認知的ウォークスルー","meaning":"初めて使う人の立場でタスクを1ステップずつたどり、「次に何をすればいいか分かるか」を問いながら問題を見つける評価手法。","example":"ユーザーを集めずに、設計の初期段階で学びやすさを確かめられる。","labels":["eval"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（認知的ウォークスルー）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"consistency","term":"Consistency and Standards","ja":"一貫性と標準","meaning":"同じことは同じ言葉と見た目で表すという原則。一度覚えたことが他の場面でも通じると、学習の手間が減る。","example":"「保存」「登録」「確定」が混在していたボタン文言を統一する。","labels":["ui"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"context-of-use","term":"Context of Use","ja":"利用状況","meaning":"誰が、どんな目的・タスクで、どんな環境や機器で使うのか。HCDプロセスの最初に把握し、設計と評価の前提にする。","example":"「電車で片手で使う」なら、ボタンの大きさや操作の手数が変わる。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（現在の利用状況の把握）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"contextual-inquiry","term":"Contextual Inquiry","ja":"文脈的調査","meaning":"利用者の実際の作業の場で、観察しながら話を聞く調査手法。「師匠と弟子」の関係で教えてもらう姿勢で臨む。","example":"経理担当者の月末の作業に隣で立ち会う。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（ユーザー観察・フィールドワーク）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"conversion-rate","term":"Conversion Rate (CVR)","ja":"コンバージョン率","meaning":"訪れた人のうち、購入や登録など目的の行動まで進んだ人の割合。UIの小さな摩擦がこの数字を大きく左右する。","example":"入力項目を減らして、登録のCVRを比べる。","labels":["biz"],"src":"ウェブ解析士 公式テキスト","srcItem":"基本指標（コンバージョン率）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"cx","term":"Customer Experience","ja":"CX（カスタマーエクスペリエンス）","meaning":"商品やサービスとの出会いから購入・利用・サポートまで、顧客が企業と関わる体験の全体。UXより広い範囲を指すことが多い。","example":"アプリが使いやすくても、問い合わせ窓口の対応が悪ければCXは下がる。","labels":["biz","process"],"src":"UX検定基礎 シラバス","srcItem":"UXとは（CX）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"deepfake","term":"Deepfake","ja":"ディープフェイク","meaning":"AIで本物そっくりの偽の画像・音声・動画を作る技術。偽情報（ディスインフォメーション）に悪用される危険がある。","example":"実在の人物の顔や声を使った素材は、使う前に出どころと権利を確かめる。","labels":["ai","ethics"],"src":"生成AIパスポート シラバス","srcItem":"ディープフェイク（深層偽造）技術","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"design-management","term":"Design Management","ja":"デザイン経営","meaning":"デザインを、見た目づくりではなく企業の価値と競争力を高める経営の手段として使うこと。2018年に経済産業省と特許庁が「デザイン経営」宣言を出した。","example":"経営チームにデザイン責任者がいて、事業の上流から関わる。","labels":["biz","process"],"src":"UX検定基礎 シラバス","srcItem":"人間中心デザイン（デザインマネジメント）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"design-thinking","term":"Design Thinking","ja":"デザイン思考","meaning":"共感・問題定義・発想・試作・検証をくり返して課題を解く考え方。IDEOやスタンフォード大学d.schoolが広めた。","example":"5日間で課題の定義から試作の検証までを回す。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"デザイン思考","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"diary-study","term":"Diary Study","ja":"日記調査","meaning":"一定期間、利用者に行動や気持ちを記録してもらう調査。一度のインタビューでは見えない、時間による変化がとらえられる。","example":"2週間、記録アプリを開かなかった日の理由を書いてもらう。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（ダイアリー法）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"doherty-threshold","term":"Doherty Threshold","ja":"ドハティのしきい値","meaning":"システムの反応が十分に速いと、人は作業に没頭しやすく生産性が上がるという考え方。1982年のIBMの論文が起源とされる。","example":"時間がかかる処理では、先に画面だけ反応させて待たせている感覚を消す。","labels":["ix","cog"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（ドハティのしきい値）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"double-diamond","term":"Double Diamond","ja":"ダブルダイヤモンド","meaning":"「正しい問題を見つける」と「正しく解く」を、それぞれ発散と収束の2つのひし形で表したプロセス。英国デザインカウンシルが提唱した。","example":"いきなり画面を作らず、まず「なぜ記録が続かないか」を広げて調べる。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"デザイン思考（ダブルダイヤモンド）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"empathy-map","term":"Empathy Map","ja":"共感マップ","meaning":"利用者が「言うこと・考えること・すること・感じること」を4象限で整理する図。発言と行動のずれに気づくのに役立つ。","example":"「毎日書きたい」と言いながら週1しか開かない人の気持ちを整理する。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（エンパシーマップ）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"error-prevention","term":"Error Prevention","ja":"エラーの予防","meaning":"エラーメッセージを出すより、そもそもミスが起きにくい設計にするほうがよいという原則。","example":"削除ボタンは一度押すと「もう一度押すと削除」に変わる。","labels":["ui"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ethnography","term":"Ethnography","ja":"エスノグラフィ","meaning":"ユーザーの生活や仕事の現場に入り込み、観察を通じて行動や習慣の背景を理解する調査手法。文化人類学の方法が起源。","example":"本人も言葉にしていない工夫や不便が見つかる。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（エスノグラフィー）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"few-shot","term":"Zero-shot / Few-shot Prompting","ja":"Zero-Shot／Few-Shotプロンプティング","meaning":"例を示さずに指示だけで答えさせるのがZero-Shot、いくつかの例を示してから答えさせるのがFew-Shot。例を見せると出力の形がそろいやすい。","example":"良い用語説明を2つ見せてから、新しい用語の説明を書かせる。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"プロンプティングの基礎","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"generative-ai","term":"Generative AI","ja":"生成AI","meaning":"学習したデータをもとに、文章・画像・音声・動画などの新しいコンテンツを作り出すAI。デザインでは、案出しや下書き、調査の補助に使われる。","example":"ワイヤーの文言案を複数出させ、人が選んで直す。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"生成AI（ジェネレーティブAI）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"gestalt-proximity","term":"Law of Proximity","ja":"近接の法則","meaning":"近くに置かれたものは、ひとまとまりとして知覚されるというゲシュタルト原則。余白の大小で関係の強さを表せる。","example":"ラベルと入力欄の間隔を、項目同士の間隔より狭くする。","labels":["cog","ui"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（ゲシュタルトの原則）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"hallucination","term":"Hallucination","ja":"ハルシネーション","meaning":"生成AIが、事実と異なる内容をもっともらしく出力してしまう現象。出力をそのまま信じず、根拠を確かめることが必要。","example":"AIが書いた用語の意味は、出典で確認してから自分のカードにする。","labels":["ai","ethics"],"src":"生成AIパスポート シラバス","srcItem":"ChatGPT（ハルシネーション）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"hcd","term":"Human-Centred Design","ja":"人間中心設計","meaning":"使う人の状況とニーズを理解し、評価と改善を繰り返してつくる設計の考え方。ISO 9241-210で国際規格として定義されている。","example":"企画の前に、実際の利用場面を観察しに行く。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"人間中心デザイン","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"heuristic-evaluation","term":"Heuristic Evaluation","ja":"ヒューリスティック評価","meaning":"専門家が経験則(ニールセンの10原則など)に照らしてUIの問題を洗い出す評価手法。早く安く回せるが、実際の利用者の検証の代わりにはならない。","example":"リリース前に3人で10原則に沿って画面を点検する。","labels":["eval"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（ヒューリスティック評価）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"hicks-law","term":"Hick's Law","ja":"ヒックの法則","meaning":"選択肢の数が増えるほど、選ぶまでの時間が長くなるという法則。選択肢を減らすか、段階に分けて見せると判断が速くなる。","example":"設定画面の項目をカテゴリで分けて、一度に見せる数を減らす。","labels":["cog","ui"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（ヒックの法則）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"information-architecture","term":"Information Architecture","ja":"情報アーキテクチャ（IA）","meaning":"情報を分類・整理し、ラベルや階層、ナビゲーションを設計して、ユーザーが目的の情報にたどり着けるようにすること。","example":"メニュー名を社内用語からユーザーの言葉に変えるだけで、迷う人が減る。","labels":["ui"],"src":"UX検定基礎 シラバス","srcItem":"情報設計（Information Architecture）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"iso-9241-210","term":"ISO 9241-210","ja":"ISO 9241-210（人間中心設計の国際規格）","meaning":"インタラクティブシステムの人間中心設計を定めた国際規格。利用状況の理解→要求事項の明示→設計解の作成→評価、の4つの活動をくり返すプロセスを示す。日本ではJIS Z 8530。","example":"評価で問題が見つかったら、利用状況の理解や要求事項に戻ってやり直す。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"人間中心デザイン（ISO9241・HCDサイクル）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"jakobs-law","term":"Jakob's Law","ja":"ヤコブの法則","meaning":"ユーザーは時間の大半を他のサイトで過ごすので、自分のサイトにも同じ振る舞いを期待するという考え方。独自性より慣れを優先する場面がある。","example":"ロゴを押したらホームに戻る、という慣習を崩さない。","labels":["cog","ui"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（ヤコブの法則）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"journey-map","term":"Customer Journey Map","ja":"カスタマージャーニーマップ","meaning":"利用者が目的を達成するまでの行動・考え・感情を、時間の流れに沿って描いた図。体験の谷を見つけて改善の優先度を決める。","example":"記録アプリを「始める→続ける→休む→戻る」で描き、戻る場面の谷を見つける。","labels":["research","process"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（カスタマージャーニーマップ）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"jtbd","term":"Jobs to Be Done","ja":"ジョブ理論","meaning":"人は製品そのものではなく、ある状況で片づけたい「用事」のために製品を雇う、という見方。属性より状況に注目する。","example":"「ノートアプリ」ではなく「会議の前に要点を思い出す」という用事で考える。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（ジョブ理論）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"kgi-kpi","term":"KGI / KPI","ja":"KGI・KPI","meaning":"KGIは事業の最終ゴールの数値（例：年間売上）、KPIはそこへ向かう途中経過を測る数値（例：月間の継続率）。デザインの改善がどのKPIを動かすかを言えると、事業と話がつながる。","example":"「登録完了率を5%上げる」をKPIにして、フォーム改善の効果を測る。","labels":["biz"],"src":"ウェブ解析士 公式テキスト","srcItem":"KGI・KPI設計","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"lean-ux","term":"Lean UX","ja":"リーンUX","meaning":"成果物を作り込むより、仮説を立てて小さく作り、ユーザーから学ぶサイクルを速く回すことを重視するUXの進め方。","example":"分厚い仕様書の代わりに、仮説と検証方法を1枚にまとめて回す。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"リーン（リーンUX）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"llm","term":"Large Language Model","ja":"LLM（大規模言語モデル）","meaning":"大量の文章で学習し、文脈から次に来る言葉を予測して文章を生成するモデル。ChatGPTやClaudeなどの土台になっている。","example":"このアプリでは、言葉を入れると意味の下書きをLLMが作る。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"LMとLLM","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"loss-aversion","term":"Loss Aversion","ja":"損失回避","meaning":"同じ大きさなら、得る喜びより失う痛みのほうを強く感じる傾向。カーネマンとトヴェルスキーのプロスペクト理論の中心。","example":"連続記録が途切れる痛みが、かえって再開を妨げることがある。","labels":["be"],"src":"UX検定基礎 シラバス","srcItem":"行動経済学（プロスペクト理論）","cat":"be","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ltv","term":"LTV (Customer Lifetime Value)","ja":"LTV（顧客生涯価値）","meaning":"1人の顧客が使い始めてからやめるまでに、事業にもたらす利益の合計。継続してもらえるほど大きくなるので、UXの良し悪しが直接効く。","example":"解約を減らすオンボーディング改善は、LTVを上げる施策として説明できる。","labels":["biz"],"src":"ウェブ解析士 公式テキスト","srcItem":"基本指標（LTV）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"microcopy","term":"Microcopy","ja":"マイクロコピー","meaning":"ボタン、エラーメッセージ、入力欄の補足など、画面上の短い言葉。小さいが、迷いや不安を大きく左右する。","example":"「送信」を「無料で登録する」に変えると、押したあとに何が起きるかが伝わる。","labels":["ui"],"src":"UX検定基礎 シラバス","srcItem":"UXライティング（マイクロコピー）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"multimodal","term":"Multimodal","ja":"マルチモーダル","meaning":"文章だけでなく、画像・音声・動画など複数の種類の情報をまとめて扱えること。","example":"画面のスクリーンショットを見せて、ユーザビリティ上の問題点を挙げさせる。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"ChatGPT（マルチモーダル）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"mvp","term":"Minimum Viable Product","ja":"MVP（実用最小限の製品）","meaning":"仮説を確かめるために必要な、最小限の機能だけを持つ製品。作り込む前に、本当に価値があるかを早く学ぶために使う。","example":"予約機能を作る前に、申し込みフォームだけで需要を確かめる。","labels":["biz","process"],"src":"UX検定基礎 シラバス","srcItem":"リーン（MVP）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"nudge","term":"Nudge","ja":"ナッジ","meaning":"選択の自由を残したまま、望ましい行動をそっと後押しする仕掛け。セイラーとサンスティーンが広めた。強制や大きな報酬は使わない。","example":"階段に消費カロリーを書いて、階段を選びやすくする。","labels":["be"],"src":"UX検定基礎 シラバス","srcItem":"行動経済学（ナッジ）","cat":"be","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"pain-point","term":"Pain Point","ja":"ペインポイント","meaning":"ユーザーが体験の中で不満・不便・不安を感じる箇所。改善の優先度を決める手がかりになる。反対に、喜びを感じる箇所はゲインポイント。","example":"ジャーニーマップで気持ちが大きく下がる所に、改善案を集中させる。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"行動データ分析（ペインポイント）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"persona","term":"Persona","ja":"ペルソナ","meaning":"調査にもとづいて描く、代表的な利用者の人物像。チームで「誰のための設計か」をそろえる道具。想像だけで作ると根拠のない像になる。","example":"インタビュー10人分から、行動の違いで2つのペルソナを作る。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（ペルソナ）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"pmf","term":"Product-Market Fit","ja":"PMF（プロダクトマーケットフィット）","meaning":"製品が、はっきりした市場の強いニーズを満たしている状態。PMF前は「何を作るか」を探す段階で、リサーチと検証の速さが勝負になる。","example":"「使えなくなったらとても残念」と答える人が40%を超えるかで目安を見る。","labels":["biz"],"src":"UX検定基礎 シラバス","srcItem":"プロダクトマネジメント（PMF）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"prompt-engineering","term":"Prompt Engineering","ja":"プロンプトエンジニアリング","meaning":"生成AIから目的に合った出力を得るために、指示（プロンプト）の書き方を工夫すること。指示・文脈・入力データ・出力形式を明確にする。","example":"「60〜90字で、実務での使いどころまで」と出力の条件を指定する。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"プロンプトエンジニアリング","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"prototyping","term":"Prototyping","ja":"プロトタイピング","meaning":"考えを早く形にして試すこと。紙でもよい。作り込む前に間違いに気づけるので、変更のコストが小さいうちに学べる。","example":"紙に描いたカードを並べて、検索結果の見え方を試す。","labels":["process","eval"],"src":"UX検定基礎 シラバス","srcItem":"プロトタイピング","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"rag","term":"Retrieval-Augmented Generation","ja":"RAG（検索拡張生成）","meaning":"質問に関係する資料を検索して取り出し、それを参照しながら回答を生成する仕組み。社内文書など、モデルが知らない情報にもとづいて答えられる。","example":"社内のデザインガイドを参照して、ルールに沿った回答を返すチャットボット。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"RAG","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"recognition-recall","term":"Recognition over Recall","ja":"再生より再認","meaning":"思い出させるより、見て選べるようにするほうが負担が小さいという原則。ニールセンのユーザビリティ10原則のひとつ。","example":"検索窓に最近の検索語を候補として出す。","labels":["ui","cog"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"retrospective-method","term":"Retrospective Probing","ja":"回顧法","meaning":"操作を終えたあとに、録画などを見返しながら、その時に何を考えていたかをユーザーに振り返ってもらう手法。操作中の発話が難しい場面で使う。","example":"集中が必要なタスクは、終わってから画面録画を一緒に見て理由を聞く。","labels":["eval","research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーテスト（回顧法）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"semi-structured-interview","term":"Semi-structured Interview","ja":"半構造化インタビュー","meaning":"質問項目をあらかじめ用意しつつ、相手の答えに合わせて深掘りや順番の入れ替えを柔軟に行うインタビューの形式。","example":"「それはなぜですか」「具体的には？」で、本音や背景を聞き出す。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（インタビュー）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"signifier","term":"Signifier","ja":"シグニファイア","meaning":"どこをどう操作すればよいかを知らせる手がかり。ノーマンが、アフォーダンスと区別するために使った言葉。","example":"カードに「めくる」ラベルを付けて、裏返せることを知らせる。","labels":["cog","ix"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（シグニファイア）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"structured-scenario","term":"Structured Scenario Method","ja":"構造化シナリオ法","meaning":"バリュー（価値）シナリオ→アクティビティ（行為）シナリオ→インタラクション（操作）シナリオの3段階で、ユーザーにとっての価値から具体的な操作までを書き下ろす手法。","example":"「何のために」を先に決めてから、画面の操作を考える順番になる。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"アイデア創出（シナリオ）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"task-analysis","term":"Task Analysis","ja":"タスク分析","meaning":"ユーザーが目的を達成するまでの手順を分解して整理し、どこに負担や迷いがあるかを明らかにする手法。","example":"申し込みの手順を書き出すと、同じ情報を2回入力させている箇所が見つかる。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（タスク分析）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"think-aloud","term":"Think-Aloud Protocol","ja":"思考発話法","meaning":"操作しながら、考えていることを声に出してもらう手法。なぜそこで迷ったかという理由まで分かる。","example":"「いま何を探していますか?」と問いかけながら操作してもらう。","labels":["eval","research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーテスト（思考発話法）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"undo","term":"Undo","ja":"取り消し","meaning":"操作をあとから元に戻せるようにすること。戻せると分かっていれば、人は安心して試せる。確認ダイアログの多用より効くことが多い。","example":"メール送信後の数秒間だけ「取り消し」を出す。","labels":["ix","ui"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"universal-design","term":"Universal Design","ja":"ユニバーサルデザイン","meaning":"年齢・能力・状況にかかわらず、できるだけ多くの人がはじめから使えるように設計する考え方。あとから対応を足すのではなく、最初から含めて考える。","example":"段差のない入口は、車いすの人にもベビーカーの人にも使いやすい。","labels":["ethics"],"src":"UX検定基礎 シラバス","srcItem":"人間中心デザイン（ユニバーサルデザイン）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"usability-test","term":"Usability Testing","ja":"ユーザビリティテスト","meaning":"実際の利用者に課題をやってもらい、どこでつまずくかを観察する評価手法。少人数でも大きな問題は見つかりやすい。","example":"5人に「カードを1枚追加して」と頼み、迷った箇所を記録する。","labels":["eval"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーテスト","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"usability","term":"Usability","ja":"ユーザビリティ","meaning":"特定の人が特定の状況で、目的をどれだけ有効に、効率よく、満足して達成できるかの度合い。ISO 9241-11の定義が広く使われる。","example":"「使いやすい?」ではなく「3分以内に予約を終えられたか」で測る。","labels":["eval"],"src":"UX検定基礎 シラバス","srcItem":"ユーザビリティ","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"user-requirements","term":"User Requirements","ja":"ユーザー要求事項","meaning":"利用状況の理解をもとに、ユーザーが何を達成できる必要があるかを具体的な言葉にしたもの。設計の方向と、評価の基準になる。","example":"「初めての人が3分以内に登録を終えられる」のように、確かめられる形で書く。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"ユーザー要求定義","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"user-story-mapping","term":"User Story Mapping","ja":"ユーザーストーリーマッピング","meaning":"ユーザーの行動の流れを横に、必要な機能を縦に並べて、体験の全体を見ながら開発の優先順位を決める手法。","example":"最初のリリースで、体験が途切れない最小限の機能の組み合わせを決める。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"理想の利用状況の想定（ユーザーストーリーマッピング）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ux-5planes","term":"The Elements of UX","ja":"UXの5段階モデル","meaning":"ジェシー・ジェームズ・ギャレットが示した、戦略・要件・構造・骨格・表層の5段階でUXを組み立てる考え方。下の段階が上の段階の土台になる。","example":"見た目（表層）の議論が止まらない時は、戦略や要件が決まっているかに戻る。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"UXとは（UXの5階層モデル）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ux-curve","term":"UX Curve","ja":"UXカーブ","meaning":"製品を使い始めてから今までの気持ちの変化を、ユーザー自身に曲線で描いてもらう手法。長い期間の体験の良し悪しと、その理由がわかる。","example":"満足度が下がった時期に何があったかを聞き、解約の手前の出来事を見つける。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（UXカーブ）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ux-honeycomb","term":"UX Honeycomb","ja":"UXのハニカム構造","meaning":"ピーター・モービルが示した、良いUXの7つの要素。役に立つ・使いやすい・望ましい・見つけやすい・アクセスしやすい・信頼できる・価値がある。","example":"「使いやすいけれど見つけにくい」など、どの要素が欠けているかを点検する。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"UXとは（UXのハニカム構造）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ux-period","term":"UX Periods","ja":"UXの期間（UX白書）","meaning":"使う前の予期的UX、使っている最中の一時的UX、使った後のエピソード的UX、長く使った累積的UXの4つの期間でUXを捉える考え方。2010年の「UX白書」で示された。","example":"使っている最中の快適さだけでなく、使う前の期待や、振り返った時の印象も設計する。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"UXとは（UX白書のモデル）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"value-proposition","term":"Value Proposition","ja":"バリュープロポジション","meaning":"顧客が他ではなくこの製品を選ぶ理由。顧客の「やりたいこと・悩み・得たいこと」と、製品が差し出すものを対応させて言葉にする。","example":"バリュープロポジションキャンバスで、悩みと解決策の対応を確かめる。","labels":["biz","research"],"src":"UX検定基礎 シラバス","srcItem":"理想の利用状況の想定（バリュープロポジション）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"visibility-status","term":"Visibility of System Status","ja":"システム状態の可視化","meaning":"いま何が起きているかを、適切なタイミングで利用者に知らせ続けるという原則。ニールセンの10原則の最初のひとつ。","example":"検索中に「84 / 1,794件を確認中」と進み具合を出す。","labels":["ui","ix"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"wireframe","term":"Wireframe","ja":"ワイヤーフレーム","meaning":"画面に何をどこに置くかを、色や装飾を省いた線と箱で示した設計図。見た目より先に、情報の優先度と配置を合意するために使う。","example":"色が付く前に、ボタンの位置と文言だけで関係者と議論する。","labels":["ui","process"],"src":"UX検定基礎 シラバス","srcItem":"情報設計（ワイヤーフレーム）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"wizard-of-oz","term":"Wizard of Oz","ja":"オズの魔法使い（プロトタイピング）","meaning":"まだ作っていない機能を、裏で人が操作して本物のように見せ、ユーザーの反応を確かめるプロトタイプの手法。","example":"AIチャットを作る前に、裏で人が返信して、どんな質問が来るかを見る。","labels":["eval","process"],"src":"UX検定基礎 シラバス","srcItem":"プロトタイピング（オズの魔法使い）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"}];
+const CAT_FALLBACK = { ux: ["ui"], hcd: ["process"], be: ["be"], me: [], other: [] };
+const LEVELS = ["知った", "覚えた", "説明できる"];
+const LEVEL_HINTS = ["言葉と意味に出会った", "意味を見なくても思い出せる", "人に30秒で説明できる"];
+// 理解の段階は「深さ」なので、1色の濃淡(浅い→深い)で表す
+const LVL_FILL = ["linear-gradient(180deg,#FFE27A 0%,#FFA53A 100%)", "linear-gradient(180deg,#FFB23F 0%,#F2542D 100%)", "linear-gradient(180deg,#FF6A2B 0%,#C21D1D 100%)"];
+
+/* ================= 意味の軸(検索の照合と「理由」表示に使う) ================= */
+const CONCEPTS = {
+  ai:      { label: "生成AI", t: ["AI","生成","ChatGPT","Claude","プロンプト","LLM","チャット","エージェント","ハルシネーション","RAG","画像生成","自動で"] },
+  biz:     { label: "事業・成果", t: ["売上","事業","ビジネス","収益","利益","KPI","KGI","LTV","CAC","解約","チャーン","継続率","コンバージョン","CVR","指標","ファネル","獲得","単価","成長","投資","ROI","経営","戦略","OKR","価値提案"] },
+  habit:   { label: "習慣・継続", t: ["習慣","継続","続か","続け","三日坊主","毎日","挫折","飽き","定着","ルーティン","リテンション","戻って","再訪","離脱","やめてしま","ログ","記録"] },
+  friction:{ label: "手間・摩擦", t: ["手間","フォーム","入力項目","面倒","めんどう","めんどく","摩擦","ステップ","手順","時間がかか","簡単","すぐ","ワンタップ","省略","入力が","ハードル","億劫"] },
+  choice:  { label: "選択の多さ", t: ["選択肢","選べ","決められ","迷う","迷っ","多すぎ","悩む","決断","どれにする","選ば"] },
+  default: { label: "初期設定", t: ["初期設定","デフォルト","そのまま","変更しない","既定","オプトアウト","オプトイン","自動で","チェック済"] },
+  loss:    { label: "損失・手放す", t: ["損","失う","もったいな","手放","解約","損失","減る","失敗したくな"] },
+  anchor:  { label: "基準・比較", t: ["価格","値段","高い","安い","割引","最初に見た","基準","比較","アンカー","定価","見比べ","おとり"] },
+  present: { label: "先延ばし・目先", t: ["先延ばし","あとで","後回し","今すぐ","将来","目先","締め切り","我慢","誘惑","ついやって","見積もりが甘","間に合わ"] },
+  social:  { label: "他者の影響", t: ["みんな","他の人","口コミ","レビュー","評判","人気","周り","同調","ランキング","多くの人"] },
+  memory:  { label: "記憶の負荷", t: ["覚え","記憶","忘れ","思い出せ","再認","再生","暗記","ワーキングメモリ"] },
+  attention:{label: "注意・目立ち", t: ["注意","気づか","気付か","見落と","目立","視線","集中","気が散","埋もれ","目に入"] },
+  feedback:{ label: "反応の見える化", t: ["フィードバック","反応","結果が見え","進捗","状態","今どこ","押せたか","押せた","わからない","分からない","ローディング","完了した"] },
+  error:   { label: "ミス・回復", t: ["ミス","間違","エラー","失敗","誤操作","取り消","やり直","うっかり","消してしま"] },
+  model:   { label: "期待・思い込み", t: ["期待","思って","想定","慣れ","いつもの","直感","メンタルモデル","予想","他のサイト","当たり前"] },
+  a11y:    { label: "誰も排除しない", t: ["障害","高齢","見えにく","読みにく","色覚","誰でも","アクセシビリティ","排除","多様","スクリーンリーダー","包摂"] },
+  research:{ label: "ユーザー理解", t: ["インタビュー","観察","調査","ユーザーの声","本音","ユーザーを知","本当のニーズ","共感","ペルソナ","現場","行動を見","話を聞","リサーチ","ニーズ"] },
+  iterate: { label: "試作と検証", t: ["試作","プロトタイプ","検証","テスト","改善","反復","仮説","作って試","評価"] },
+  reward:  { label: "報酬・やる気", t: ["報酬","ご褒美","嬉し","達成","モチベーション","やる気","楽し","ゲーム","ポイント","バッジ"] },
+  emotion: { label: "印象・感情", t: ["印象","見た目","美し","好き","感情","気持ち","信頼","安心","不安","きれい"] },
+  ending:  { label: "体験の山と終わり", t: ["最後","終わり","ピーク","体験全体","余韻","最初と最後","記憶に残"] },
+  framing: { label: "伝え方", t: ["言い方","伝え方","表現","見せ方","文言","コピー","フレーミング","言い換え","書き方"] },
+  scarcity:{ label: "希少さ", t: ["残り","限定","品切れ","今だけ","希少","少ない","在庫","期間限定"] },
+  commit:  { label: "小さな約束", t: ["宣言","約束","一度決め","小さく始め","コミット","目標を","決めたこと","自分との約束"] },
+  own:     { label: "自分でつくる愛着", t: ["自分で作","所有","愛着","手をかけ","カスタマイズ","育て","自作","思い入れ"] },
+  ethics:  { label: "誠実さ・操作", t: ["騙","だま","誘導","ダークパターン","不誠実","解約しにく","隠れ","強引","倫理","煽"] },
+  time:    { label: "待ち時間・速さ", t: ["待ち","遅い","ロード","待たされ","レスポンス","もたつ","速さ","表示が遅"] },
+  consist: { label: "一貫性", t: ["統一","一貫","バラバラ","ルール","標準","揃","デザインシステム","ガイドライン"] },
+  structure:{label: "まとまり・構造", t: ["階層","グループ","まとまり","近く","整理","構造","並び","余白","情報量","ごちゃごちゃ","段階"] },
+  target:  { label: "押しやすさ", t: ["ボタン","押しにく","小さい","指","タップ","クリック","距離","大きさ","届か"] },
+  bias:    { label: "認知の偏り", t: ["思い込み","偏り","バイアス","自信","錯覚","都合のいい","見たいもの","印象に残った"] },
+  context: { label: "利用の文脈", t: ["状況","文脈","場面","環境","使われ方","シーン","移動中","片手"] },
+  fresh:   { label: "区切りと再出発", t: ["新年","月曜","区切り","再スタート","やり直し","リセット","心機一転","久しぶり","また始め"] },
+  goal:    { label: "ゴールへの近さ", t: ["ゴール","あと少し","完了","達成率","ゴールが見え","近づく"] },
+  money:   { label: "お金の心の会計", t: ["お金","予算","財布","ポイント還元","使い道","出費","支払い","ボーナス"] },
+  nudge:   { label: "そっと後押し", t: ["後押し","ナッジ","促す","行動を変え","仕向け","背中を押"] },
+};
+
+const CONCEPT_IDS = Object.keys(CONCEPTS);
+
+/* ================= 状態 ================= */
+const S = {
+  cards: [], byId: new Map(), axis: new Map(), events: [],
+  db: null, sample: null, local: false, loaded: false,
+  view: "stage", cur: null, trail: [], layout: "pile",
+  lib: { tag: "all", sort: "new" }, range: "",
+  drawerId: null, dStack: [], deep: {}, editing: null,
+};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const calmMotion = () => store.get("uiux-motion", "") === "calm";
+let matterReady = null;
+function ensureMatter() {
+  if (window.Matter) return Promise.resolve(true);
+  if (matterReady) return matterReady;
+  const srcs = ["https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js", "https://unpkg.com/matter-js@0.19.0/build/matter.min.js"];
+  matterReady = srcs.reduce((p, src) => p.then((ok) => ok || new Promise((res) => {
+    const s = document.createElement("script"); s.src = src; s.onload = () => res(!!window.Matter); s.onerror = () => res(false);
+    document.head.appendChild(s);
+  })), Promise.resolve(false));
+  return matterReady;
+}
+const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+
+/* ================= 意味エンジン ================= */
+const norm = (s) => (s || "").normalize("NFKC").toLowerCase();
+function conceptsOf(text) {
+  const t = norm(text), v = {};
+  for (const id of CONCEPT_IDS) {
+    let n = 0;
+    for (const w of CONCEPTS[id].t) if (t.includes(norm(w))) n++;
+    if (n) v[id] = Math.min(1, 0.55 + 0.22 * (n - 1));
+  }
+  return v;
+}
+function grams(text) {
+  const t = norm(text).replace(/[\s\p{P}\p{S}]/gu, "");
+  const m = {};
+  for (let i = 0; i < t.length - 1; i++) { const g = t.slice(i, i + 2); m[g] = (m[g] || 0) + 1; }
+  return m;
+}
+function cos(a, b) {
+  let dot = 0, na = 0, nb = 0;
+  for (const k in a) { na += a[k] * a[k]; if (b[k]) dot += a[k] * b[k]; }
+  for (const k in b) nb += b[k] * b[k];
+  return na && nb ? dot / Math.sqrt(na * nb) : 0;
+}
+let IDF = {}, IDF_MISS = 1;
+const weigh = (g) => { const o = {}; for (const k in g) o[k] = g[k] * (IDF[k] ?? IDF_MISS); return o; };
+const cardText = (c) => [c.term, c.ja, c.meaning, c.note, c.example, ...encOf(c).map((e) => e.text), ...refsOf(c).map((r) => r.value)].join(" ");
+function indexAll() {
+  const df = {};
+  for (const c of S.cards) {
+    const cv = conceptsOf(cardText(c));
+    for (const k in cv) cv[k] *= 0.6;
+    for (const t of c.tags || []) if (CONCEPTS[t]) cv[t] = 1;
+    c._c = cv; c._g = grams(cardText(c));
+    for (const g in c._g) df[g] = (df[g] || 0) + 1;
+  }
+  const N = S.cards.length || 1;
+  IDF = {}; for (const g in df) IDF[g] = Math.log(1 + N / df[g]);
+  IDF_MISS = Math.log(1 + N);
+  for (const c of S.cards) c._gw = weigh(c._g);
+  S.axis = new Map();
+  for (const k of CONCEPT_IDS) {
+    const members = S.cards.filter((c) => c._c[k]).map((c) => ({ id: c.id, w: c._c[k] })).sort((a, b) => b.w - a.w);
+    if (members.length) S.axis.set(k, members);
+  }
+}
+function searchText(q) {
+  const qc = conceptsOf(q), qg = weigh(grams(q)), nq = norm(q).trim();
+  const hasC = Object.keys(qc).length > 0;
+  const out = [];
+  for (const c of S.cards) {
+    const sc = cos(qc, c._c), sg = cos(qg, c._gw);
+    const t = norm(c.term), j = norm(c.ja);
+    const exact = nq.length >= 2 && (t.includes(nq) || j.includes(nq) || (j.length >= 2 && nq.includes(j)) || (t.length >= 3 && nq.includes(t))) ? 0.4 : 0;
+    const s = Math.min(1, hasC ? 0.66 * sc + 0.34 * sg + exact : 0.9 * sg + exact);
+    if (s >= 0.1) out.push({ id: c.id, score: s, why: reasonFor(qc, c, exact) });
+  }
+  return { results: out.sort((a, b) => b.score - a.score), axes: Object.keys(qc).sort((a, b) => qc[b] - qc[a]) };
+}
+function reasonFor(qc, c, exact) {
+  const shared = Object.keys(qc).filter((k) => c._c[k]).sort((a, b) => qc[b] * c._c[b] - qc[a] * c._c[a]).slice(0, 2);
+  if (exact && !shared.length) return "名前が一致";
+  if (!shared.length) return "言い回しが近い";
+  return "共通するテーマ：" + shared.map((k) => CONCEPTS[k].label).join("・");
+}
+const simCards = (a, b) => 0.72 * cos(a._c, b._c) + 0.28 * cos(a._gw, b._gw);
+function neighborsOf(card, n = 30) {
+  return S.cards.filter((c) => c.id !== card.id).map((c) => {
+    const shared = Object.keys(card._c).filter((k) => c._c[k]).slice(0, 2).map((k) => CONCEPTS[k].label);
+    return { id: c.id, score: simCards(card, c), why: shared.length ? "共通するテーマ：" + shared.join("・") : "言い回しが近い" };
+  }).filter((r) => r.score >= 0.08).sort((a, b) => b.score - a.score).slice(0, n);
+}
+const axesOf = (c) => Object.keys(c._c || {}).sort((a, b) => c._c[b] - c._c[a]);
+
+
+/* ================= 表示の小物 ================= */
+const encDate = (iso) => { const d = new Date(iso), t = new Date(); const diff = Math.floor((new Date(t.toDateString()) - new Date(d.toDateString())) / 864e5);
+  return diff === 0 ? "今日" : diff === 1 ? "昨日" : `${d.getFullYear() !== t.getFullYear() ? d.getFullYear() + "年" : ""}${d.getMonth() + 1}月${d.getDate()}日`; };
+const md = (iso) => { if (!iso) return ""; const d = new Date(iso); return `${d.getMonth() + 1}月${d.getDate()}日`; };
+function ago(iso) {
+  if (!iso) return "まだひらいていない";
+  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 864e5);
+  return d <= 0 ? "今日ひらいた" : d === 1 ? "昨日ひらいた" : d + "日前にひらいた";
+}
+const hashStr = (s) => { let h = 2166136261; for (const ch of s) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return (h >>> 0) / 4294967296; };
+const isUnread = (c) => c.source !== "me" && c.stage == null && !(Number(c.level) > 0) && !c.opened && (!c.seenAt || !c.createdAt || c.seenAt <= c.createdAt);
+const lvlOf = (c) => c.stage != null ? Math.max(0, Math.min(2, Number(c.stage) || 0)) : [0, 0, 2, 2][Math.max(0, Math.min(3, Number(c.level) || 0))];
+const ord = (n) => { const s = n % 100; return n + (s >= 11 && s <= 13 ? "TH" : ({ 1: "ST", 2: "ND", 3: "RD" }[n % 10] || "TH")); };
+const refsOf = (c) => Array.isArray(c.refs) ? c.refs.filter((r) => r && r.value) : c.ref ? [{ type: /^https?:\/\//i.test(c.ref) ? "web" : "note", value: c.ref }] : [];
+const encOf = (c) => (Array.isArray(c.encounters) ? c.encounters.filter((e) => e && e.at) : []);
+// 最後に「出会った」日：自分で書きとめた日と、出会いの記録の新しいほう
+const lastMetOf = (c) => [c.source === "me" ? c.createdAt : "", ...encOf(c).map((e) => e.at)].filter(Boolean).sort().at(-1) || "";
+const titleOf = (c) => c.ja || c.term;
+const subOf = (c) => (c.ja && c.term && c.term !== c.ja ? c.term : "");
+const tagLabel = (c) => TAGS[c.labels[0]]?.label || "タグなし";
+const tagNames = (c) => c.labels.map((t) => TAGS[t].label).join("・") || "タグなし";
+const rankHTML = () => "";
+
+function cardHTML(c, o = {}) {
+  const seed = !c.meaning;
+  const cls = ["card", seed ? "seed" : c.tc, o.drop ? "drop" : ""].filter(Boolean).join(" ");
+  const style = o.drop ? ` style="--i:${o.i || 0};--r:${((hashStr(c.id) - 0.5) * 30).toFixed(1)}deg"` : "";
+  return `<article class="${cls}"${style}>
+    <button type="button" class="card-hit" data-open="${esc(c.id)}" aria-label="${esc(titleOf(c))}。詳しく見る"></button>
+    <div class="pc-top"><span class="pc-tag">${esc(tagLabel(c))}</span>${rankHTML(o.rank)}</div>
+    <h3 class="title">${esc(titleOf(c))}</h3>
+    ${subOf(c) ? `<p class="en">${esc(subOf(c))}</p>` : ""}
+    <p class="mean">${seed ? "まだ意味を書いていない「種」。ひらいて一言足せます。" : esc(c.meaning)}</p>
+    ${o.why ? `<p class="why">${esc(o.why)}</p>` : ""}
+  </article>`;
+}
+
+/* ================= サイドバー / ハンバーガー ================= */
+const isNarrow = () => matchMedia("(max-width: 960px)").matches;
+let sideReturn = null;
+function openSide() { sideReturn = document.activeElement; $("side").classList.add("open"); $("sideScrim").hidden = false; $("hamb").setAttribute("aria-expanded", "true"); $("sideClose").focus(); }
+function closeSide(silent) {
+  if (!$("side").classList.contains("open")) return;
+  $("side").classList.remove("open"); $("sideScrim").hidden = true; $("hamb").setAttribute("aria-expanded", "false");
+  if (!silent) sideReturn?.focus?.();
+}
+$("hamb").onclick = openSide;
+$("sideClose").onclick = () => closeSide();
+$("sideScrim").onclick = () => closeSide();
+
+function go(v, opts = {}) {
+  S.view = v;
+  if (v !== "stage") pileStop();
+  $("vStage").hidden = v !== "stage";
+  $("vStack").hidden = v !== "stack";
+  $("vProfile").hidden = v !== "profile";
+  document.querySelectorAll(".side-nav [data-go],.side .cta2,#sideRank").forEach((b) => { if (b.dataset.go === v || (v === "library" && b.dataset.go === "stack")) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  if (isNarrow()) closeSide(true);
+  if (v === "stage") { if (!S.cur || opts.home) showHome(); else renderStage(!!opts.animate); }
+  if (v === "stack") renderStack();
+  if (v === "profile") renderProfile();
+  renderSide();
+  document.querySelectorAll(".page").forEach((p) => (p.scrollTop = 0));
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-go]"); if (!b) return;
+  go(b.dataset.go, { home: "home" in b.dataset });
+});
+
+function levelCounts() { const c = [0, 0, 0]; S.cards.forEach((x) => { if (!isUnread(x)) c[lvlOf(x)]++; }); return c; }
+function renderSide() {
+  const tc = {}; S.cards.forEach((c) => c.labels.forEach((t) => (tc[t] = (tc[t] || 0) + 1)));
+  const curTag = S.view === "stage" && S.cur?.kind === "tag" ? S.cur.key : "";
+  renderRank();
+  $("sideTags").innerHTML = TAG_IDS.map((k) => `<li><button type="button" class="t-${k}" data-tag="${k}" title="${esc(TAGS[k].hint)}" aria-current="${curTag === k}"><span class="dot"></span>${esc(TAGS[k].label)}<span class="n">${tc[k] || 0}</span></button>${curTag === k ? `<button type="button" class="tag-x" data-go="stage" data-home aria-label="${esc(TAGS[k].label)}の山を閉じて、すべてのカードへ">×</button>` : ""}</li>`).join("");
+}
+
+/* ================= 積み上げ(ファーストビュー) ================= */
+const EXAMPLES = ["ボタンが押されない", "選択肢が多くて選べない", "フォームの入力が面倒", "読み込みが遅い", "ユーザーの本音を知りたい"];
+// ホームの山：しばらくひらいていない言葉から順に積む(見出しは出さず、並びの理由は裏方に留める)
+const MEMO_WINDOWS = [{ d: 7, r: 1, label: "1週間前" }, { d: 30, r: 2, label: "1か月前" }, { d: 90, r: 5, label: "3か月前" }, { d: 365, r: 10, label: "1年前" }];
+function memoryPicks() {
+  const today = new Date(new Date().toDateString()).getTime(), picks = [];
+  for (const c of S.cards) {
+    if (c.seenAt && Date.now() - new Date(c.seenAt).getTime() < 20 * 3600e3) continue; // 今日もう会ったものは出さない
+    const dates = [...(c.source === "me" && c.createdAt ? [{ at: c.createdAt, kind: "書きとめた" }] : []), ...encOf(c).map((e) => ({ at: e.at, kind: "出会った" }))];
+    let best = null;
+    for (const x of dates) {
+      const age = Math.round((today - new Date(new Date(x.at).toDateString()).getTime()) / 864e5);
+      for (const w of MEMO_WINDOWS) if (Math.abs(age - w.d) <= w.r && (!best || w.d > best.w.d)) best = { w, kind: x.kind };
+    }
+    if (best) picks.push({ c, text: `${best.w.label}のあなたから`, d: best.w.d });
+  }
+  return picks.sort((a, b) => b.d - a.d).slice(0, 3);
+}
+function homeResults() {
+  const day = new Date().toDateString();
+  const all = S.cards.slice().sort((a, b) =>
+    (!a.meaning) - (!b.meaning) || (lvlOf(a) === 2) - (lvlOf(b) === 2) || (a.seenAt || "").localeCompare(b.seenAt || "") || hashStr(a.id + day) - hashStr(b.id + day))
+    .map((c) => ({ id: c.id, score: 1, why: "" }));
+  // あの日の言葉は先頭に置く(降らせる順は逆なので、最後に落ちて山のてっぺんに乗る)
+  const memo = memoryPicks();
+  S.memo = new Map(memo.map((m) => [m.c.id, m.text]));
+  const ids = new Set(memo.map((m) => m.c.id));
+  return [...memo.map((m) => ({ id: m.c.id, score: 1, why: "" })), ...all.filter((r) => !ids.has(r.id))];
+}
+function showHome() {
+  S.trail = []; $("q").value = ""; S.layout = "pile";
+  S.cur = { kind: "home", key: "home:" + S.cards.length, label: "", results: homeResults() };
+  renderStage(true);
+}
+function navigate(entry, fromTrail = -1) {
+  if (entry.kind === "q") {
+    const tagHit = TAG_IDS.find((k) => norm(TAGS[k].label) === norm(entry.key));
+    if (tagHit) return navigate({ kind: "tag", key: tagHit, label: TAGS[tagHit].label }, fromTrail);
+  }
+  if (fromTrail >= 0) S.trail = S.trail.slice(0, fromTrail + 1);
+  else {
+    const last = S.trail[S.trail.length - 1];
+    if (!(last && last.kind === entry.kind && last.key === entry.key)) S.trail.push(entry);
+    if (S.trail.length > 6) S.trail.shift();
+  }
+  let results = [];
+  if (entry.kind === "q") { results = searchText(entry.key).results; }
+  if (entry.kind === "tag") { S.layout = "pile"; S.memo = new Map(); }
+  if (entry.kind === "tag") results = S.cards.filter((c) => c.labels.includes(entry.key)).map((c) => ({ id: c.id, score: c.labels[0] === entry.key ? 1 : 0.7, why: "" })).sort((a, b) => b.score - a.score);
+  if (entry.kind === "card") { const c = S.byId.get(entry.key); results = c ? neighborsOf(c) : []; }
+  if (entry.kind === "ai") results = entry.results;
+  S.cur = { ...entry, results };
+  $("q").value = entry.kind === "q" || entry.kind === "ai" ? entry.label : "";
+  closeDrawer(true);
+  go("stage", { animate: true });
+}
+function titleFor(cur) {
+  if (cur.kind === "home") return "UIUX Stocker";
+  if (cur.kind === "q" || cur.kind === "ai") return `「${esc(cur.label)}」に近い言葉`;
+  if (cur.kind === "tag") return esc(TAGS[cur.key].label);
+  return `「${esc(cur.label)}」の関連カード`;
+}
+function renderStage(animate) {
+  const cur = S.cur; if (!cur) return;
+  const home = cur.kind === "home";
+  const res = cur.results.filter((r) => S.byId.has(r.id));
+  const pileMode = S.layout === "pile" && res.length > 0;
+  $("clearQ").hidden = home; $("qKbd").hidden = !home || !!$("q").value;
+  if (!S.cards.length) {
+    $("stHead").innerHTML = `<div class="st-empty"><h2 class="head-jp">最初の1語を書きとめましょう</h2>
+      <p>今日どこかで出会った用語をひとつ。意味はあとから書けば大丈夫です。書きとめた言葉は、ここに降って積もっていきます。</p>
+      <div><button type="button" class="btn primary" data-add>＋ 最初の1語を書きとめる</button></div>
+      ${S.local ? '<p class="help">この表示ではクラウドに保存できないため、このブラウザの中にだけ保存します。</p>' : ""}</div>`;
+    $("pile").hidden = true; $("gridwrap").hidden = true; return;
+  }
+  const trail = S.trail.length > 1 ? `<nav class="trail" aria-label="探した道">${S.trail.map((t, i) => i === S.trail.length - 1
+      ? `<span class="cur" aria-current="step">${esc(t.label)}</span>` : `<button type="button" data-trail="${i}">${esc(t.label)}</button><span aria-hidden="true">›</span>`).join("")}</nav>` : "";
+  const motionNote = false ? `<span>静かに置いています</span> <button type="button" class="link" data-motion="fall">降らせる</button>` : "";
+  const ctx = cur.kind === "q" ? "関係しそうな言葉" : cur.kind === "ai" ? "Claudeが選んだ言葉" : cur.kind === "tag" ? `${esc(TAGS[cur.key].label)}のタグ` : `「${esc(cur.label)}」の関連カード`;
+  const sep = '<span class="sep" aria-hidden="true">·</span>';
+  const toggle = true ? "" : S.layout === "pile" ? `${sep}<button type="button" class="link" data-layout="grid" id="restNote">一覧で見る</button>` : `${sep}<button type="button" class="link" data-layout="pile">積み上げで見る</button>`;
+  $("stHead").innerHTML = home ? `<h1 class="vh">UIUX Stocker</h1>
+    ${S.landmark ? `<div class="restart" role="status"><span>${esc(S.landmark.text)}</span><button type="button" class="btn small primary" data-add data-restart>＋ 1つ置く</button><button type="button" class="restart-x" data-restart-x aria-label="閉じる">×</button></div>` : ""}
+    ${motionNote ? `<p class="st-meta">${motionNote}</p>` : ""}`
+  : cur.kind === "tag" ? `<h1 class="tag-now t-${cur.key}"><span class="dot"></span>${esc(TAGS[cur.key].label)}<span class="n">${res.length}枚</span><button type="button" class="tag-now-x" data-go="stage" data-home aria-label="${esc(TAGS[cur.key].label)}の山を閉じる">×</button></h1>`
+  : `${trail}
+    <h1 class="vh">${titleFor(cur)}</h1>
+    <p class="st-meta"><b>${ctx}</b><span id="stCount">${res.length}語</span>${toggle}${S.sample && cur.kind === "q" ? `${sep}<button type="button" class="link" id="aiBtn">Claudeに探し直してもらう</button>` : ""}${motionNote ? sep + motionNote : ""}</p>`;
+  $("pile").hidden = !pileMode;
+  $("gridwrap").hidden = pileMode;
+  $("layoutFab").hidden = !res.length;
+  $("layoutFab").innerHTML = S.layout === "pile"
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>整列して見る'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="10" height="7" rx="1.5" transform="rotate(-12 8 14.5)"/><rect x="11" y="9" width="10" height="7" rx="1.5" transform="rotate(10 16 12.5)"/><rect x="6" y="3" width="10" height="7" rx="1.5" transform="rotate(-4 11 6.5)"/></svg>山に戻す';
+  if (!res.length) {
+    pileClear(true);
+    $("gridwrap").style.top = $("overlay").offsetHeight + "px";
+    $("gridInner").innerHTML = `<div class="st-empty" style="margin:16px auto 0"><h2 class="head-jp">関係するカードが見つかりませんでした</h2>
+      <p>別の言い方で探すか、この言葉を新しく書きとめてください。</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${S.sample && cur.kind === "q" ? '<button type="button" class="btn" data-ai2>Claudeに探し直してもらう</button>' : ""}${cur.kind === "q" ? `<button type="button" class="btn primary" data-add-term="${esc(cur.label)}">「${esc(cur.label.length > 12 ? cur.label.slice(0, 12) + "…" : cur.label)}」を書きとめる</button>` : ""}</div></div>`;
+    return;
+  }
+  if (pileMode) {
+    $("gridInner").innerHTML = "";
+    const key = cur.kind + "|" + cur.key;
+    const all = home || cur.kind === "tag"; // ホームとタグは全部を小さな札で
+    if (animate || P.key !== key || !P.live.size) pileShow(res, key, all);
+    else { pileMeasure(); pileRest(res.length, all); }
+    return;
+  }
+  pileClear(true);
+  $("gridwrap").style.top = $("overlay").offsetHeight + "px";
+  const anim = animate && !reduceMotion;
+  if (home || cur.kind === "tag") { $("gridwrap").classList.add("fit"); renderFit(res, anim); return; }
+  $("gridwrap").classList.remove("fit");
+  $("gridInner").innerHTML = `<div class="grid">${res.map((r, i) => cardHTML(S.byId.get(r.id), { rank: home ? 0 : i + 1, why: r.why, drop: anim, i })).join("")}</div>`;
+  $("gridwrap").scrollTop = 0;
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-restart-x],[data-open],[data-q],[data-tag],[data-trail],[data-layout],[data-add],[data-add-term],[data-motion],#aiBtn,[data-ai2]");
+  if (!t) return;
+  if ("restartX" in t.dataset) { if (S.landmark) store.set("uiux-landmark-closed", S.landmark.key); S.landmark = null; t.closest(".restart")?.remove(); return; }
+  if (t.dataset.open) return openDrawer(t.dataset.open);
+  if (t.dataset.q) return navigate({ kind: "q", key: t.dataset.q, label: t.dataset.q });
+  if (t.dataset.tag) return navigate({ kind: "tag", key: t.dataset.tag, label: TAGS[t.dataset.tag].label });
+  if (t.dataset.trail) { const i = +t.dataset.trail; const en = S.trail[i]; if (en.kind === "ai") { S.trail = S.trail.slice(0, i + 1); S.cur = en; go("stage", { animate: true }); } else navigate(en, i); return; }
+  if (t.dataset.layout) { S.layout = t.dataset.layout; return renderStage(true); }
+  if (t.dataset.motion) { store.set("uiux-motion", t.dataset.motion); return renderStage(true); }
+  if ("restart" in t.dataset && S.landmark) { store.set("uiux-landmark-closed", S.landmark.key); S.landmark = null; }
+  if ("add" in t.dataset) { if (isNarrow()) closeSide(true); return openSheet(null); }
+  if (t.dataset.addTerm) return openSheet(null, { term: t.dataset.addTerm });
+  if (t.id === "aiBtn" || "ai2" in t.dataset) return aiSearch(t);
+});
+$("sform").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const q = $("q").value.trim(); if (!q) return;
+  runSearch(q);
+});
+$("clearQ").onclick = () => go("stage", { home: true });
+$("layoutFab").onclick = () => { S.layout = S.layout === "pile" ? "grid" : "pile"; renderStage(true); };
+// 候補：空なら「最近の検索」と「困りごとの例」、入力中は意味で近いカードを理由つきで即時に出す
+let sugItems = [], sugIdx = -1, sugT2 = 0;
+const sugOpen = () => !$("sugg").hidden;
+function sugClose() { $("sugg").hidden = true; $("q").setAttribute("aria-expanded", "false"); $("q").removeAttribute("aria-activedescendant"); sugIdx = -1; }
+function markHit(t, q) {
+  const i = norm(t).indexOf(norm(q));
+  return q && i >= 0 && norm(t).length === t.length ? `${esc(t.slice(0, i))}<mark>${esc(t.slice(i, i + q.length))}</mark>${esc(t.slice(i + q.length))}` : esc(t);
+}
+function renderSugg() {
+  const q = $("q").value.trim(); let html = ""; sugItems = []; sugIdx = -1;
+  const sec = (t) => (html += `<div class="sg-h" role="presentation">${t}</div>`);
+  const row = (inner, act, cls = "") => { const i = sugItems.length; sugItems.push(act); html += `<div class="sg-row ${cls}" role="option" id="sg-${i}" data-si="${i}" aria-selected="false">${inner}</div>`; };
+  if (!q) {
+    const recent = store.get("uiux-recent", []);
+    if (recent.length) { sec("Recent<span>最近の検索</span>"); recent.forEach((r) => row(`<span class="sg-ico" aria-hidden="true">↺</span><span class="sg-t"><b>${esc(r)}</b></span>`, () => runSearch(r))); }
+    sec("Try<span>困りごとからも探せます</span>");
+    EXAMPLES.forEach((r) => row(`<span class="sg-ico" aria-hidden="true">?</span><span class="sg-t"><b>${esc(r)}</b></span>`, () => runSearch(r)));
+  } else {
+    const { results } = searchText(q), nq = norm(q);
+    const exact = S.cards.find((c) => norm(c.ja) === nq || norm(c.term) === nq);
+    if (results.length) {
+      sec(`Cards<span>意味が近い順${results[0] && results[0].why.startsWith("共通するテーマ") ? `（${esc(results[0].why.replace("共通するテーマ：", ""))}）` : ""}</span>`);
+      results.slice(0, 5).forEach((r) => { const c = S.byId.get(r.id); if (!c) return;
+        row(`<span class="sg-sw ${c.meaning ? c.tc : "t-none"}" aria-hidden="true"></span><span class="sg-t"><b>${markHit(titleOf(c), q)}</b><small>${esc(c.meaning ? c.meaning.slice(0, 40) + (c.meaning.length > 40 ? "…" : "") : r.why)}</small></span>`, () => { sugClose(); openDrawer(c.id); }); });
+    }
+    sec("Actions");
+    if (results.length) row(`<span class="sg-ico go-ico" aria-hidden="true">→</span><span class="sg-t"><b>「${esc(q)}」に近いカードを山で見る</b><small>${results.length}枚</small></span>`, () => runSearch(q), "act");
+    if (!exact) row(`<span class="sg-ico add-ico" aria-hidden="true">＋</span><span class="sg-t"><b>「${esc(q)}」を新しいカードにする</b><small>${results.length ? "見つからないなら、ここで書きとめる" : "まだストックにない言葉です"}</small></span>`, () => { sugClose(); $("q").blur(); openSheet(null, { term: q }); }, "act");
+  }
+  $("sugg").innerHTML = html;
+  $("sugg").hidden = false; $("q").setAttribute("aria-expanded", "true");
+}
+function sugMove(d) {
+  if (!sugItems.length) return;
+  const n = sugItems.length + 1; sugIdx = ((sugIdx + 1 + d) % n + n) % n - 1;
+  $("sugg").querySelectorAll(".sg-row").forEach((el, i) => el.setAttribute("aria-selected", String(i === sugIdx)));
+  if (sugIdx >= 0) { $("q").setAttribute("aria-activedescendant", "sg-" + sugIdx); $("sg-" + sugIdx).scrollIntoView({ block: "nearest" }); } else $("q").removeAttribute("aria-activedescendant");
+}
+function runSearch(q) {
+  sugClose(); $("q").blur();
+  store.set("uiux-recent", [q, ...store.get("uiux-recent", []).filter((x) => x !== q)].slice(0, 4));
+  navigate({ kind: "q", key: q, label: q });
+}
+$("q").addEventListener("focus", () => { if (S.cards.length) renderSugg(); });
+$("q").addEventListener("input", () => { $("qKbd").hidden = !!$("q").value; clearTimeout(sugT2); sugT2 = setTimeout(renderSugg, 60); });
+$("q").addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== $("q")) sugClose(); }, 150));
+$("q").addEventListener("keydown", (e) => {
+  if (e.isComposing || e.keyCode === 229) return;
+  if (e.key === "ArrowDown") { e.preventDefault(); if (!sugOpen()) renderSugg(); sugMove(1); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); sugMove(-1); }
+  else if (e.key === "Escape" && sugOpen()) { e.stopPropagation(); sugClose(); }
+  else if (e.key === "Enter" && sugIdx >= 0) { e.preventDefault(); sugItems[sugIdx](); }
+});
+$("sugg").addEventListener("pointerdown", (e) => e.preventDefault());
+$("sugg").addEventListener("click", (e) => { const r = e.target.closest("[data-si]"); if (r) sugItems[+r.dataset.si](); });
+// 「/」でどこからでも検索へ
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "/" || e.ctrlKey || e.metaKey || e.isComposing) return;
+  const a = document.activeElement; if (a && (a.matches("input,textarea,select,[contenteditable]"))) return;
+  if (!$("sheetWrap").hidden || !$("drawerWrap").hidden) return;
+  e.preventDefault(); if (S.view !== "stage") go("stage"); $("q").focus();
+});
+// 幅が狭いとヒントの末尾が切れるので、短い文言に切り替える
+const qHint = matchMedia("(max-width: 480px)");
+const setHint = () => { $("q").placeholder = qHint.matches ? "言葉や困りごとで探す" : "言葉や、困っている場面で探す"; };
+setHint(); qHint.addEventListener?.("change", setHint);
+
+async function aiSearch(btn) {
+  const cur = S.cur; if (!S.sample || !cur) return;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = "Claudeが読み解いています…";
+  const list = S.cards.map((c) => `${c.id}|${c.term}|${c.ja || ""}|${(c.meaning || "").slice(0, 70)}`).join("\n");
+  const prompt = `あなたはUI/UX・人間中心設計・行動経済学に詳しい編集者です。
+次の「問い」は、ユーザーが自分の状況や困りごとを文章で書いたものです。キーワードの一致ではなく、状況の意味と文脈から、役に立つ用語カードを選んでください。
+
+問い: ${cur.label}
+
+カード一覧（id|用語|日本語名|意味の冒頭）:
+${list}
+
+関連が強い順に最大12枚。JSON配列だけを返してください。形式:
+[{"id":"カードのid","score":0から100の整数,"why":"この状況にどう効くかを30字以内"}]`;
+  try {
+    const out = await S.sample.json(prompt, { modelTier: "quick" });
+    const arr = (Array.isArray(out) ? out : []).filter((r) => r && S.byId.has(r.id))
+      .map((r) => ({ id: r.id, score: Math.max(0.01, Math.min(1, Number(r.score) / 100 || 0.01)), why: String(r.why || "").slice(0, 40) }))
+      .sort((a, b) => b.score - a.score);
+    if (!arr.length) { toast("Claudeから使える答えが返りませんでした。いまの結果はそのまま使えます。"); btn.disabled = false; btn.textContent = orig; return; }
+    const entry = { kind: "ai", key: "ai:" + cur.label, label: cur.label, results: arr };
+    S.trail.push({ ...entry, label: cur.label + "（Claude）" });
+    S.cur = entry;
+    go("stage", { animate: true });
+  } catch (e) {
+    btn.disabled = false; btn.textContent = orig;
+    const code = e && e.code;
+    if (code === "not_granted") { S.sample = null; toast("Claudeへの問い合わせが許可されなかったため、辞書による検索だけを使います。"); renderStage(false); }
+    else toast(code === "rate_limited" ? "問い合わせが集中しています。少し時間をおいてもう一度押してください。" : "読み解きに失敗しました。いまの結果はそのまま使えます。");
+  }
+}
+
+/* ================= 積み上げ(物理演算) =================
+   ・近い言葉ほどあとから降らせる → 1位が山のてっぺんに乗る
+   ・DOMは近い順 → Tabと読み上げは近い順
+   ・回りにくくして寝た向きで積もらせる → 読める
+   ・経過時間ぶん進め、止まったら描画を止める */
+const P = { engine: null, live: new Map(), raf: 0, w: 0, h: 0, top: 0, grab: null, walls: [], floor: null, idle: 0, pending: 0, token: 0, req: 0, key: "", hover: null, last: 0, wd: 0, z: 100 };
+// ホームの札：日本語名だけ。色は1つ目のタグ
+// 整列：全部のカードを1画面に収める。収まらない(1枚が小さすぎる)ときだけスクロール
+function renderFit(res, anim) {
+  const gw = $("gridwrap"); gw.scrollTop = 0;
+  const list = res.map((r) => S.byId.get(r.id)).filter(Boolean);
+  if (S.cur.kind === "home") list.sort((a, b) => TAG_IDS.indexOf(a.labels[0]) - TAG_IDS.indexOf(b.labels[0]) || titleOf(a).localeCompare(titleOf(b), "ja"));
+  else list.sort((a, b) => titleOf(a).localeCompare(titleOf(b), "ja"));
+  const g = 8, W = gw.clientWidth - 48, H = gw.clientHeight - 88, N = list.length, R = TILE_H / TILE_W;
+  let best = null;
+  for (let cols = 1; cols <= N; cols++) { const w = Math.min(260, (W - (cols - 1) * g) / cols), rows = Math.ceil(N / cols); if (rows * w * R + (rows - 1) * g <= H) { best = { w, cols }; break; } }
+  if (!best || best.w < 96) best = { w: 96, cols: Math.max(1, Math.floor((W + g) / (96 + g))) };
+  const w = Math.floor(best.w), h = Math.round(w * R), k = w / TILE_W;
+  $("gridInner").innerHTML = `<div class="fit-grid${anim ? " anim" : ""}" style="grid-template-columns:repeat(${best.cols},${w}px);gap:${g}px">${list.map((c, i) => `<button type="button" class="ft" data-open="${esc(c.id)}" style="width:${w}px;height:${h}px;--i:${Math.min(i, 90)}" aria-label="${esc(titleOf(c))}${subOf(c) ? "、" + esc(subOf(c)) : ""}。詳しく見る"><span class="tile ${c.meaning ? c.tc : "seed"}" style="width:${TILE_W}px;height:${TILE_H}px;transform:scale(${k.toFixed(4)})">
+      <span class="pc-top"><span class="pc-tag">${esc(tagLabel(c))}</span></span><span class="title">${esc(titleOf(c))}</span>${subOf(c) ? `<span class="en">${esc(subOf(c))}</span>` : ""}<span class="pc-mean">${c.meaning ? esc(c.meaning) : "まだ意味を書いていない「種」。"}</span></span></button>`).join("")}</div>`;
+}
+function miniCardHTML(c, k, memo) {
+  return `<button type="button" class="pc tiny" data-pc="${esc(c.id)}" aria-label="${esc(titleOf(c))}${subOf(c) ? "、" + esc(subOf(c)) : ""}。詳しく見る">
+    <span class="zoom">${memo ? `<span class="memo-tag">${esc(memo)}</span>` : ""}<span class="tile ${c.meaning ? c.tc : "seed"}" style="width:${TILE_W}px;height:${TILE_H}px;transform:scale(${k.toFixed(4)})">
+      <span class="pc-top"><span class="pc-tag">${esc(tagLabel(c))}</span></span>
+      <span class="title">${esc(titleOf(c))}</span>
+      ${subOf(c) ? `<span class="en">${esc(subOf(c))}</span>` : ""}
+      <span class="pc-mean">${c.meaning ? esc(c.meaning) : "まだ意味を書いていない「種」。ひらいて一言足せます。"}</span>
+    </span></span></button>`;
+}
+function pileCardHTML(c, rank, big) {
+  return `<button type="button" class="pc ${c.meaning ? c.tc : "seed"}${big ? " big" : ""}" data-pc="${esc(c.id)}" aria-label="${esc(titleOf(c))}${subOf(c) ? "、" + esc(subOf(c)) : ""}。詳しく見る">
+    <span class="pc-top"><span class="pc-tag">${esc(tagLabel(c))}</span>${rankHTML(rank)}</span>
+    <span class="title">${esc(titleOf(c))}</span>
+    ${subOf(c) ? `<span class="en">${esc(subOf(c))}</span>` : ""}
+    <span class="pc-mean">${c.meaning ? esc(c.meaning) : "まだ意味を書いていない種。ひらいて一言足せます"}</span>
+  </button>`;
+}
+function pileEngine() {
+  if (P.engine || typeof Matter === "undefined") return !!P.engine;
+  P.engine = Matter.Engine.create({ enableSleeping: true });
+  P.engine.gravity.y = 1.15; P.engine.positionIterations = 10; P.engine.velocityIterations = 8;
+  return true;
+}
+function pileMeasure() {
+  const box = $("pile"); if (!box || box.hidden || !pileEngine()) return;
+  P.w = box.clientWidth; P.h = box.clientHeight;
+  P.top = Math.min(P.h * 0.5, ($("overlay")?.offsetHeight || 0) + 16);
+  const { Bodies, Composite, Body, Sleeping } = Matter;
+  P.walls.forEach((b) => Composite.remove(P.engine.world, b));
+  const T = 200;
+  P.floor = Bodies.rectangle(P.w / 2, P.h + T / 2, P.w * 3, T, { isStatic: true, friction: 0.9 });
+  P.walls = [P.floor, Bodies.rectangle(-T / 2, P.h / 2 - P.h * 2, T, P.h * 6, { isStatic: true }), Bodies.rectangle(P.w + T / 2, P.h / 2 - P.h * 2, T, P.h * 6, { isStatic: true })];
+  Composite.add(P.engine.world, P.walls);
+  for (const v of P.live.values()) {
+    if (!v.body) continue;
+    const p = v.body.position;
+    Body.setPosition(v.body, { x: Math.min(P.w - v.w / 2, Math.max(v.w / 2, p.x)), y: Math.min(P.h - v.h / 2, p.y) });
+    Sleeping.set(v.body, false);
+  }
+  pileWake();
+}
+const TILE_W = 260, TILE_H = 156;
+function homeSizes(n) {
+  const area = P.w * Math.max(200, P.h - P.top) * 0.72;
+  const w = Math.round(Math.max(60, Math.min(200, Math.sqrt(area / (Math.max(1, n) * 0.6 * 1.25)))));
+  return { w, h: Math.round(w * 0.6), k: w / TILE_W };
+}
+function pileSizes() { const w = Math.round(Math.max(176, Math.min(250, P.w * 0.19))); return { w, h: Math.round(w * 0.62) }; }
+function pileLimit() { const { w, h } = pileSizes(); return Math.max(5, Math.min(30, Math.floor(P.w * Math.max(200, P.h - P.top) * 0.52 / (w * h * 1.3)))); }
+function pileRest(total, home) {
+  const n = Math.min(total, pileLimit());
+  const note = $("restNote"); if (!note) return;
+  const c = $("stCount"); if (c) c.textContent = total > n ? `上位${n}語 / ${total}語` : `${total}語`;
+}
+function pileClear(now) {
+  P.token++;
+  const olds = [...P.live.values()]; P.live.clear(); P.key = ""; P.grab = null;
+  const drop = () => olds.forEach((v) => { if (v.body && P.engine) Matter.Composite.remove(P.engine.world, v.body); v.el.remove(); });
+  if (now || calmMotion() || !P.engine || !olds.some((v) => v.body)) { drop(); return Promise.resolve(); }
+  Matter.Composite.remove(P.engine.world, P.floor);
+  olds.forEach((v) => { if (!v.body) return; Matter.Sleeping.set(v.body, false); Matter.Body.setVelocity(v.body, { x: (Math.random() - 0.5) * 3, y: 3 + Math.random() * 3 }); v.el.classList.add("leaving"); v.el.tabIndex = -1; });
+  pileWake();
+  return new Promise((res) => setTimeout(() => { drop(); if (P.engine && P.floor) Matter.Composite.add(P.engine.world, P.floor); res(); }, 420));
+}
+async function pileShow(res, key, home) {
+  const box = $("pile");
+  const req = ++P.req;
+  if (!(await ensureMatter()) || !pileEngine()) {
+    S.layout = "grid"; renderStage(false);
+    toast("カードを降らせる部品を読み込めなかったため、一覧で表示しています。");
+    return;
+  }
+  for (let i = 0; i < 30 && (box.clientHeight < 120 || box.clientWidth < 120); i++) await nextFrame();
+  if (req !== P.req) return;
+  pileMeasure();
+  await pileClear(false);
+  if (req !== P.req) return;
+  const my = ++P.token; P.key = key;
+  const list = home ? res : res.slice(0, pileLimit());
+  const { w, h } = home ? (P.mini = homeSizes(list.length)) : pileSizes();
+  if (!home) P.mini = null;
+  list.forEach((r, i) => {
+    const c = S.byId.get(r.id);
+    const big = !home && i < 3;
+    const wrap = document.createElement("div");
+    const memo = home && S.memo?.get(c.id);
+    // あの日の言葉は大きめ。ただし狭い画面では幅の6割まで
+    const ms = memo ? (P.w < 600 ? 1.3 : Math.min(1.9, (P.w * 0.6) / w)) : 1;
+    wrap.innerHTML = home ? miniCardHTML(c, P.mini.k * ms, memo) : pileCardHTML(c, i + 1, big);
+    const el = wrap.firstElementChild;
+    const cw = memo ? Math.round(w * ms) : big ? Math.round(w * 1.15) : w, ch = memo ? Math.round(h * ms) : big ? Math.round(h * 1.18) : h;
+    if (memo) el.classList.add("memo");
+    el.style.width = cw + "px"; el.style.height = ch + "px";
+    el.style.transform = `translate(${P.w / 2 - cw / 2}px,${-ch * 2}px)`;
+    el.style.zIndex = String(list.length - i);
+    box.appendChild(el);
+    P.live.set(c.id, { id: c.id, el, body: null, w: cw, h: ch, rank: i });
+  });
+  P.pending = list.length;
+  const order = [...P.live.values()].sort((a, b) => b.rank - a.rank);
+  const calm = calmMotion();
+  const gap = calm ? 0 : home ? Math.max(12, Math.min(40, 1600 / Math.max(1, list.length))) : Math.max(35, Math.min(80, 1400 / Math.max(1, list.length)));
+  order.forEach((v, k) => {
+    const spawn = () => {
+      if (my !== P.token || !P.engine) return;
+      const top3 = !home ? v.rank < 3 : v.el.classList.contains("memo");
+      // 中央に寄った分布(乱数3つの平均)で落とすと、裾の広い山になる
+      const g = (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+      const memo = home && top3;
+      const half = memo ? Math.max(v.w / 2, 84) + 8 : v.w / 2 + 8;
+      const x = top3 ? Math.min(P.w - half, Math.max(half, P.w / 2 + (v.rank - 1) * (memo ? Math.min(v.w * 1.05, P.w * 0.2) : v.w * 0.5) + (Math.random() - 0.5) * 30))
+                     : Math.min(P.w - v.w / 2 - 8, Math.max(v.w / 2 + 8, P.w / 2 + g * P.w * 0.34));
+      const body = Matter.Bodies.rectangle(x, -v.h - Math.random() * 120, v.w, v.h, {
+        chamfer: { radius: home ? 8 : 14 }, restitution: 0.02, friction: 0.85, frictionStatic: 1.2, frictionAir: 0.016, density: 0.0016,
+        angle: (Math.random() - 0.5) * (top3 ? 0.14 : 0.4),
+      });
+      Matter.Body.setInertia(body, body.inertia * (memo ? 14 : 4));
+      Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * (top3 ? 0.01 : 0.03));
+      body.plugin = { id: v.id };
+      Matter.Composite.add(P.engine.world, body);
+      v.body = body; v.el.classList.add("in");
+      P.pending--;
+      pileWake();
+    };
+    if (gap) setTimeout(spawn, k * gap); else spawn();
+  });
+  if (calm) { for (let i = 0; i < 600; i++) Matter.Engine.update(P.engine, 1000 / 60); pileDraw(); }
+  pileRest(res.length, home);
+  $("liveResult").textContent = home ? `カードを${list.length}語積みました` : `${res.length}語見つかりました`;
+}
+function pileDropOne(c) {
+  if (!P.engine || P.live.has(c.id)) return;
+  const { w, h } = P.mini || pileSizes();
+  const wrap = document.createElement("div");
+  wrap.innerHTML = P.mini ? miniCardHTML(c, P.mini.k) : pileCardHTML(c, 0, false);
+  const el = wrap.firstElementChild;
+  el.style.width = w + "px"; el.style.height = h + "px"; el.style.zIndex = String(++P.z);
+  $("pile").appendChild(el);
+  const body = Matter.Bodies.rectangle(P.w / 2 + (Math.random() - 0.5) * 60, -h, w, h, { chamfer: { radius: P.mini ? 8 : 14 }, restitution: 0.02, friction: 0.85, frictionStatic: 1.2, frictionAir: 0.016, density: 0.0016, angle: (Math.random() - 0.5) * 0.2 });
+  Matter.Body.setInertia(body, body.inertia * 4);
+  body.plugin = { id: c.id };
+  Matter.Composite.add(P.engine.world, body);
+  P.live.set(c.id, { id: c.id, el, body, w, h, rank: P.live.size });
+  el.classList.add("in", "hover"); setTimeout(() => el.classList.remove("hover"), 1400);
+  if (calmMotion()) { for (let i = 0; i < 300; i++) Matter.Engine.update(P.engine, 1000 / 60); pileDraw(); }
+  pileWake();
+}
+// 位置(translate)→傾き(rotate)→拡大(scale)の順で組む。大きいカードのホバー拡大はここで行う(札は .zoom 側)
+function pileT(v) {
+  const b = v.body; if (!b) return;
+  const big = !v.el.classList.contains("tiny") && (v.el.classList.contains("hover") || v.el.classList.contains("hold"));
+  v.el.style.transform = `translate(${(b.position.x - v.w / 2).toFixed(1)}px,${(b.position.y - v.h / 2).toFixed(1)}px) rotate(${b.angle.toFixed(4)}rad)${big ? " scale(1.08)" : ""}`;
+}
+function pileDraw() {
+  let still = true;
+  for (const v of P.live.values()) {
+    const b = v.body; if (!b) continue;
+    if (b.position.y > P.h + 400) { Matter.Body.setPosition(b, { x: P.w / 2, y: -v.h }); Matter.Body.setVelocity(b, { x: 0, y: 0 }); }
+    pileT(v);
+    if (!b.isSleeping) still = false;
+  }
+  return still;
+}
+function pileTick() {
+  P.raf = 0; clearTimeout(P.wd);
+  if (!P.engine || S.view !== "stage" || $("pile").hidden) { P.last = 0; return; }
+  const t = performance.now();
+  const steps = P.last ? Math.min(10, Math.max(1, Math.round((t - P.last) / (1000 / 60)))) : 1;
+  P.last = t;
+  for (let i = 0; i < steps; i++) Matter.Engine.update(P.engine, 1000 / 60);
+  const still = pileDraw();
+  P.idle = still && !P.grab && P.pending <= 0 ? P.idle + 1 : 0;
+  if (P.idle < 45) pileSchedule(); else P.last = 0;
+}
+function pileSchedule() {
+  P.raf = requestAnimationFrame(pileTick);
+  clearTimeout(P.wd);
+  P.wd = setTimeout(() => { if (P.raf) { cancelAnimationFrame(P.raf); pileTick(); } }, 120);
+}
+function pileWake() { P.idle = 0; if (!P.raf) { P.last = 0; pileSchedule(); } }
+function pileStop() { cancelAnimationFrame(P.raf); clearTimeout(P.wd); P.raf = 0; P.last = 0; }
+document.addEventListener("visibilitychange", () => { if (!document.hidden && S.view === "stage") pileWake(); });
+(function pileBind(box) {
+  const pt = (e) => { const r = box.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  const bodyAt = (p) => {
+    if (!P.engine) return null;
+    const vals = [...P.live.values()].filter((v) => v.body);
+    const hits = Matter.Query.point(vals.map((v) => v.body), p);
+    const z = (b) => Number(P.live.get(b.plugin.id)?.el.style.zIndex || 0);
+    return hits.sort((a, b) => z(b) - z(a))[0] || null;
+  };
+  const setHover = (id) => {
+    if (P.hover === id) return;
+    const prev = P.hover && P.live.get(P.hover);
+    if (prev) { prev.el.classList.remove("hover"); pileT(prev); }
+    P.hover = id; const cur = id && P.live.get(id);
+    if (cur) { cur.el.classList.add("hover"); pileT(cur); }
+    box.classList.toggle("hovering", !!id);
+  };
+  box.addEventListener("pointerdown", (e) => {
+    const p = pt(e); const b = bodyAt(p); if (!b) return;
+    e.preventDefault();
+    Matter.Sleeping.set(b, false);
+    const c = Matter.Constraint.create({ pointA: { ...p }, bodyB: b, pointB: { x: p.x - b.position.x, y: p.y - b.position.y }, angleB: b.angle, stiffness: 0.18, damping: 0.08, length: 0 });
+    Matter.Composite.add(P.engine.world, c);
+    const v = P.live.get(b.plugin.id); v.el.classList.add("hold"); v.el.style.zIndex = String(++P.z);
+    P.grab = { c, id: b.plugin.id, sx: p.x, sy: p.y, t: performance.now(), moved: false };
+    box.classList.add("grabbing");
+    try { box.setPointerCapture(e.pointerId); } catch {}
+    pileWake();
+  });
+  box.addEventListener("pointermove", (e) => {
+    const p = pt(e);
+    if (P.grab) { P.grab.c.pointA.x = p.x; P.grab.c.pointA.y = p.y; if (Math.hypot(p.x - P.grab.sx, p.y - P.grab.sy) > 6) P.grab.moved = true; return; }
+    if (e.pointerType === "mouse") { const b = bodyAt(p); setHover(b ? b.plugin.id : null); }
+  });
+  const up = (e) => {
+    if (!P.grab) return;
+    Matter.Composite.remove(P.engine.world, P.grab.c);
+    P.live.get(P.grab.id)?.el.classList.remove("hold");
+    box.classList.remove("grabbing");
+    const quick = !P.grab.moved && performance.now() - P.grab.t < 400, id = P.grab.id;
+    P.grab = null; pileWake();
+    if (quick && e.type === "pointerup") openDrawer(id);
+  };
+  box.addEventListener("pointerup", up);
+  box.addEventListener("pointercancel", up);
+  box.addEventListener("pointerleave", () => setHover(null));
+  box.addEventListener("click", (e) => { const b = e.target.closest("[data-pc]"); if (b && e.detail === 0) openDrawer(b.dataset.pc); });
+})($("pile"));
+let rzT = 0;
+window.addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => {
+  if (S.view !== "stage") return;
+  if (S.layout === "pile" && !$("pile").hidden) pileMeasure(); else { $("gridwrap").style.top = $("overlay").offsetHeight + "px"; if ($("gridwrap").classList.contains("fit") && !$("gridwrap").hidden) renderStage(false); }
+}, 150); });
+
+/* ================= すべての言葉 ================= */
+
+/* ================= Stack(積み上げ・称号・バッジ) ================= */
+const DAY_MS = 864e5;
+const parseDay = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+const mondayOf = (d) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+const WD = ["日", "月", "火", "水", "木", "金", "土"];
+// 積み上げた記録＝自分で追加したカード＋理解を上げた記録
+function stackItems() {
+  const items = [];
+  S.cards.forEach((c) => { if (c.source === "me" && c.createdAt) items.push({ kind: "add", c, t: new Date(c.createdAt) }); });
+  S.events.forEach((e) => { if (e.type !== "leveled" || !e.day) return; const c = S.byId.get(e.cardId); if (c) items.push({ kind: "up", c, t: e.at ? new Date(e.at) : parseDay(e.day) }); });
+  return items.sort((a, b) => a.t - b.t);
+}
+// ジムバッジ：順番に8つ。条件を満たすと手に入り、最後に手に入れたバッジの称号を名乗れる
+const GYMS = [
+  { id: "g1", name: "スタートバッジ", title: "駆け出しデザイナー", shape: "circle", color: "--t-ui", reqs: [["mine", 1, "カードを追加"]] },
+  { id: "g2", name: "UIバッジ", title: "UIの目利き", shape: "drop", color: "--t-research", reqs: [["ui", 5, "UIの原則を「説明できる」"]] },
+  { id: "g3", name: "リズムバッジ", title: "習慣の芽", shape: "hex", color: "--t-eval", reqs: [["days", 7, "記録した日"], ["mine", 10, "カードを追加"]] },
+  { id: "g4", name: "タッチバッジ", title: "さわり心地の職人", shape: "diamond", color: "--t-ix", reqs: [["ix", 5, "インタラクションを「説明できる」"]] },
+  { id: "g5", name: "マインドバッジ", title: "ユーザー心理の読み手", shape: "shield", color: "--t-be", reqs: [["mind", 10, "認知心理・行動経済を「説明できる」"], ["remember", 15, "「覚えた」以上"]] },
+  { id: "g6", name: "リサーチバッジ", title: "ユーザーの声を聴く人", shape: "star", color: "--t-cog", reqs: [["research", 6, "リサーチ・評価を「説明できる」"], ["remember", 20, "「覚えた」以上"]] },
+  { id: "g9", name: "ビズバッジ", title: "事業がわかるデザイナー", shape: "pent", color: "--t-biz", reqs: [["biz", 5, "ビジネス・事業を「説明できる」"]] },
+  { id: "g10", name: "AIバッジ", title: "AIと組めるデザイナー", shape: "circle", color: "--t-ai", reqs: [["aiw", 6, "生成AIの用語を「説明できる」"]] },
+  { id: "g7", name: "HCDバッジ", title: "そろそろHCDの資格、受けてもいいかも！", shape: "oct", color: "--t-ethics", reqs: [["explain", 30, "「説明できる」"], ["remember", 50, "「覚えた」以上"]] },
+  { id: "g8", name: "マスターバッジ", title: "立派なUI/UXデザイナー！", shape: "burst", color: "--t-process", reqs: [["explain", 60, "「説明できる」"], ["days", 60, "記録した日"], ["mine", 100, "カードを追加"]] },
+];
+const UNIT = { aiw: "語", days: "日", remember: "語", biz: "語", mine: "枚", explain: "語", used: "語", best: "週", weeks: "週", ui: "語", ix: "語", mind: "語", research: "語" };
+const explainIn = (tags) => S.cards.filter((c) => lvlOf(c) >= 2 && c.labels.some((t) => tags.includes(t))).length;
+const WEEK_GOAL = 3; // 週3日記録したらその週はクリア
+function progressState() {
+  const days = new Set(stackItems().map((x) => dayKey(x.t)));
+  const weeks = new Map();
+  days.forEach((k) => { const w = dayKey(mondayOf(parseDay(k))); weeks.set(w, (weeks.get(w) || 0) + 1); });
+  const cleared = (d) => (weeks.get(dayKey(d)) || 0) >= WEEK_GOAL;
+  const thisMon = mondayOf(new Date());
+  let w = new Date(thisMon); if (!cleared(w)) w.setDate(w.getDate() - 7);
+  let streak = 0; while (cleared(w)) { streak++; w.setDate(w.getDate() - 7); }
+  let best = 0, run = 0, prev = null;
+  [...weeks.keys()].filter((k) => weeks.get(k) >= WEEK_GOAL).sort().forEach((k) => { const d = parseDay(k); run = prev && Math.round((d - prev) / DAY_MS) === 7 ? run + 1 : 1; best = Math.max(best, run); prev = d; });
+  const week = Array.from({ length: 7 }, (_, i) => { const d = new Date(thisMon); d.setDate(d.getDate() + i); return { d, on: days.has(dayKey(d)), today: dayKey(d) === dayKey(new Date()), future: d > new Date() }; });
+  const p = { streak, best: Math.max(best, streak), week, weekDays: week.filter((x) => x.on).length, totalDays: days.size,
+    mine: S.cards.filter((c) => c.source === "me").length, explain: S.cards.filter((c) => lvlOf(c) >= 2).length, remember: S.cards.filter((c) => lvlOf(c) >= 1).length,
+    weeks: [...weeks.values()].filter((n) => n >= WEEK_GOAL).length,
+    ui: explainIn(["ui"]), ix: explainIn(["ix"]), mind: explainIn(["cog", "be"]), research: explainIn(["research", "eval"]), biz: explainIn(["biz"]), aiw: explainIn(["ai"]) };
+  p.days = p.totalDays;
+  p.gyms = GYMS.map((g) => { const reqs = g.reqs.map(([k, n, label]) => ({ label, n, v: Math.min(p[k], n), unit: UNIT[k] })); return { ...g, reqs, got: reqs.every((r) => r.v >= r.n) }; });
+  p.got = p.gyms.filter((g) => g.got);
+  // 称号：選んだもの＞最後に手に入れたもの。「もうすぐ」は達成率がいちばん高い未獲得バッジ(目標勾配)
+  const order = store.get("uiux-gyms", []) || [], pick = store.get("uiux-title", "");
+  const cur = p.got.find((g) => g.id === pick) || [...order].reverse().map((id) => p.got.find((g) => g.id === id)).find(Boolean) || p.got.at(-1);
+  p.titleId = cur ? cur.id : ""; p.title = cur ? cur.title : "デザイナーのたまご";
+  p.gyms.forEach((g) => (g.ratio = g.reqs.reduce((a, r) => a + r.v / r.n, 0) / g.reqs.length));
+  p.next = p.gyms.filter((g) => !g.got).sort((a, b) => b.ratio - a.ratio)[0] || null;
+  return p;
+}
+// バッジの形(ジムごとに違う形)
+const GYM_SHAPES = {
+  circle: '<circle cx="50" cy="50" r="42"/>',
+  drop: '<path d="M50 5C50 5 86 44 86 63A36 36 0 0 1 14 63C14 44 50 5 50 5Z"/>',
+  hex: '<polygon points="50,5 89,27 89,73 50,95 11,73 11,27"/>',
+  diamond: '<polygon points="50,4 95,50 50,96 5,50"/>',
+  shield: '<path d="M50 5L89 17V47C89 72 71 88 50 96C29 88 11 72 11 47V17Z"/>',
+  star: '<polygon points="50,4 62,37 97,37 69,58 80,93 50,72 20,93 31,58 3,37 38,37"/>',
+  pent: '<polygon points="50,4 95,37 78,93 22,93 5,37"/>',
+  oct: '<polygon points="31,5 69,5 95,31 95,69 69,95 31,95 5,69 5,31"/>',
+  burst: '<polygon points="' + Array.from({ length: 24 }, (_, i) => { const r = i % 2 ? 34 : 46, a = (i / 24) * Math.PI * 2 - Math.PI / 2; return (50 + r * Math.cos(a)).toFixed(1) + "," + (50 + r * Math.sin(a)).toFixed(1); }).join(" ") + '"/>',
+};
+function gymSVG(g, got, i) {
+  const sh = GYM_SHAPES[g.shape];
+  return `<svg class="gym-svg${got ? " got" : ""}" viewBox="0 0 100 100" aria-hidden="true" style="--gc:var(${g.color})">
+    <g class="gs-base">${sh}</g>
+    ${got ? `<g class="gs-inner" transform="translate(50 50) scale(.68) translate(-50 -50)">${sh}</g><ellipse class="gs-shine" cx="36" cy="32" rx="11" ry="6" transform="rotate(-30 36 32)"/>` : `<text x="50" y="60" text-anchor="middle" class="gs-n">?</text>`}
+  </svg>`;
+}
+// 新しいバッジを祝う。silent は現状を覚えるだけ(初回表示で一気に出さない)
+function checkRewards(silent) {
+  if (!S.loaded || !S.evLoaded) return false;
+  const p = progressState(), earned = p.got.map((g) => g.id);
+  const seen = store.get("uiux-gyms", null);
+  if (!seen || silent) { if (!seen) store.set("uiux-gyms", earned); return false; }
+  const nb = p.got.filter((g) => !seen.includes(g.id));
+  if (nb.length) store.set("uiux-title", nb.at(-1).id);
+  store.set("uiux-gyms", [...new Set([...seen, ...earned])]);
+  renderRank();
+  if (!nb.length) return false;
+  celebrate(nb, progressState());
+  if (S.view === "stack") renderStack();
+  if (S.view === "profile") renderProfile();
+  return true;
+}
+const trainerName = () => store.get("uiux-name", "") || "あなた";
+function caseHTML(p, cls) { return `<ol class="${cls}" aria-label="バッジケース ${p.got.length}/${GYMS.length}">${p.gyms.map((g, i) => `<li title="${esc(g.name)}${g.got ? "" : "（未獲得）"}">${gymSVG(g, g.got, i)}</li>`).join("")}</ol>`; }
+function renderRank() {
+  const el = $("sideRank"); if (!el || !S.loaded) return;
+  const p = progressState(), n = trainerName();
+  el.hidden = false;
+  el.innerHTML = `<span class="avatar sm" aria-hidden="true">${esc([...n][0])}</span><span class="sr-id"><b>${esc(n)}</b><span>${esc(p.title)}</span></span>${caseHTML(p, "case sm")}`;
+  el.setAttribute("aria-label", `${n}、称号「${p.title}」、バッジ${p.got.length}個。プロフィールをひらく`);
+}
+// Stack：いま知っている言葉の合計(増える一方の数)を主役に、下に「深さ」と「分野」
+function renderStack() {
+  const counts = levelCounts(), known = counts[0] + counts[1] + counts[2];
+  const items = stackItems(), now = Date.now();
+  const d7 = items.filter((x) => now - x.t < 7 * DAY_MS).length, d30 = items.filter((x) => now - x.t < 30 * DAY_MS).length;
+  const unread = S.cards.filter(isUnread).length;
+  $("stackIn").innerHTML = `<h1 class="page-title">Stack</h1>
+  <section class="sh" aria-label="積み上げの合計">
+    <div class="sh-main"><p class="sh-l">知っている言葉</p><b class="sh-n">${known}<small>語</small></b></div>
+    <dl class="sh-delta">
+      <div><dt>この7日</dt><dd>+${d7}</dd></div>
+      <div><dt>この30日</dt><dd>+${d30}</dd></div>
+      ${unread ? `<div class="muted"><dt>まだ開いていない</dt><dd>${unread}</dd></div>` : ""}
+    </dl>
+    <p class="sh-note">「+」はカードの追加と、理解度を上げた回数です</p>
+  </section>
+${stackMoreHTML()}`;
+}
+// Profile：自分(名前・称号)→ 手に入れたバッジ → 次のバッジ → まだのバッジ
+function renderProfile() {
+  const p = progressState(), n = trainerName();
+  const cur = p.gyms.find((g) => g.id === p.titleId);
+  const got = p.gyms.filter((g) => g.got), next = p.next;
+  const order = [...got, ...p.gyms.filter((g) => !g.got).sort((x, y) => y.ratio - x.ratio)];
+  const reqHTML = (g) => `<ul class="reqs">${g.reqs.map((q) => `<li class="${q.v >= q.n ? "done" : ""}"><span>${q.label}</span><span class="bar"><i style="width:${(q.v / q.n * 100).toFixed(0)}%"></i></span><b>${q.v}/${q.n}${q.unit}</b></li>`).join("")}</ul>`;
+  const pen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+  $("profileIn").innerHTML = `<section class="pf2" aria-label="プロフィール">
+    <span class="avatar xl" aria-hidden="true">${esc([...n][0])}</span>
+    <div class="pf2-id">
+      <span class="pf2-eyebrow">Profile</span>
+      <div class="pf2-name-row" id="trNameRow"><h1 class="pf2-name">${esc(n)}</h1><button type="button" class="icon-edit" id="trEdit" aria-label="名前を変える">${pen}</button></div>
+      <div class="pf2-title-row" id="trTitleRow"><span class="pf2-title" style="--gc:var(${cur ? cur.color : "--t-none"})">${esc(p.title)}</span>${got.length > 1 ? `<button type="button" class="link tr-edit" id="trTitleEdit">称号を変える</button>` : ""}</div>
+    </div>
+    <dl class="pf2-stats">
+      <div><dt>積んだカード</dt><dd>${p.mine}<small>枚</small></dd></div>
+      <div><dt>説明できる</dt><dd>${p.explain}<small>語</small></dd></div>
+      <div><dt>記録した日</dt><dd>${p.totalDays}<small>日</small></dd></div>
+    </dl>
+  </section>
+  <section class="p-sec pf2-sec" aria-labelledby="gymH">
+    <div class="bd-head"><h2 class="p-h" id="gymH">Badges</h2><p class="help">条件を満たすと手に入り、その称号を名乗れます。</p></div>
+    <ol class="bd-list">${order.map((g) => { const done = g.reqs.filter((q) => q.v >= q.n).length, one = g.reqs.length === 1;
+      return `<li class="bd-row${g.got ? " got" : g === next ? " next" : ""}">
+        ${gymSVG(g, g.got, GYMS.indexOf(g))}
+        <div class="bd-main">
+          <div class="bd-top"><b>${esc(g.name)}</b>${g === next ? '<span class="bd-pill">もうすぐ</span>' : ""}</div>
+          <span class="bd-title">称号「${esc(g.title)}」</span>
+          ${g.got ? "" : `<ul class="bd-reqs">${g.reqs.map((q) => `<li class="${q.v >= q.n ? "done" : ""}"><span class="bq-l">${q.v >= q.n ? "✓ " : ""}${q.label.replace(/を「(.+?)」/, "：$1")}</span><b>${q.v}/${q.n}${q.unit}</b><span class="bd-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${q.n}" aria-valuenow="${q.v}" aria-label="${esc(q.label)}"><i style="width:${Math.round(q.v / q.n * 100)}%"></i></span></li>`).join("")}</ul>`}
+        </div>
+        <span class="bd-state">${g.got ? '<span class="bd-got">獲得</span>' : one ? `${Math.round(g.reqs[0].v / g.reqs[0].n * 100)}<small>%</small>` : `${done}/${g.reqs.length}<small>条件</small>`}</span>
+      </li>`; }).join("")}</ol>
+  </section>
+  <section class="p-sec pf2-sec" aria-labelledby="setH">
+    <h2 class="p-h" id="setH">Settings</h2>
+    <div class="set-row"><div><b>用語の出典</b><p class="help">最初から入っている用語は、次の公式資料の出題範囲から選んでいます。意味の説明はClaude（生成AI）が作成したものなので、正確な定義は各資料で確かめてください。各団体とは関係のない個人の制作物です。</p><ul class="src-list">${Object.entries(SOURCES).map(([k, v]) => `<li>${srcLink(k)}<small>${esc(v.org)}</small></li>`).join("")}</ul></div></div>
+    <div class="set-row"><div><b>データの保存先</b><p class="help">デモ版のため、このブラウザの中にだけ保存しています。アカウント連携による端末間の同期は今後対応予定です。</p></div></div>
+    <div class="set-row"><div><b id="motionLbl">動きを減らす</b><p class="help">カードを降らせず、静かに置きます。画面の動きで酔いやすい方に。</p></div><button type="button" class="switch" id="motionSw" role="switch" aria-checked="${calmMotion()}" aria-labelledby="motionLbl"><i></i></button></div>
+  </section>`;
+  $("motionSw").onclick = () => { store.set("uiux-motion", calmMotion() ? "fall" : "calm"); renderProfile(); $("motionSw").focus(); };
+  if ($("trTitleEdit")) $("trTitleEdit").onclick = () => {
+    $("trTitleRow").innerHTML = `<label class="vh" for="trTitleSel">称号</label><select id="trTitleSel" class="tr-input">${got.map((g) => `<option value="${g.id}"${g.id === p.titleId ? " selected" : ""}>${esc(g.title)}</option>`).join("")}</select><button type="button" class="btn small" id="trTitleOk">OK</button>`;
+    $("trTitleOk").onclick = () => { store.set("uiux-title", $("trTitleSel").value); renderProfile(); renderRank(); $("trTitleEdit")?.focus(); };
+    $("trTitleSel").focus();
+  };
+  $("trEdit").onclick = () => {
+    $("trNameRow").innerHTML = `<label class="vh" for="trInput">名前</label><input id="trInput" class="tr-input" maxlength="16" value="${esc(store.get("uiux-name", ""))}" placeholder="名前（16文字まで）" autocomplete="nickname"><button type="button" class="btn small" id="trSave">OK</button>`;
+    const save = () => { store.set("uiux-name", $("trInput").value.trim()); renderProfile(); renderRank(); $("trEdit")?.focus(); };
+    $("trSave").onclick = save;
+    $("trInput").onkeydown = (e) => { if (e.key === "Enter" && !e.isComposing) save(); if (e.key === "Escape") { e.stopPropagation(); renderProfile(); } };
+    $("trInput").focus();
+  };
+}
+/* 紙吹雪：アプリのタグ色で。動きを控えめにする設定では出さない */
+function confetti({ n = 180, spread = 1, at = null } = {}) {
+  if (calmMotion()) return;
+  const cv = document.createElement("canvas"); cv.className = "confetti"; document.body.appendChild(cv);
+  const dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext("2d"); g.scale(dpr, dpr);
+  const css = getComputedStyle(document.documentElement);
+  const cols = ["--t-ui", "--t-cog", "--t-be", "--t-eval", "--t-research", "--t-ix", "--t-ethics", "--primary"].map((v) => css.getPropertyValue(v).trim() || "#62E394");
+  const ps = Array.from({ length: n }, (_, i) => {
+    const side = spread >= 1 ? (i % 2 ? 1 : -1) : 0, a = side ? (side > 0 ? -2.2 : -0.95) + (Math.random() - 0.5) * 0.7 : -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
+    const v = 9 + Math.random() * (spread >= 1 ? 11 : 7);
+    return { x: side ? (side > 0 ? W : 0) : at ? at.x : W / 2, y: side ? H * 0.72 : at ? at.y : H * 0.45, vx: Math.cos(a) * v, vy: Math.sin(a) * v, w: 7 + Math.random() * 7, h: 4 + Math.random() * 6,
+      r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.35, c: cols[i % cols.length], round: Math.random() < 0.25, wob: Math.random() * 6 };
+  });
+  const t0 = performance.now();
+  const tick = (t) => {
+    const el = t - t0; g.clearRect(0, 0, W, H);
+    ps.forEach((p) => { p.vx *= 0.985; p.vy = p.vy * 0.985 + 0.32; p.x += p.vx + Math.sin(el / 180 + p.wob) * 0.8; p.y += p.vy; p.r += p.vr;
+      g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.scale(1, Math.cos(el / 120 + p.wob)); g.fillStyle = p.c; g.strokeStyle = "#1B1A18"; g.lineWidth = 1.2;
+      if (p.round) { g.beginPath(); g.arc(0, 0, p.h / 1.4, 0, 7); g.fill(); g.stroke(); } else { g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); g.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h); }
+      g.restore(); });
+    if (el < 4200) requestAnimationFrame(tick); else cv.remove();
+  };
+  requestAnimationFrame(tick);
+}
+function celebrate(gyms, p) {
+  confetti({ n: 240 });
+  document.querySelector(".celebrate")?.remove();
+  const w = document.createElement("div"); w.className = "celebrate";
+  const last = gyms.at(-1);
+  w.innerHTML = `<div class="cel-card" role="dialog" aria-modal="true" aria-labelledby="celH">
+    <span class="cel-kicker">NEW BADGE</span>
+    <div class="cel-gyms">${gyms.map((g) => gymSVG(g, true, GYMS.indexOf(g))).join("")}</div>
+    <h2 id="celH" class="cel-h">${esc(last.name)} ゲット！</h2>
+    <p class="cel-sub">称号「<b>${esc(last.title)}</b>」を手に入れた</p>
+    ${p.next ? `<p class="cel-next">つぎは <b>${esc(p.next.name)}</b>：${p.next.reqs.map((r) => `${r.label} ${r.v}/${r.n}${r.unit}`).join("・")}</p>` : '<p class="cel-next">すべてのバッジを集めました！</p>'}
+    <button type="button" class="btn primary block" id="celOk">やったね</button>
+  </div>`;
+  document.body.appendChild(w);
+  const close = () => { w.remove(); };
+  w.addEventListener("click", (e) => { if (e.target === w || e.target.id === "celOk") close(); });
+  w.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); close(); } });
+  setTimeout(() => $("celOk")?.focus(), 30);
+}
+/* ================= 振り返り ================= */
+// 1語＝1ブロック。下から積み上がる
+let blkK = 0;
+const blocks = (n, color, start = 0) => Array.from({ length: n }, (_, i) => `<i style="background:${color};--k:${Math.min(start + i, 40)}"></i>`).join("");
+// 理解度・分野ごとの積み上げ(Stack の下段)
+function stackMoreHTML() {
+  blkK = 0;
+  const counts = levelCounts(), unread = S.cards.filter(isUnread).length;
+  const rows = TAG_IDS.map((k) => { const cs = S.cards.filter((c) => c.labels.includes(k)); const lc = [0, 0, 0]; let un = 0; cs.forEach((c) => (isUnread(c) ? un++ : lc[lvlOf(c)]++)); return { k, n: cs.length, lc, un }; }).filter((r) => r.n).sort((a, b) => b.n - a.n);
+  return `  <section class="p-sec" aria-labelledby="pUnd">
+    <h2 class="p-h" id="pUnd">Understanding<span class="opt">理解の深さ</span></h2>
+    <div class="lvl-cols" role="img" aria-label="${LEVELS.map((l, i) => `${l} ${counts[i]}語`).join("、")}">
+      ${LEVELS.map((l, i) => `<div class="lvl-col"><b class="lc-n">${counts[i]}<small>語</small></b><div class="blocks">${blocks(counts[i], LVL_FILL[i])}</div><span class="lc-l"><i style="background:${LVL_FILL[i]}"></i>${l}</span></div>`).join("")}
+    </div>
+  </section>
+  <section class="p-sec" aria-labelledby="pTag">
+    <h2 class="p-h" id="pTag">By tag<span class="opt">分野の広がり。押すとその山へ</span></h2>
+    <div class="tag-cols">${rows.map((r) => `<button type="button" class="tag-col t-${r.k}" data-tag="${r.k}" aria-label="${esc(TAGS[r.k].label)} ${r.n}語：${LEVELS.map((l, i) => `${l}${r.lc[i]}`).join("、")}、未読${r.un}"><b class="tc-n">${r.n}</b><span class="blocks sm">${r.lc.map((n, i) => blocks(n, LVL_FILL[i], r.lc.slice(0, i).reduce((a, b) => a + b, 0))).join("")}${Array.from({ length: r.un }, () => '<i class="un"></i>').join("")}</span><span class="tc-l"><span class="dot"></span>${esc(TAGS[r.k].label)}</span></button>`).join("")}</div>
+    <ul class="glegend">${LEVELS.map((l, i) => `<li><span class="sw" style="background:${LVL_FILL[i]}"></span>${l}</li>`).join("")}<li><span class="sw un"></span>未読</li></ul>
+  </section>`;
+}
+
+/* ================= 詳細パネル ================= */
+let drawerReturn = null;
+function openDrawer(id, push = false) {
+  const c = S.byId.get(id); if (!c) return;
+  if (isNarrow()) closeSide(true);
+  if ($("drawerWrap").hidden) { drawerReturn = document.activeElement; S.dStack = []; }
+  else if (push && S.drawerId && S.drawerId !== id) S.dStack.push(S.drawerId);
+  S.drawerId = id;
+  const opening = $("drawerWrap").hidden;
+  $("drawerWrap").hidden = false;
+  renderDrawer();
+  if (opening && !calmMotion()) { const d = $("drawer"); d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); d.addEventListener("animationend", () => d.classList.remove("pop"), { once: true }); }
+  $("drawer").querySelector("#dClose").focus();
+  markSeen(id);
+}
+function renderDrawer() {
+  const c = S.byId.get(S.drawerId); if (!c) return closeDrawer();
+  const lv = lvlOf(c);
+  const refs = refsOf(c);
+  const refHTML = (r) => { const url = /^https?:\/\//i.test(r.value);
+    return `<li><span class="ref-kind">${esc(REF_TYPES[r.type]?.label || "メモ")}</span>${url ? `<a class="ref-link" href="${esc(r.value)}" target="_blank" rel="noopener noreferrer">${esc(r.value.replace(/^https?:\/\/(www\.)?/i, ""))}</a>` : `<span>${esc(r.value)}</span>`}</li>`; };
+  $("drawer").innerHTML = `<article class="dcard ${c.meaning ? c.tc : "t-none"}">
+    <header class="dc-head">
+      <div class="dc-bar">
+        ${S.dStack.length ? `<button type="button" class="dc-btn" id="dBack" aria-label="戻る">←</button>` : ""}
+        <div class="d-tags">${c.labels.map((t) => `<button type="button" class="t-${t}" data-tag="${t}"><span class="dot"></span>${esc(TAGS[t].label)}</button>`).join("") || '<span class="help">タグなし</span>'}</div>
+        <span class="spacer"></span>
+        <button type="button" class="dc-btn txt" data-edit="fName">Edit</button>
+        <button type="button" class="dc-btn" id="dClose" aria-label="閉じる">×</button>
+      </div>
+      <h2 class="title" id="dTerm">${esc(titleOf(c))}</h2>
+      ${subOf(c) ? `<p class="en">${esc(subOf(c))}</p>` : ""}
+    </header>
+    <div class="dc-body">
+      ${c.meaning ? `<p class="dc-mean">${esc(c.meaning)}</p>` : `<button type="button" class="link" data-edit="fMeaning">意味を書く</button>`}
+      ${c.src ? `<p class="dc-src"><span class="k">Source</span>${srcLink(c.src)}${c.srcItem ? `<span>／${esc(c.srcItem)}</span>` : ""}</p>` : ""}
+      ${c.note ? `<p class="dc-note"><span class="k">My words</span>${esc(c.note)}</p>` : ""}
+      ${refs.length ? `<ul class="ref-list">${refs.map(refHTML).join("")}</ul>` : ""}
+      ${(c.files || []).length ? `<ul class="dfiles">${c.files.map((f, i) => f.type.startsWith("image/") ? `<li><button type="button" class="dfile img" data-file="${i}" aria-label="${esc(f.name)}をひらく"><img src="${f.data}" alt=""></button></li>` : `<li><button type="button" class="dfile" data-file="${i}"><span class="fi-ext">${esc(extOf(f.name))}</span><span class="fi-n">${esc(f.name)}</span></button></li>`).join("")}</ul>` : ""}
+    </div>
+    <footer class="dc-foot">
+      <span class="k" id="lvlTitle">Understanding<span class="opt">いまの理解度</span></span>
+      <div class="levels meter lv-${lv}" role="group" aria-labelledby="lvlTitle">${LEVELS.map((l, i) => `<button type="button" data-lvl="${i}" aria-pressed="${lv === i}" class="${i <= lv ? "on" : ""}" title="${LEVEL_HINTS[i]}"><small>Lv${i + 1}</small>${l}</button>`).join("")}</div>
+      <p class="lv-hint">${lv < 2 ? `次の「${LEVELS[lv + 1]}」の目安：${LEVEL_HINTS[lv + 1]}` : `「説明できる」＝${LEVEL_HINTS[2]}`}</p>
+      ${c.meaning ? `<button type="button" class="btn small dc-near" id="dNear">似ている言葉を探す</button>` : ""}
+    </footer>
+  </article>`;
+}
+function closeDrawer(silent) {
+  if ($("drawerWrap").hidden) return;
+  $("drawerWrap").hidden = true; S.drawerId = null; S.dStack = [];
+  if (!silent) drawerReturn?.focus?.();
+}
+$("scrim").onclick = () => closeDrawer();
+$("drawer").addEventListener("click", async (e) => {
+  const t = e.target.closest("button"); if (!t) return;
+  const c = S.byId.get(S.drawerId); if (!c) return;
+  if (t.id === "dClose") return closeDrawer();
+  if (t.id === "dBack") { S.drawerId = S.dStack.pop(); renderDrawer(); $("drawer").querySelector("#dClose").focus(); return; }
+  if (t.dataset.peek) return openDrawer(t.dataset.peek, true);
+  if (t.dataset.edit) { const f = t.dataset.edit; closeDrawer(true); return openSheet(c, { focus: f }); }
+  if (t.dataset.file != null) { const f = (c.files || [])[+t.dataset.file]; if (f) viewFile(f); return; }
+  if (t.id === "dNear") return navigate({ kind: "card", key: c.id, label: titleOf(c) });
+  if (t.dataset.lvl != null) {
+    const level = +t.dataset.lvl; if (level === lvlOf(c)) return;
+    if (level > lvlOf(c)) logEvent("leveled", c.id);
+    const up = level > lvlOf(c);
+    c.stage = level; renderDrawer();
+    const nb = $("drawer").querySelector(`[data-lvl="${level}"]`); nb.focus();
+    if (up) { nb.classList.add("bump"); const r = nb.getBoundingClientRect(); S.lvBurst = { x: r.left + r.width / 2, y: r.top }; }
+    await saveFields(c.id, { stage: level });
+    if (up && !checkRewards() && S.lvBurst) confetti({ n: 45, spread: 0.4, at: S.lvBurst });
+    return;
+  }
+  if (t.id === "deepBtn") return deepen(c);
+  if (t.id === "deepSave") {
+    const d = S.deep[c.id].data;
+    const add = `${d.plain}${d.contrast?.term ? `（${d.contrast.term}との違い：${d.contrast.diff}）` : ""}`;
+    const note = c.note ? c.note + "\n" + add : add;
+    c.note = note; await saveFields(c.id, { note }); renderDrawer();
+    toast("「自分の理解」に加えました。", "言い換える", () => openSheet(c, { focus: "fNote" }));
+  }
+});
+async function deepen(c) {
+  S.deep[c.id] = { busy: true }; renderDrawer();
+  const near = neighborsOf(c, 5).map((n) => S.byId.get(n.id).term).join("、");
+  const prompt = `あなたはUI/UXデザインの先輩です。後輩が自分の用語集にある次の用語の理解を深めようとしています。
+用語: ${c.term}（${c.ja || ""}）
+意味: ${c.meaning}
+本人のメモ: ${c.note || "なし"}
+用語集の中で近い言葉: ${near}
+
+次の形式のJSONだけを返してください。すべて日本語、各60字以内。
+{"plain":"専門用語を使わずにひとことで言い換え","contrast":{"term":"混同しやすい用語(できれば近い言葉から)","diff":"その用語との違い"},"apply":"UI/UXの実務でこの概念を使う場面","question":"理解を確かめるために自分に問いかける質問"}`;
+  try {
+    const d = await S.sample.json(prompt, { modelTier: "quick" });
+    if (!d || !d.plain) throw { code: "empty" };
+    S.deep[c.id] = { data: { plain: String(d.plain), contrast: d.contrast ? { term: String(d.contrast.term || ""), diff: String(d.contrast.diff || "") } : null, apply: String(d.apply || ""), question: String(d.question || "") } };
+  } catch (e) {
+    S.deep[c.id] = null;
+    if (e && e.code === "not_granted") S.sample = null;
+    toast(e && e.code === "not_granted" ? "Claudeへの問い合わせが許可されませんでした。" : e && e.code === "rate_limited" ? "問い合わせが集中しています。少し時間をおいてください。" : "うまく答えが返りませんでした。もう一度お試しください。");
+  }
+  if (S.drawerId === c.id) renderDrawer();
+}
+
+/* ================= 保存 ================= */
+// 添付をページの中で見る(ダウンロードは使わない)
+async function viewFile(f) {
+  document.querySelector(".fviewer")?.remove();
+  const w = document.createElement("div"); w.className = "fviewer"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true"); w.setAttribute("aria-label", f.name);
+  let body;
+  if (f.type.startsWith("image/")) body = `<img src="${f.data}" alt="${esc(f.name)}">`;
+  else if (/pdf/.test(f.type)) { const u = URL.createObjectURL(await (await fetch(f.data)).blob()); body = `<object data="${u}" type="application/pdf"><p>このブラウザではPDFを表示できません。</p></object>`; }
+  else if (/^text\/|markdown/.test(f.type) || /\.(txt|md)$/i.test(f.name)) body = `<pre>${esc(await (await fetch(f.data)).text())}</pre>`;
+  else body = `<p>このファイルはここでは表示できません（${esc(f.name)}）。</p>`;
+  w.innerHTML = `<div class="fv-in"><div class="fv-bar"><span>${esc(f.name)}</span><button type="button" class="dc-btn" aria-label="閉じる">×</button></div><div class="fv-body">${body}</div></div>`;
+  document.body.appendChild(w);
+  const close = () => w.remove();
+  w.addEventListener("click", (e) => { if (e.target === w || e.target.closest(".dc-btn")) close(); });
+  w.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); close(); } });
+  w.querySelector(".dc-btn").focus();
+}
+async function saveFields(id, fields) {
+  const c = S.byId.get(id); if (!c) return;
+  Object.assign(c, fields);
+  if (S.db) { try { await S.db.collection("cards").doc(id).update(fields); } catch { toast("保存できませんでした。通信を確かめてください。"); } }
+  else saveLocal();
+}
+// 活動の記録。1操作＝1件。日付はその人の暦日(ローカル時刻)
+const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function logEvent(type, cardId) {
+  const e = { type, cardId, day: dayKey(new Date()), at: new Date().toISOString() };
+  if (S.db) { S.events.push(e); S.db.collection("events").doc().set(e).catch(() => {}); }
+  else { S.events.push(e); store.set("uiux-stocker-events-local", S.events.slice(-3000)); }
+}
+async function markSeen(id) {
+  const c = S.byId.get(id); if (!c) return;
+  if (c.seenAt && Date.now() - new Date(c.seenAt).getTime() < 3600e3 && !isUnread(c)) return;
+  await saveFields(id, { seenAt: new Date().toISOString(), opened: true });
+  logEvent("opened", id);
+}
+
+/* ================= 書きとめる =================
+   ・名前の欄は「言葉」1つ(日本語でも英語でも)。英語名・別名は「もっと書く」へ
+   ・言葉 → 意味 → タグの順。タグは近いカードから「おすすめ」を最大2つ出し、ほかは畳む
+   ・同じ言葉があればその場で知らせる
+   ・保存したらカードが山に1枚降ってくる。続けて書きとめられるよう、詳細は開かない */
+/* 参考の行：種類(Web・本・動画・論文・メモ)＋内容。＋で増やせる */
+const REF_TYPES = { web: { label: "URL", ph: "https://…" }, book: { label: "本", ph: "書名・著者" }, video: { label: "動画", ph: "URL またはタイトル" }, paper: { label: "論文", ph: "タイトル・URL" }, note: { label: "メモ", ph: "どこで知ったか など" } };
+function refRowHTML(r = {}) {
+  const t = REF_TYPES[r.type] ? r.type : "web";
+  return `<div class="ref-row" data-type="${t}"><input type="text" class="ref-val" inputmode="url" aria-label="${t === "web" ? "URL" : REF_TYPES[t].label}" placeholder="https://…" value="${esc(r.value || "")}" autocomplete="off"><button type="button" class="ref-del" aria-label="外す">×</button></div>`;
+}
+function setRefRows(list) { $("fRefs").innerHTML = list.map(refRowHTML).join(""); }
+function getRefRows() { return [...$("fRefs").querySelectorAll(".ref-row")].map((row) => ({ type: row.dataset.type || "web", value: row.querySelector(".ref-val").value.trim() })).filter((r) => r.value); }
+// ＋URL を押すたびに1行ずつ増える(上限なし)
+function addRefRow() { $("fRefs").insertAdjacentHTML("beforeend", refRowHTML()); $("fRefs").lastElementChild.querySelector(".ref-val").focus(); }
+$("fRefs").addEventListener("click", (e) => { const b = e.target.closest(".ref-del"); if (!b) return; b.closest(".ref-row").remove(); $("cardForm").dispatchEvent(new Event("input")); const last = $("fRefs").lastElementChild; if (last) last.querySelector(".ref-val").focus(); else { setSec("secUrl", false); document.querySelector('.ach[data-sec="secUrl"]').focus(); } });
+
+const hasJa = (t) => /[\u3040-\u30ff\u3400-\u9fff]/.test(t);
+$("fTags").innerHTML = TAG_IDS.map((k) => `<input type="checkbox" id="fTag-${k}" value="${k}"><label for="fTag-${k}" class="t-${k}"><span class="dot"></span>${TAGS[k].label}<span class="sug" hidden>おすすめ</span></label>`).join("");
+let sheetReturn = null, tagsOpen = false, sugT = 0;
+// テキスト欄は中身に合わせて伸ばす
+const fitTA = (t) => { t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight + 4, 320) + "px"; };
+$("cardForm").addEventListener("input", (e) => { if (e.target.tagName === "TEXTAREA") fitTA(e.target); });
+function setSec(id, open) { $(id).hidden = !open; const ch = document.querySelector(`.ach[data-sec="${id}"]`); if (!ch.classList.contains("multi")) ch.setAttribute("aria-expanded", String(open)); else ch.classList.toggle("on", open); }
+function openSheet(card, opts = {}) {
+  S.editing = card || null;
+  sheetReturn = document.activeElement;
+  const draft = card ? null : store.get("uiux-draft", null);
+  const d = card ? { name: card.ja || card.term, alias: card.ja && card.term !== card.ja ? card.term : "", meaning: card.meaning, note: card.note, refs: refsOf(card), labels: card.labels }
+    : opts.term ? { name: opts.term } : (draft || {});
+  $("sheetTitle").textContent = card ? "Edit Card" : "New Card";
+  $("fName").value = d.name || ""; $("fAlias").value = d.alias || ""; $("fMeaning").value = d.meaning || ""; $("fNote").value = d.note || ""; setRefRows(d.refs || []);
+  S.fFiles = card && Array.isArray(card.files) ? card.files.slice() : []; renderFiles();
+  const dl = d.labels || (S.cur?.kind === "tag" ? [S.cur.key] : []);
+  TAG_IDS.forEach((k) => ($("fTag-" + k).checked = dl.includes(k)));
+  S.tagOrder = dl.slice();
+  tagsOpen = !!card;
+  S.tagTouched = !!card || dl.length > 0;
+  S.meanTouched = !!card; meanFor = ""; S.aiTags = null; $("fMeanHint").textContent = "";
+  setSec("secUrl", !!(d.refs && d.refs.length) || opts.focus === "fRefs");
+  setSec("secFile", S.fFiles.length > 0);
+  setSec("secMemo", !!d.note || opts.focus === "fNote");
+  $("draftNote").hidden = !(draft && !card && !opts.term && (draft.name || draft.meaning));
+  $("fDelete").hidden = !card; $("fDelete").classList.remove("confirm"); $("fDelete").textContent = "このカードを削除";
+  $("fSave").textContent = "Save";
+  $("fNameErr").hidden = true;
+  $("sheetWrap").hidden = false;
+  refreshAssist();
+  requestAnimationFrame(() => ["fMeaning", "fNote"].forEach((id) => fitTA($(id))));
+  if (opts.term) setTimeout(autoMeaning, 50);
+  setTimeout(() => $(opts.focus === "fTerm" ? "fName" : opts.focus && $(opts.focus) ? opts.focus : "fName").focus(), 30);
+}
+document.querySelector(".attach-chips").addEventListener("click", (e) => {
+  const b = e.target.closest(".ach"); if (!b) return;
+  if (b.classList.contains("multi")) { setSec(b.dataset.sec, true); addRefRow(); return; }
+  const open = b.getAttribute("aria-expanded") !== "true"; setSec(b.dataset.sec, open);
+  if (open) { const f = $(b.dataset.sec).querySelector("input:not([type=file]),textarea"); f?.focus(); }
+});
+$("fX").onclick = () => closeSheet();
+// 添付：画像は長辺1200pxのJPEGに縮めてカードに入れる(1枚あたり最大~350KB、合計700KBまで)
+S.fFiles = [];
+const FILE_MAX = 700e3;
+const extOf = (n) => (n.split(".").pop() || "file").slice(0, 4);
+function renderFiles() {
+  $("fFiles").innerHTML = S.fFiles.map((f, i) => `<li>${f.type.startsWith("image/") ? `<img src="${f.data}" alt="">` : `<span class="fi-ext">${esc(extOf(f.name))}</span>`}<span class="fi-n">${esc(f.name)}</span><button type="button" class="ref-del" data-fdel="${i}" aria-label="${esc(f.name)}を外す">×</button></li>`).join("");
+}
+const readURL = (file) => new Promise((ok, ng) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = ng; r.readAsDataURL(file); });
+async function shrinkImage(file) {
+  const src = await readURL(file);
+  const img = await new Promise((ok, ng) => { const im = new Image(); im.onload = () => ok(im); im.onerror = ng; im.src = src; });
+  for (const [max, q] of [[1200, 0.8], [900, 0.7], [640, 0.6]]) {
+    const k = Math.min(1, max / Math.max(img.width, img.height)), cv = document.createElement("canvas");
+    cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+    const g = cv.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(img, 0, 0, cv.width, cv.height);
+    const out = cv.toDataURL("image/jpeg", q); if (out.length < 350e3) return out;
+  }
+  throw new Error("too_big");
+}
+$("fFileIn").addEventListener("change", async (e) => {
+  for (const file of [...e.target.files]) {
+    try {
+      const img = file.type.startsWith("image/") && !/svg/.test(file.type);
+      if (!img && file.size > 450e3) { toast(`「${file.name}」は大きすぎます（画像以外は450KBまで）`); continue; }
+      const data = img ? await shrinkImage(file) : await readURL(file);
+      if (S.fFiles.reduce((a, f) => a + f.data.length, 0) + data.length > FILE_MAX) { toast("添付はカード1枚につき合計700KBまでです"); break; }
+      S.fFiles.push({ name: file.name, type: img ? "image/jpeg" : file.type || "application/octet-stream", data });
+    } catch { toast(`「${file.name}」を読み込めませんでした`); }
+  }
+  e.target.value = ""; renderFiles();
+});
+$("fFiles").addEventListener("click", (e) => { const b = e.target.closest("[data-fdel]"); if (!b) return; S.fFiles.splice(+b.dataset.fdel, 1); renderFiles(); $("fFileIn").focus(); });
+// 言葉を入れたら、意味(と英語名)をClaudeが下書き。自分で書き始めたら触らない
+let meanT = 0, meanFor = "";
+$("fMeaning").addEventListener("input", () => { S.meanTouched = true; $("fMeanHint").textContent = ""; });
+$("fName").addEventListener("input", () => { clearTimeout(meanT); meanT = setTimeout(autoMeaning, 900); });
+$("fName").addEventListener("blur", () => { clearTimeout(meanT); autoMeaning(); });
+async function autoMeaning() {
+  const name = $("fName").value.trim();
+  if (S.editing || !S.sample || S.meanTouched || name.length < 2 || $("fMeaning").value.trim() || meanFor === name || $("sheetWrap").hidden) return;
+  const nn = norm(name); if (S.cards.some((c) => norm(c.term) === nn || norm(c.ja) === nn)) return;
+  meanFor = name; $("fMeanHint").textContent = "Claudeが下書きしています…"; $("fMeaning").placeholder = "…";
+  const prompt = `UI/UX・人間中心設計・行動経済学・心理学・ビジネスの用語集に、次の言葉を登録します。
+言葉: ${name}
+次の形式のJSONだけを返してください。
+{"meaning":"日本語で60〜90字。デザインの実務でどう役立つかまでわかる説明","en":"英語の正式名称(英語名が無い・言葉自体が英語なら空文字)","tags":["次から1〜2個: ${TAG_IDS.map((k) => `${k}=${TAGS[k].label}`).join(" / ")}"]}
+この分野の用語として意味が定まらない場合は {"meaning":"","en":""} を返してください。`;
+  try {
+    const d = await S.sample.json(prompt, { modelTier: "quick" });
+    if ($("sheetWrap").hidden || $("fName").value.trim() !== name || S.meanTouched || $("fMeaning").value.trim()) return;
+    if (d && d.meaning) {
+      $("fMeaning").value = String(d.meaning);
+      if (!$("fAlias").value.trim() && d.en && String(d.en) !== name) $("fAlias").value = String(d.en);
+      $("fMeanHint").textContent = "Claudeの下書き。書き換えOK"; fitTA($("fMeaning"));
+      const tg = (Array.isArray(d.tags) ? d.tags : []).map(String).filter((k) => TAGS[k]).slice(0, 2);
+      if (tg.length && !S.tagTouched) { S.aiTags = tg; }
+      refreshAssist();
+    } else $("fMeanHint").textContent = "";
+  } catch (e) { if (e && e.code === "not_granted") S.sample = null; $("fMeanHint").textContent = ""; }
+  finally { $("fMeaning").placeholder = "ひとことで。あとからでもOK"; }
+}
+function closeSheet() { $("sheetWrap").hidden = true; S.editing = null; sheetReturn?.focus?.(); }
+function formData() {
+  const order = (S.tagOrder || []).filter((k) => $("fTag-" + k).checked);
+  return { name: $("fName").value.trim(), alias: $("fAlias").value.trim(), meaning: $("fMeaning").value.trim(), note: $("fNote").value.trim(), refs: getRefRows(),
+    labels: order.concat(TAG_IDS.filter((k) => $("fTag-" + k).checked && !order.includes(k))) };
+}
+// 「言葉」「英語名・別名」を保存の形(ja / term)へ
+function toCard(f) {
+  const files = S.fFiles.slice();
+  const ja = hasJa(f.name) ? f.name : (hasJa(f.alias) ? f.alias : "");
+  const term = hasJa(f.name) ? (f.alias && !hasJa(f.alias) ? f.alias : f.name) : f.name;
+  return { term, ja, meaning: f.meaning, note: f.note, refs: f.refs, labels: f.labels, files };
+}
+// 近いカードのタグを数えて、おすすめを最大2つ
+function suggestTags(text) {
+  if (text.replace(/\s/g, "").length < 2) return [];
+  const cv = conceptsOf(text); for (const k in cv) cv[k] *= 0.6;
+  const probe = { _c: cv, _gw: weigh(grams(text)) };
+  const w = {};
+  S.cards.filter((c) => c.id !== S.editing?.id).map((c) => ({ c, s: simCards(probe, c) })).filter((x) => x.s > 0.12)
+    .sort((a, b) => b.s - a.s).slice(0, 6)
+    .forEach(({ c, s }) => c.labels.forEach((t, i) => (w[t] = (w[t] || 0) + s * (i === 0 ? 1 : 0.5))));
+  const top = Math.max(0, ...Object.values(w));
+  return Object.keys(w).filter((t) => w[t] >= top * 0.45).sort((a, b) => w[b] - w[a]).slice(0, 2);
+}
+function refreshAssist() {
+  const f = formData();
+  // 重複
+  const nn = norm(f.name);
+  const dup = nn && S.cards.find((c) => c.id !== S.editing?.id && (norm(c.term) === nn || norm(c.ja) === nn));
+  const box = $("fDup");
+  box.hidden = !dup;
+  if (dup) box.innerHTML = `「${esc(titleOf(dup))}」はもう書きとめてあります <button type="button" class="link" data-dup="${esc(dup.id)}">ひらく</button>`;
+  // タグ：おすすめ＋選択済みだけ見せ、ほかは「ほかのタグ」に畳む
+  const sug = suggestTags([f.name, f.alias, f.meaning].join(" "));
+  // 新規のあいだは、手で触るまでおすすめを自動で選んでおく
+  if (!S.editing && !S.tagTouched) { const pick = sug.length ? sug : (S.aiTags || []); TAG_IDS.forEach((k) => ($("fTag-" + k).checked = pick.includes(k))); S.tagOrder = pick.slice(); f.labels = pick.slice(); if (!sug.length && pick.length) sug.push(...pick); }
+  const show = new Set([...sug, ...f.labels]);
+  const fold = !tagsOpen && sug.length > 0;
+  TAG_IDS.forEach((k) => {
+    const lab = document.querySelector(`label[for="fTag-${k}"]`);
+    lab.hidden = fold && !show.has(k);
+    lab.querySelector(".sug").hidden = true;
+  });
+  const hiddenN = TAG_IDS.filter((k) => fold && !show.has(k)).length;
+  $("fTagsMore").hidden = !hiddenN;
+  $("fTagsMore").textContent = `ほかのタグ（${hiddenN}）`;
+  { const fl = (S.tagOrder || []).filter((k) => $("fTag-" + k).checked); $("cardForm").className = "sheet nc " + (fl[0] ? "t-" + fl[0] : sug[0] && !S.editing ? "t-" + sug[0] : "t-none"); }
+  $("fTagsHint").textContent = S.editing ? "" : sug.length && !S.tagTouched ? "自動で選びました。違えば押して変更" : !sug.length ? "言葉を入れると自動で選びます" : "";
+}
+$("fTags").addEventListener("change", (e) => { S.tagTouched = true; const k = e.target.value; S.tagOrder = (S.tagOrder || []).filter((x) => x !== k); if (e.target.checked) S.tagOrder.push(k); refreshAssist(); });
+$("fTagsMore").onclick = () => { tagsOpen = true; refreshAssist(); $("fTags").querySelector("label:not([hidden])")?.focus(); };
+$("cardForm").addEventListener("input", () => {
+  if (!S.editing) store.set("uiux-draft", formData());
+  $("draftNote").hidden = true;
+  clearTimeout(sugT); sugT = setTimeout(refreshAssist, 180);
+});
+$("draftClear").onclick = () => { store.del("uiux-draft"); ["fName", "fAlias", "fMeaning", "fNote"].forEach((id) => ($(id).value = "")); setRefRows([]); S.fFiles = []; renderFiles(); S.meanTouched = false; meanFor = ""; TAG_IDS.forEach((k) => ($("fTag-" + k).checked = false)); S.tagOrder = []; $("draftNote").hidden = true; refreshAssist(); $("fName").focus(); };
+$("fDup").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-dup]"); if (!b) return; closeSheet(); openDrawer(b.dataset.dup);
+});
+$("fCancel").onclick = closeSheet;
+$("sheetWrap").addEventListener("click", (e) => { if (e.target === $("sheetWrap")) closeSheet(); });
+$("cardForm").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || e.isComposing || e.keyCode === 229) return;
+  if (e.target.id === "fName" && !S.editing && !$("fMeaning").value.trim()) { e.preventDefault(); clearTimeout(meanT); autoMeaning(); $("fMeaning").focus(); return; }
+  if (e.ctrlKey || e.metaKey || e.target.id === "fName") { e.preventDefault(); $("cardForm").requestSubmit(); }
+});
+$("cardForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = formData();
+  if (!f.name) { $("fNameErr").hidden = false; $("fName").focus(); return; }
+  const body0 = toCard(f);
+  const btn = $("fSave"); btn.disabled = true;
+  const wasEdit = !!S.editing; let id;
+  try {
+    if (wasEdit) {
+      id = S.editing.id;
+      if (S.db) await S.db.collection("cards").doc(id).update(body0);
+      else { Object.assign(S.byId.get(id), body0); saveLocal(); applyCards(S.cards.map(stripIdx)); }
+    } else {
+      const now = new Date().toISOString();
+      const body = { ...body0, tags: [], level: 0, stage: 0, createdAt: now, seenAt: now, source: "me" };
+      if (S.db) { const ref = S.db.collection("cards").doc(); id = ref.id; await ref.set(body); }
+      else { id = "l_" + Date.now().toString(36); S.cards.push({ id, ...body }); saveLocal(); applyCards(S.cards.map(stripIdx)); }
+      store.del("uiux-draft");
+    }
+  } catch (err) {
+    btn.disabled = false;
+    toast(err && err.code === "permission_denied" ? "保存する権限がありません。" : "保存できませんでした。通信を確かめてもう一度押してください。");
+    return;
+  }
+  btn.disabled = false;
+  closeSheet();
+  afterSave(id, wasEdit);
+});
+function afterSave(id, wasEdit, tries = 0) {
+  if (!S.byId.has(id)) { if (tries < 40) setTimeout(() => afterSave(id, wasEdit, tries + 1), 150); return; }
+  const c = S.byId.get(id);
+  if (wasEdit) { openDrawer(id); toast(`「${titleOf(c)}」を保存しました。`); return; }
+  // 新しいカードは山に1枚降らせる(ホームの積み上げを表示中のとき)
+  if (S.view === "stage" && S.layout === "pile" && !$("pile").hidden) pileDropOne(c);
+  toast(`「${titleOf(c)}」を積みました。`, "ひらく", () => openDrawer(id));
+  if (!checkRewards()) confetti({ n: 70, spread: 0.5 });
+}
+$("fDelete").onclick = async () => {
+  const b = $("fDelete");
+  if (!b.classList.contains("confirm")) { b.classList.add("confirm"); b.textContent = "もう一度押すと削除"; return; }
+  const id = S.editing.id, t = titleOf(S.editing);
+  try {
+    if (S.db) await S.db.collection("cards").doc(id).delete();
+    else { S.cards = S.cards.filter((c) => c.id !== id); saveLocal(); applyCards(S.cards.map(stripIdx)); }
+    closeSheet(); toast(`「${t}」を削除しました。`);
+  } catch { toast("削除できませんでした。もう一度お試しください。"); }
+};
+
+/* ================= キー操作・トースト ================= */
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!$("sheetWrap").hidden) closeSheet();
+  else if (!$("drawerWrap").hidden) closeDrawer();
+  else if ($("side").classList.contains("open")) closeSide();
+});
+let toastT = 0, toastFn = null;
+function toast(msg, actLabel, fn) {
+  $("toastText").textContent = msg;
+  const a = $("toastAct"); a.hidden = !actLabel; a.textContent = actLabel || ""; toastFn = fn || null;
+  $("toast").classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => $("toast").classList.remove("on"), actLabel ? 7000 : 4500);
+}
+$("toastAct").onclick = () => { $("toast").classList.remove("on"); toastFn?.(); };
+
+/* ================= データ ================= */
+const stripIdx = (c) => { const o = {}; for (const k in c) if (k[0] !== "_" && k !== "tc") o[k] = c[k]; return o; };
+function applyCards(list) {
+  S.cards = list.map((c) => {
+    const labels = (Array.isArray(c.labels) ? c.labels : CAT_FALLBACK[c.cat] || []).filter((t) => TAGS[t]);
+    return { ...c, labels, tc: "t-" + (labels[0] || "none") };
+  });
+  S.byId = new Map(S.cards.map((c) => [c.id, c]));
+  indexAll();
+  renderSide();
+  if (!S.loaded) { S.loaded = true; go("stage", { home: true }); return; }
+  if (S.view === "stack") renderStack();
+  checkRewards(true);
+  if (S.view === "stage" && S.cur?.kind === "home" && !P.live.size && S.cards.length) showHome();
+  if (!$("drawerWrap").hidden) { const f = document.activeElement?.dataset?.lvl; renderDrawer(); if (f) $("drawer").querySelector(`[data-lvl="${f}"]`)?.focus(); }
+}
+function saveLocal() { if (S.local) store.set("uiux-stocker-cards-local", S.cards.map(stripIdx)); }
+// 区切りの判定(久しぶり > 月の始め > 週の始め)。一度閉じた区切りは出さない
+function landmarkFor(last, now) {
+  const d = new Date(now), l = last ? new Date(last) : null;
+  const monday = new Date(d.toDateString()); monday.setDate(monday.getDate() - ((d.getDay() + 6) % 7));
+  if (l && now - last >= 3 * 864e5) return { key: "back:" + dayKey(d), text: "おかえりなさい。今日出会った言葉を、1つだけ置いてみませんか。" };
+  if (l && (l.getMonth() !== d.getMonth() || l.getFullYear() !== d.getFullYear())) return { key: "month:" + d.getFullYear() + "-" + (d.getMonth() + 1), text: `${d.getMonth() + 1}月のはじまりです。今月の1語目を置いてみませんか。` };
+  if (l && l < monday) return { key: "week:" + dayKey(monday), text: "新しい週のはじまりです。今週の1語目を置いてみませんか。" };
+  return null;
+}
+async function boot() {
+  const last = store.get("uiux-stocker-last-visit", 0), now = Date.now();
+  const lm = landmarkFor(last, now);
+  S.landmark = lm && store.get("uiux-landmark-closed", "") !== lm.key ? lm : null;
+  store.set("uiux-stocker-last-visit", now);
+  const use = window.claude && typeof window.claude.use === "function" ? window.claude.use.bind(window.claude) : null;
+  let db = null;
+  if (use) { try { db = await use("db"); } catch { db = null; } }
+  if (db) {
+    S.db = db;
+    const since = dayKey(new Date(Date.now() - 370 * 864e5));
+    db.collection("events").where("day", ">=", since).onSnapshot((snap) => { S.events = snap.docs.map((d) => d.data()); if (S.view === "stack") renderStack(); S.evLoaded = true; checkRewards(true); renderRank(); }, () => {});
+    db.collection("cards").onSnapshot((snap) => applyCards(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+      () => toast("保存先との接続が切れました。ページをひらき直すと再接続します。"));
+  } else {
+    S.local = true;
+    S.events = store.get("uiux-stocker-events-local", []);
+    S.evLoaded = true;
+    let lc = store.get("uiux-stocker-cards-local", []);
+    if (lc.length && !store.get("uiux-seed-v3", false)) { const mine = lc.filter((c) => c.source === "me"); const keep = new Map(lc.filter((c) => c.source !== "me").map((c) => [c.id, c])); lc = [...SEED_CARDS.map((c) => ({ ...c, ...(keep.get(c.id) ? { stage: keep.get(c.id).stage, opened: keep.get(c.id).opened, seenAt: keep.get(c.id).seenAt, note: keep.get(c.id).note } : {}), labels: c.labels.slice() })), ...mine]; store.set("uiux-stocker-cards-local", lc); }
+    store.set("uiux-seed-v3", true);
+    if (!lc.length) { lc = SEED_CARDS.map((c) => ({ ...c, labels: c.labels.slice() })); store.set("uiux-stocker-cards-local", lc); }
+    applyCards(lc);
+  }
+  if (use) { try { S.sample = await use("sample"); } catch { S.sample = null; } if (S.sample && S.view === "stage" && S.cur?.kind === "q") renderStage(false); if (S.sample && S.drawerId) renderDrawer(); }
+}
+boot();
+})();
+</script>
