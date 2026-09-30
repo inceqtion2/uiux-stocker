@@ -752,7 +752,7 @@ h1,h2,h3,p{margin:0}
     <button type="button" class="btn primary block cta" data-add><span class="plus" aria-hidden="true">＋</span>Add Card</button>
     <button type="button" class="btn block cta2" data-go="stack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="15" width="14" height="5" rx="1.5"/><rect x="3" y="9" width="14" height="5" rx="1.5" transform="rotate(-4 10 11.5)"/><rect x="6" y="3" width="13" height="5" rx="1.5" transform="rotate(3 12 5.5)"/></svg>Stack</button>
     </div>
-    <section class="side-sec" aria-labelledby="sTags"><h2 id="sTags">Tags<span>分野ごとの山を見る</span></h2><ul class="taglist" id="sideTags"></ul></section>
+    <section class="side-sec" aria-labelledby="sTags"><h2 id="sTags">Tags<span>分野ごとのカードを見る</span></h2><ul class="taglist" id="sideTags"></ul></section>
     <button type="button" class="side-rank" id="sideRank" data-go="profile" hidden></button>
   </aside>
   <div class="side-scrim" id="sideScrim" hidden></div>
@@ -1117,7 +1117,7 @@ function renderSide() {
   const tc = {}; S.cards.forEach((c) => c.labels.forEach((t) => (tc[t] = (tc[t] || 0) + 1)));
   const curTag = S.view === "stage" && S.cur?.kind === "tag" ? S.cur.key : "";
   renderRank();
-  $("sideTags").innerHTML = TAG_IDS.map((k) => `<li><button type="button" class="t-${k}" data-tag="${k}" title="${esc(TAGS[k].hint)}" aria-current="${curTag === k}"><span class="dot"></span>${esc(TAGS[k].label)}<span class="n">${tc[k] || 0}</span></button>${curTag === k ? `<button type="button" class="tag-x" data-go="stage" data-home aria-label="${esc(TAGS[k].label)}の山を閉じて、すべてのカードへ">×</button>` : ""}</li>`).join("");
+  $("sideTags").innerHTML = TAG_IDS.map((k) => `<li><button type="button" class="t-${k}" data-tag="${k}" title="${esc(TAGS[k].hint)}" aria-current="${curTag === k}"><span class="dot"></span>${esc(TAGS[k].label)}<span class="n">${tc[k] || 0}</span></button>${curTag === k ? `<button type="button" class="tag-x" data-go="stage" data-home aria-label="${esc(TAGS[k].label)}の絞り込みを閉じて、すべてのカードへ">×</button>` : ""}</li>`).join("");
 }
 
 /* ================= 積み上げ(ファーストビュー) ================= */
@@ -1204,7 +1204,7 @@ function renderStage(animate) {
   $("stHead").innerHTML = home ? `<h1 class="vh">UIUX Stocker</h1>
     ${S.landmark ? `<div class="restart" role="status"><span>${esc(S.landmark.text)}</span><button type="button" class="btn small primary" data-add data-restart>＋ 1つ置く</button><button type="button" class="restart-x" data-restart-x aria-label="閉じる">×</button></div>` : ""}
     ${motionNote ? `<p class="st-meta">${motionNote}</p>` : ""}`
-  : cur.kind === "tag" ? `<h1 class="tag-now t-${cur.key}"><span class="dot"></span>${esc(TAGS[cur.key].label)}<span class="n">${res.length}枚</span><button type="button" class="tag-now-x" data-go="stage" data-home aria-label="${esc(TAGS[cur.key].label)}の山を閉じる">×</button></h1>`
+  : cur.kind === "tag" ? `<h1 class="tag-now t-${cur.key}"><span class="dot"></span>${esc(TAGS[cur.key].label)}<span class="n">${res.length}枚</span><button type="button" class="tag-now-x" data-go="stage" data-home aria-label="${esc(TAGS[cur.key].label)}の絞り込みを閉じる">×</button></h1>`
   : `${trail}
     <h1 class="vh">${titleFor(cur)}</h1>
     <p class="st-meta"><b>${ctx}</b><span id="stCount">${res.length}語</span>${toggle}${S.sample && cur.kind === "q" ? `${sep}<button type="button" class="link" id="aiBtn">Claudeに探し直してもらう</button>` : ""}${motionNote ? sep + motionNote : ""}</p>`;
@@ -1848,7 +1848,7 @@ function stackMoreHTML() {
     </div>
   </section>
   <section class="p-sec" aria-labelledby="pTag">
-    <h2 class="p-h" id="pTag">By tag<span class="opt">分野の広がり。押すとその山へ</span></h2>
+    <h2 class="p-h" id="pTag">By tag<span class="opt">分野の広がり。押すとその分野のカードへ</span></h2>
     <div class="tag-cols">${rows.map((r) => `<button type="button" class="tag-col t-${r.k}" data-tag="${r.k}" aria-label="${esc(TAGS[r.k].label)} ${r.n}語：${LEVELS.map((l, i) => `${l}${r.lc[i]}`).join("、")}、未読${r.un}"><b class="tc-n">${r.n}</b><span class="blocks sm">${r.lc.map((n, i) => blocks(n, LVL_FILL[i], r.lc.slice(0, i).reduce((a, b) => a + b, 0))).join("")}${Array.from({ length: r.un }, () => '<i class="un"></i>').join("")}</span><span class="tc-l"><span class="dot"></span>${esc(TAGS[r.k].label)}</span></button>`).join("")}</div>
     <ul class="glegend">${LEVELS.map((l, i) => `<li><span class="sw" style="background:${LVL_FILL[i]}"></span>${l}</li>`).join("")}<li><span class="sw un"></span>未読</li></ul>
   </section>`;
@@ -2039,7 +2039,7 @@ function openSheet(card, opts = {}) {
   S.tagOrder = dl.slice();
   tagsOpen = !!card;
   S.tagTouched = !!card || dl.length > 0;
-  S.meanTouched = !!card; meanFor = ""; S.aiTags = null; $("fMeanHint").textContent = !card && !S.sample ? "自分の言葉でひとこと（Claudeの自動下書きはclaude.ai版のみ）" : "";
+  S.meanTouched = !!card; meanFor = ""; S.aiTags = null; $("fMeanHint").textContent = "";
   $("fSrc").hidden = !(card && card.src);
   $("fSrc").innerHTML = card && card.src ? `<span class="sublabel">Source<span class="opt">公式資料・編集できません</span></span><span class="ro-row"><span class="ro-main">${srcLink(card.src)}${card.srcItem ? `<small>${esc(card.srcItem)}</small>` : ""}</span><span class="ro-lock" title="最初から入っている出典のため編集できません" aria-label="編集できません">🔒</span></span>` : "";
   setSec("secUrl", !!(d.refs && d.refs.length) || opts.focus === "fRefs");
