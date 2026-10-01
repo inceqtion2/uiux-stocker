@@ -65,6 +65,7 @@ if (location.hostname.endsWith(".vercel.app")) {
   --ease:cubic-bezier(.2,.8,.2,1);
   color-scheme:light;
 }
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-jp);font-weight:500;font-size:16px;line-height:1.7;overflow:hidden}
 button,input,textarea,select{font:inherit;color:inherit}
@@ -649,6 +650,7 @@ h1,h2,h3,p{margin:0}
   .mtop{display:flex;align-items:center;gap:10px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--bg);z-index:40}
   .mtop .logo-plate{padding:7px 8px 6px;border-radius:10px}
   .mtop .logo-ascii{zoom:.36}
+  .mtop > *{flex:none}
   .mtop .spacer{flex:1}
   .hamb{width:44px;height:44px;border:0;border-radius:999px;background:var(--field);display:grid;place-items:center}
   .hamb svg{width:22px;height:22px}
@@ -1576,7 +1578,7 @@ function progressState() {
   p.got = p.gyms.filter((g) => g.got);
   // 称号：選んだもの＞最後に手に入れたもの。「もうすぐ」は達成率がいちばん高い未獲得バッジ(目標勾配)
   const order = store.get("uiux-gyms", []) || [], pick = store.get("uiux-title", "");
-  const cur = p.got.find((g) => g.id === pick) || [...order].reverse().map((id) => p.got.find((g) => g.id === id)).find(Boolean) || p.got.at(-1);
+  const cur = p.got.find((g) => g.id === pick) || [...order].reverse().map((id) => p.got.find((g) => g.id === id)).find(Boolean) || p.got[p.got.length - 1];
   p.titleId = cur ? cur.id : ""; p.title = cur ? cur.title : "デザイナーのたまご";
   p.gyms.forEach((g) => (g.ratio = g.reqs.reduce((a, r) => a + r.v / r.n, 0) / g.reqs.length));
   p.next = p.gyms.filter((g) => !g.got).sort((a, b) => b.ratio - a.ratio)[0] || null;
@@ -1608,7 +1610,7 @@ function checkRewards(silent) {
   const seen = store.get("uiux-gyms", null);
   if (!seen || silent) { if (!seen) store.set("uiux-gyms", earned); return false; }
   const newBadges = p.got.filter((g) => !seen.includes(g.id));
-  if (newBadges.length) store.set("uiux-title", newBadges.at(-1).id);
+  if (newBadges.length) store.set("uiux-title", newBadges[newBadges.length - 1].id);
   store.set("uiux-gyms", [...new Set([...seen, ...earned])]);
   renderRank();
   if (!newBadges.length) return false;
@@ -1726,7 +1728,7 @@ function celebrate(gyms, p) {
   confetti({ n: 240 });
   document.querySelector(".celebrate")?.remove();
   const w = document.createElement("div"); w.className = "celebrate";
-  const last = gyms.at(-1);
+  const last = gyms[gyms.length - 1];
   w.innerHTML = `<div class="cel-card" role="dialog" aria-modal="true" aria-labelledby="celH">
     <span class="cel-kicker">NEW BADGE</span>
     <div class="cel-gyms">${gyms.map((g) => gymSVG(g, true, GYMS.indexOf(g))).join("")}</div>
