@@ -2,19 +2,21 @@
 "use strict";
 
 /* ================= タグ・理解の段階 ================= */
+// タグの色は style.css の .t-<id>(--t-<id>)で決まる
 const TAGS = {
-  cog:      { label: "認知心理学",   color: "var(--t-cog)",      hint: "知覚・記憶・注意の法則" },
-  be:       { label: "行動経済学",   color: "var(--t-be)",       hint: "意思決定とバイアス" },
-  ui:       { label: "UIの原則",     color: "var(--t-ui)",       hint: "画面と操作の設計原則" },
-  ix:       { label: "インタラクション", color: "var(--t-ix)",  hint: "操作と反応・動きのデザイン" },
-  research: { label: "リサーチ",     color: "var(--t-research)", hint: "ユーザーを理解する手法" },
-  eval:     { label: "評価・検証",   color: "var(--t-eval)",     hint: "使いやすさを確かめる手法" },
-  process:  { label: "設計プロセス", color: "var(--t-process)",  hint: "人間中心設計の進め方" },
-  ethics:   { label: "アクセシビリティ", color: "var(--t-ethics)", hint: "年齢・障害・環境にかかわらず使えるように" },
-  biz:      { label: "ビジネス・事業", color: "var(--t-biz)", hint: "デザインを事業の成果につなぐ" },
-  ai:       { label: "生成AI", color: "var(--t-ai)", hint: "生成AIのしくみと、使うときの注意" },
+  cog:      { label: "認知心理学",       hint: "知覚・記憶・注意の法則" },
+  be:       { label: "行動経済学",       hint: "意思決定とバイアス" },
+  ui:       { label: "UIの原則",         hint: "画面と操作の設計原則" },
+  ix:       { label: "インタラクション", hint: "操作と反応・動きのデザイン" },
+  research: { label: "リサーチ",         hint: "ユーザーを理解する手法" },
+  eval:     { label: "評価・検証",       hint: "使いやすさを確かめる手法" },
+  process:  { label: "設計プロセス",     hint: "人間中心設計の進め方" },
+  ethics:   { label: "アクセシビリティ", hint: "年齢・障害・環境にかかわらず使えるように" },
+  biz:      { label: "ビジネス・事業",   hint: "デザインを事業の成果につなぐ" },
+  ai:       { label: "生成AI",           hint: "生成AIのしくみと、使うときの注意" },
 };
 const TAG_IDS = Object.keys(TAGS);
+// 最初から入っている用語カード(SEED_CARDS は cards.js)の複製
 const cloneSeeds = () => SEED_CARDS.map((c) => ({ ...c, labels: c.labels.slice() }));
 // 用語選定の参考にした公式資料
 const SOURCES = {
@@ -24,13 +26,12 @@ const SOURCES = {
 };
 const officialSourceHTML = (c) => `<span class="ro-main">${srcLink(c.src)}${c.srcItem ? `<small>${esc(c.srcItem)}</small>` : ""}</span>`;
 const srcLink = (name) => { const x = SOURCES[name]; return x ? `<a class="src-link" href="${x.url}" target="_blank" rel="noopener noreferrer">${esc(name)}<span aria-hidden="true">↗</span><span class="vh">（新しいタブで開く）</span></a>` : esc(name); };
-// 保存先(共有データベース)を使えない環境で最初に並べる用語カード
-const SEED_CARDS = [{"id":"accessibility","term":"Accessibility","ja":"アクセシビリティ","meaning":"障害の有無や年齢、環境にかかわらず、誰もが情報や機能を使えること。WCAGが国際的な基準で、日本ではJIS X 8341-3が対応する。","example":"文字と背景のコントラスト比を4.5:1以上にする。","labels":["ethics"],"src":"UX検定基礎 シラバス","srcItem":"アクセシビリティ","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"aesthetic-usability","term":"Aesthetic-Usability Effect","ja":"美的ユーザビリティ効果","meaning":"見た目が美しいものは、使いやすいと感じられやすいという効果。ただし美しさが使いにくさを隠してしまうこともあるので、検証では注意がいる。","example":"ユーザーテストで「きれい」という感想と、実際の操作の詰まりを分けて記録する。","labels":["cog","ui"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（美的ユーザビリティ）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"affinity-diagram","term":"Affinity Diagram","ja":"親和図法（KJ法）","meaning":"調査で集めた気づきを付箋に書き、似たもの同士をまとめて構造を見つける方法。日本では川喜田二郎のKJ法として知られる。","example":"インタビューの発言を付箋にして、グループに名前を付ける。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（KJ法）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"agile","term":"Agile / Scrum","ja":"アジャイル（スクラム）","meaning":"短い期間（スプリント）で作って見直すことをくり返し、変化に合わせて開発を進める考え方。スクラムはその代表的な進め方。","example":"2週間ごとに動くものを見せ、ユーザーの反応で次の優先順位を変える。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"アジャイル（スクラム・スプリント）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ai-agent","term":"AI Agent","ja":"AIエージェント","meaning":"目標を与えると、手順を自分で考え、ツールを使いながら作業を進めるAI。外部サービスとの連携にはMCPなどの仕組みが使われる。","example":"調べ物から資料の下書きまでを、指示ひとつで順に進める。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"AIエージェント","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ai-principles","term":"Social Principles of Human-Centric AI","ja":"AI社会原則（人間中心）","meaning":"日本のAI活用の基本となる原則。人間中心の考え方、安全性・公平性、プライバシー保護、セキュリティ確保、透明性、アカウンタビリティなどを掲げる。","example":"AIの判断を使う機能では、なぜその結果なのかをユーザーに説明できるようにする。","labels":["ai","ethics"],"src":"生成AIパスポート シラバス","srcItem":"AIを取り巻く理念と原則・ガイドライン","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"anchoring","term":"Anchoring","ja":"アンカリング効果","meaning":"最初に見た数字が基準(いかり)になり、その後の判断が引きずられる傾向。","example":"定価を見せてから割引価格を出すと、安く感じる。","labels":["be"],"src":"UX検定基礎 シラバス","srcItem":"行動経済学（アンカリング効果）","cat":"be","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"business-model-canvas","term":"Business Model Canvas","ja":"ビジネスモデルキャンバス","meaning":"顧客・価値提案・チャネル・収益・コストなど9つの枠で、事業の仕組みを1枚に描く道具。デザインが事業のどこに効くかを見渡せる。","example":"新機能の案が、どの枠（顧客関係か収益か）を強めるのかを確かめる。","labels":["biz"],"src":"UX検定基礎 シラバス","srcItem":"組織開発（ビジネスモデルキャンバス）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"card-sorting","term":"Card Sorting","ja":"カードソート","meaning":"項目を書いたカードをユーザーに分類してもらい、ユーザーが自然だと感じるグループ分けや名前を知る手法。情報設計の手がかりになる。","example":"ヘルプページの分類を、社内の組織図ではなくユーザーの感覚で決める。","labels":["research","ui"],"src":"UX検定基礎 シラバス","srcItem":"アイデア創出（カードソート）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"cognitive-bias","term":"Cognitive Bias","ja":"認知バイアス","meaning":"経験や思い込みによって、判断が合理的な答えから一定の方向にずれてしまう傾向。調査やデザインの判断そのものにも入り込む。","example":"インタビューで自分の仮説に合う発言ばかり拾っていないか、チームで確かめる。","labels":["be","cog"],"src":"UX検定基礎 シラバス","srcItem":"行動経済学（認知バイアス）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"cognitive-load","term":"Cognitive Load","ja":"認知負荷","meaning":"課題をこなすために使われる頭の処理量。本質と関係ない負荷(見づらさ・余計な選択)を減らすほど、使う人は目的に集中できる。","example":"入力フォームで不要な項目を削り、1画面1テーマにする。","labels":["cog"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（認知負荷）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"cognitive-walkthrough","term":"Cognitive Walkthrough","ja":"認知的ウォークスルー","meaning":"初めて使う人の立場でタスクを1ステップずつたどり、「次に何をすればいいか分かるか」を問いながら問題を見つける評価手法。","example":"ユーザーを集めずに、設計の初期段階で学びやすさを確かめられる。","labels":["eval"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（認知的ウォークスルー）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"consistency","term":"Consistency and Standards","ja":"一貫性と標準","meaning":"同じことは同じ言葉と見た目で表すという原則。一度覚えたことが他の場面でも通じると、学習の手間が減る。","example":"「保存」「登録」「確定」が混在していたボタン文言を統一する。","labels":["ui"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"context-of-use","term":"Context of Use","ja":"利用状況","meaning":"誰が、どんな目的・タスクで、どんな環境や機器で使うのか。HCDプロセスの最初に把握し、設計と評価の前提にする。","example":"「電車で片手で使う」なら、ボタンの大きさや操作の手数が変わる。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（現在の利用状況の把握）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"contextual-inquiry","term":"Contextual Inquiry","ja":"文脈的調査","meaning":"利用者の実際の作業の場で、観察しながら話を聞く調査手法。「師匠と弟子」の関係で教えてもらう姿勢で臨む。","example":"経理担当者の月末の作業に隣で立ち会う。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（ユーザー観察・フィールドワーク）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"conversion-rate","term":"Conversion Rate (CVR)","ja":"コンバージョン率","meaning":"訪れた人のうち、購入や登録など目的の行動まで進んだ人の割合。UIの小さな摩擦がこの数字を大きく左右する。","example":"入力項目を減らして、登録のCVRを比べる。","labels":["biz"],"src":"ウェブ解析士 公式テキスト","srcItem":"基本指標（コンバージョン率）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"cx","term":"Customer Experience","ja":"CX（カスタマーエクスペリエンス）","meaning":"商品やサービスとの出会いから購入・利用・サポートまで、顧客が企業と関わる体験の全体。UXより広い範囲を指すことが多い。","example":"アプリが使いやすくても、問い合わせ窓口の対応が悪ければCXは下がる。","labels":["biz","process"],"src":"UX検定基礎 シラバス","srcItem":"UXとは（CX）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"deepfake","term":"Deepfake","ja":"ディープフェイク","meaning":"AIで本物そっくりの偽の画像・音声・動画を作る技術。偽情報（ディスインフォメーション）に悪用される危険がある。","example":"実在の人物の顔や声を使った素材は、使う前に出どころと権利を確かめる。","labels":["ai","ethics"],"src":"生成AIパスポート シラバス","srcItem":"ディープフェイク（深層偽造）技術","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"design-management","term":"Design Management","ja":"デザイン経営","meaning":"デザインを、見た目づくりではなく企業の価値と競争力を高める経営の手段として使うこと。2018年に経済産業省と特許庁が「デザイン経営」宣言を出した。","example":"経営チームにデザイン責任者がいて、事業の上流から関わる。","labels":["biz","process"],"src":"UX検定基礎 シラバス","srcItem":"人間中心デザイン（デザインマネジメント）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"design-thinking","term":"Design Thinking","ja":"デザイン思考","meaning":"共感・問題定義・発想・試作・検証をくり返して課題を解く考え方。IDEOやスタンフォード大学d.schoolが広めた。","example":"5日間で課題の定義から試作の検証までを回す。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"デザイン思考","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"diary-study","term":"Diary Study","ja":"日記調査","meaning":"一定期間、利用者に行動や気持ちを記録してもらう調査。一度のインタビューでは見えない、時間による変化がとらえられる。","example":"2週間、記録アプリを開かなかった日の理由を書いてもらう。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（ダイアリー法）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"doherty-threshold","term":"Doherty Threshold","ja":"ドハティのしきい値","meaning":"システムの反応が十分に速いと、人は作業に没頭しやすく生産性が上がるという考え方。1982年のIBMの論文が起源とされる。","example":"時間がかかる処理では、先に画面だけ反応させて待たせている感覚を消す。","labels":["ix","cog"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（ドハティのしきい値）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"double-diamond","term":"Double Diamond","ja":"ダブルダイヤモンド","meaning":"「正しい問題を見つける」と「正しく解く」を、それぞれ発散と収束の2つのひし形で表したプロセス。英国デザインカウンシルが提唱した。","example":"いきなり画面を作らず、まず「なぜ記録が続かないか」を広げて調べる。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"デザイン思考（ダブルダイヤモンド）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"empathy-map","term":"Empathy Map","ja":"共感マップ","meaning":"利用者が「言うこと・考えること・すること・感じること」を4象限で整理する図。発言と行動のずれに気づくのに役立つ。","example":"「毎日書きたい」と言いながら週1しか開かない人の気持ちを整理する。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（エンパシーマップ）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"error-prevention","term":"Error Prevention","ja":"エラーの予防","meaning":"エラーメッセージを出すより、そもそもミスが起きにくい設計にするほうがよいという原則。","example":"削除ボタンは一度押すと「もう一度押すと削除」に変わる。","labels":["ui"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ethnography","term":"Ethnography","ja":"エスノグラフィ","meaning":"ユーザーの生活や仕事の現場に入り込み、観察を通じて行動や習慣の背景を理解する調査手法。文化人類学の方法が起源。","example":"本人も言葉にしていない工夫や不便が見つかる。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（エスノグラフィー）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"few-shot","term":"Zero-shot / Few-shot Prompting","ja":"Zero-Shot／Few-Shotプロンプティング","meaning":"例を示さずに指示だけで答えさせるのがZero-Shot、いくつかの例を示してから答えさせるのがFew-Shot。例を見せると出力の形がそろいやすい。","example":"良い用語説明を2つ見せてから、新しい用語の説明を書かせる。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"プロンプティングの基礎","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"generative-ai","term":"Generative AI","ja":"生成AI","meaning":"学習したデータをもとに、文章・画像・音声・動画などの新しいコンテンツを作り出すAI。デザインでは、案出しや下書き、調査の補助に使われる。","example":"ワイヤーの文言案を複数出させ、人が選んで直す。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"生成AI（ジェネレーティブAI）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"gestalt-proximity","term":"Law of Proximity","ja":"近接の法則","meaning":"近くに置かれたものは、ひとまとまりとして知覚されるというゲシュタルト原則。余白の大小で関係の強さを表せる。","example":"ラベルと入力欄の間隔を、項目同士の間隔より狭くする。","labels":["cog","ui"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（ゲシュタルトの原則）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"hallucination","term":"Hallucination","ja":"ハルシネーション","meaning":"生成AIが、事実と異なる内容をもっともらしく出力してしまう現象。出力をそのまま信じず、根拠を確かめることが必要。","example":"AIが書いた用語の意味は、出典で確認してから自分のカードにする。","labels":["ai","ethics"],"src":"生成AIパスポート シラバス","srcItem":"ChatGPT（ハルシネーション）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"hcd","term":"Human-Centred Design","ja":"人間中心設計","meaning":"使う人の状況とニーズを理解し、評価と改善を繰り返してつくる設計の考え方。ISO 9241-210で国際規格として定義されている。","example":"企画の前に、実際の利用場面を観察しに行く。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"人間中心デザイン","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"heuristic-evaluation","term":"Heuristic Evaluation","ja":"ヒューリスティック評価","meaning":"専門家が経験則(ニールセンの10原則など)に照らしてUIの問題を洗い出す評価手法。早く安く回せるが、実際の利用者の検証の代わりにはならない。","example":"リリース前に3人で10原則に沿って画面を点検する。","labels":["eval"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（ヒューリスティック評価）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"hicks-law","term":"Hick's Law","ja":"ヒックの法則","meaning":"選択肢の数が増えるほど、選ぶまでの時間が長くなるという法則。選択肢を減らすか、段階に分けて見せると判断が速くなる。","example":"設定画面の項目をカテゴリで分けて、一度に見せる数を減らす。","labels":["cog","ui"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（ヒックの法則）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"information-architecture","term":"Information Architecture","ja":"情報アーキテクチャ（IA）","meaning":"情報を分類・整理し、ラベルや階層、ナビゲーションを設計して、ユーザーが目的の情報にたどり着けるようにすること。","example":"メニュー名を社内用語からユーザーの言葉に変えるだけで、迷う人が減る。","labels":["ui"],"src":"UX検定基礎 シラバス","srcItem":"情報設計（Information Architecture）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"iso-9241-210","term":"ISO 9241-210","ja":"ISO 9241-210（人間中心設計の国際規格）","meaning":"インタラクティブシステムの人間中心設計を定めた国際規格。利用状況の理解→要求事項の明示→設計解の作成→評価、の4つの活動をくり返すプロセスを示す。日本ではJIS Z 8530。","example":"評価で問題が見つかったら、利用状況の理解や要求事項に戻ってやり直す。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"人間中心デザイン（ISO9241・HCDサイクル）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"jakobs-law","term":"Jakob's Law","ja":"ヤコブの法則","meaning":"ユーザーは時間の大半を他のサイトで過ごすので、自分のサイトにも同じ振る舞いを期待するという考え方。独自性より慣れを優先する場面がある。","example":"ロゴを押したらホームに戻る、という慣習を崩さない。","labels":["cog","ui"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（ヤコブの法則）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"journey-map","term":"Customer Journey Map","ja":"カスタマージャーニーマップ","meaning":"利用者が目的を達成するまでの行動・考え・感情を、時間の流れに沿って描いた図。体験の谷を見つけて改善の優先度を決める。","example":"記録アプリを「始める→続ける→休む→戻る」で描き、戻る場面の谷を見つける。","labels":["research","process"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（カスタマージャーニーマップ）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"jtbd","term":"Jobs to Be Done","ja":"ジョブ理論","meaning":"人は製品そのものではなく、ある状況で片づけたい「用事」のために製品を雇う、という見方。属性より状況に注目する。","example":"「ノートアプリ」ではなく「会議の前に要点を思い出す」という用事で考える。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（ジョブ理論）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"kgi-kpi","term":"KGI / KPI","ja":"KGI・KPI","meaning":"KGIは事業の最終ゴールの数値（例：年間売上）、KPIはそこへ向かう途中経過を測る数値（例：月間の継続率）。デザインの改善がどのKPIを動かすかを言えると、事業と話がつながる。","example":"「登録完了率を5%上げる」をKPIにして、フォーム改善の効果を測る。","labels":["biz"],"src":"ウェブ解析士 公式テキスト","srcItem":"KGI・KPI設計","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"lean-ux","term":"Lean UX","ja":"リーンUX","meaning":"成果物を作り込むより、仮説を立てて小さく作り、ユーザーから学ぶサイクルを速く回すことを重視するUXの進め方。","example":"分厚い仕様書の代わりに、仮説と検証方法を1枚にまとめて回す。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"リーン（リーンUX）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"llm","term":"Large Language Model","ja":"LLM（大規模言語モデル）","meaning":"大量の文章で学習し、文脈から次に来る言葉を予測して文章を生成するモデル。ChatGPTやClaudeなどの土台になっている。","example":"このアプリでは、言葉を入れると意味の下書きをLLMが作る。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"LMとLLM","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"loss-aversion","term":"Loss Aversion","ja":"損失回避","meaning":"同じ大きさなら、得る喜びより失う痛みのほうを強く感じる傾向。カーネマンとトヴェルスキーのプロスペクト理論の中心。","example":"連続記録が途切れる痛みが、かえって再開を妨げることがある。","labels":["be"],"src":"UX検定基礎 シラバス","srcItem":"行動経済学（プロスペクト理論）","cat":"be","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ltv","term":"LTV (Customer Lifetime Value)","ja":"LTV（顧客生涯価値）","meaning":"1人の顧客が使い始めてからやめるまでに、事業にもたらす利益の合計。継続してもらえるほど大きくなるので、UXの良し悪しが直接効く。","example":"解約を減らすオンボーディング改善は、LTVを上げる施策として説明できる。","labels":["biz"],"src":"ウェブ解析士 公式テキスト","srcItem":"基本指標（LTV）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"microcopy","term":"Microcopy","ja":"マイクロコピー","meaning":"ボタン、エラーメッセージ、入力欄の補足など、画面上の短い言葉。小さいが、迷いや不安を大きく左右する。","example":"「送信」を「無料で登録する」に変えると、押したあとに何が起きるかが伝わる。","labels":["ui"],"src":"UX検定基礎 シラバス","srcItem":"UXライティング（マイクロコピー）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"multimodal","term":"Multimodal","ja":"マルチモーダル","meaning":"文章だけでなく、画像・音声・動画など複数の種類の情報をまとめて扱えること。","example":"画面のスクリーンショットを見せて、ユーザビリティ上の問題点を挙げさせる。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"ChatGPT（マルチモーダル）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"mvp","term":"Minimum Viable Product","ja":"MVP（実用最小限の製品）","meaning":"仮説を確かめるために必要な、最小限の機能だけを持つ製品。作り込む前に、本当に価値があるかを早く学ぶために使う。","example":"予約機能を作る前に、申し込みフォームだけで需要を確かめる。","labels":["biz","process"],"src":"UX検定基礎 シラバス","srcItem":"リーン（MVP）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"nudge","term":"Nudge","ja":"ナッジ","meaning":"選択の自由を残したまま、望ましい行動をそっと後押しする仕掛け。セイラーとサンスティーンが広めた。強制や大きな報酬は使わない。","example":"階段に消費カロリーを書いて、階段を選びやすくする。","labels":["be"],"src":"UX検定基礎 シラバス","srcItem":"行動経済学（ナッジ）","cat":"be","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"pain-point","term":"Pain Point","ja":"ペインポイント","meaning":"ユーザーが体験の中で不満・不便・不安を感じる箇所。改善の優先度を決める手がかりになる。反対に、喜びを感じる箇所はゲインポイント。","example":"ジャーニーマップで気持ちが大きく下がる所に、改善案を集中させる。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"行動データ分析（ペインポイント）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"persona","term":"Persona","ja":"ペルソナ","meaning":"調査にもとづいて描く、代表的な利用者の人物像。チームで「誰のための設計か」をそろえる道具。想像だけで作ると根拠のない像になる。","example":"インタビュー10人分から、行動の違いで2つのペルソナを作る。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（ペルソナ）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"pmf","term":"Product-Market Fit","ja":"PMF（プロダクトマーケットフィット）","meaning":"製品が、はっきりした市場の強いニーズを満たしている状態。PMF前は「何を作るか」を探す段階で、リサーチと検証の速さが勝負になる。","example":"「使えなくなったらとても残念」と答える人が40%を超えるかで目安を見る。","labels":["biz"],"src":"UX検定基礎 シラバス","srcItem":"プロダクトマネジメント（PMF）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"prompt-engineering","term":"Prompt Engineering","ja":"プロンプトエンジニアリング","meaning":"生成AIから目的に合った出力を得るために、指示（プロンプト）の書き方を工夫すること。指示・文脈・入力データ・出力形式を明確にする。","example":"「60〜90字で、実務での使いどころまで」と出力の条件を指定する。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"プロンプトエンジニアリング","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"prototyping","term":"Prototyping","ja":"プロトタイピング","meaning":"考えを早く形にして試すこと。紙でもよい。作り込む前に間違いに気づけるので、変更のコストが小さいうちに学べる。","example":"紙に描いたカードを並べて、検索結果の見え方を試す。","labels":["process","eval"],"src":"UX検定基礎 シラバス","srcItem":"プロトタイピング","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"rag","term":"Retrieval-Augmented Generation","ja":"RAG（検索拡張生成）","meaning":"質問に関係する資料を検索して取り出し、それを参照しながら回答を生成する仕組み。社内文書など、モデルが知らない情報にもとづいて答えられる。","example":"社内のデザインガイドを参照して、ルールに沿った回答を返すチャットボット。","labels":["ai"],"src":"生成AIパスポート シラバス","srcItem":"RAG","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"recognition-recall","term":"Recognition over Recall","ja":"再生より再認","meaning":"思い出させるより、見て選べるようにするほうが負担が小さいという原則。ニールセンのユーザビリティ10原則のひとつ。","example":"検索窓に最近の検索語を候補として出す。","labels":["ui","cog"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"retrospective-method","term":"Retrospective Probing","ja":"回顧法","meaning":"操作を終えたあとに、録画などを見返しながら、その時に何を考えていたかをユーザーに振り返ってもらう手法。操作中の発話が難しい場面で使う。","example":"集中が必要なタスクは、終わってから画面録画を一緒に見て理由を聞く。","labels":["eval","research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーテスト（回顧法）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"semi-structured-interview","term":"Semi-structured Interview","ja":"半構造化インタビュー","meaning":"質問項目をあらかじめ用意しつつ、相手の答えに合わせて深掘りや順番の入れ替えを柔軟に行うインタビューの形式。","example":"「それはなぜですか」「具体的には？」で、本音や背景を聞き出す。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"定性調査（インタビュー）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"signifier","term":"Signifier","ja":"シグニファイア","meaning":"どこをどう操作すればよいかを知らせる手がかり。ノーマンが、アフォーダンスと区別するために使った言葉。","example":"カードに「めくる」ラベルを付けて、裏返せることを知らせる。","labels":["cog","ix"],"src":"UX検定基礎 シラバス","srcItem":"認知心理学（シグニファイア）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"structured-scenario","term":"Structured Scenario Method","ja":"構造化シナリオ法","meaning":"バリュー（価値）シナリオ→アクティビティ（行為）シナリオ→インタラクション（操作）シナリオの3段階で、ユーザーにとっての価値から具体的な操作までを書き下ろす手法。","example":"「何のために」を先に決めてから、画面の操作を考える順番になる。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"アイデア創出（シナリオ）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"task-analysis","term":"Task Analysis","ja":"タスク分析","meaning":"ユーザーが目的を達成するまでの手順を分解して整理し、どこに負担や迷いがあるかを明らかにする手法。","example":"申し込みの手順を書き出すと、同じ情報を2回入力させている箇所が見つかる。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（タスク分析）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"think-aloud","term":"Think-Aloud Protocol","ja":"思考発話法","meaning":"操作しながら、考えていることを声に出してもらう手法。なぜそこで迷ったかという理由まで分かる。","example":"「いま何を探していますか?」と問いかけながら操作してもらう。","labels":["eval","research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーテスト（思考発話法）","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"undo","term":"Undo","ja":"取り消し","meaning":"操作をあとから元に戻せるようにすること。戻せると分かっていれば、人は安心して試せる。確認ダイアログの多用より効くことが多い。","example":"メール送信後の数秒間だけ「取り消し」を出す。","labels":["ix","ui"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"universal-design","term":"Universal Design","ja":"ユニバーサルデザイン","meaning":"年齢・能力・状況にかかわらず、できるだけ多くの人がはじめから使えるように設計する考え方。あとから対応を足すのではなく、最初から含めて考える。","example":"段差のない入口は、車いすの人にもベビーカーの人にも使いやすい。","labels":["ethics"],"src":"UX検定基礎 シラバス","srcItem":"人間中心デザイン（ユニバーサルデザイン）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"usability-test","term":"Usability Testing","ja":"ユーザビリティテスト","meaning":"実際の利用者に課題をやってもらい、どこでつまずくかを観察する評価手法。少人数でも大きな問題は見つかりやすい。","example":"5人に「カードを1枚追加して」と頼み、迷った箇所を記録する。","labels":["eval"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーテスト","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"usability","term":"Usability","ja":"ユーザビリティ","meaning":"特定の人が特定の状況で、目的をどれだけ有効に、効率よく、満足して達成できるかの度合い。ISO 9241-11の定義が広く使われる。","example":"「使いやすい?」ではなく「3分以内に予約を終えられたか」で測る。","labels":["eval"],"src":"UX検定基礎 シラバス","srcItem":"ユーザビリティ","cat":"hcd","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"user-requirements","term":"User Requirements","ja":"ユーザー要求事項","meaning":"利用状況の理解をもとに、ユーザーが何を達成できる必要があるかを具体的な言葉にしたもの。設計の方向と、評価の基準になる。","example":"「初めての人が3分以内に登録を終えられる」のように、確かめられる形で書く。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"ユーザー要求定義","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"user-story-mapping","term":"User Story Mapping","ja":"ユーザーストーリーマッピング","meaning":"ユーザーの行動の流れを横に、必要な機能を縦に並べて、体験の全体を見ながら開発の優先順位を決める手法。","example":"最初のリリースで、体験が途切れない最小限の機能の組み合わせを決める。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"理想の利用状況の想定（ユーザーストーリーマッピング）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ux-5planes","term":"The Elements of UX","ja":"UXの5段階モデル","meaning":"ジェシー・ジェームズ・ギャレットが示した、戦略・要件・構造・骨格・表層の5段階でUXを組み立てる考え方。下の段階が上の段階の土台になる。","example":"見た目（表層）の議論が止まらない時は、戦略や要件が決まっているかに戻る。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"UXとは（UXの5階層モデル）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ux-curve","term":"UX Curve","ja":"UXカーブ","meaning":"製品を使い始めてから今までの気持ちの変化を、ユーザー自身に曲線で描いてもらう手法。長い期間の体験の良し悪しと、その理由がわかる。","example":"満足度が下がった時期に何があったかを聞き、解約の手前の出来事を見つける。","labels":["research"],"src":"UX検定基礎 シラバス","srcItem":"ユーザーモデリング（UXカーブ）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ux-honeycomb","term":"UX Honeycomb","ja":"UXのハニカム構造","meaning":"ピーター・モービルが示した、良いUXの7つの要素。役に立つ・使いやすい・望ましい・見つけやすい・アクセスしやすい・信頼できる・価値がある。","example":"「使いやすいけれど見つけにくい」など、どの要素が欠けているかを点検する。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"UXとは（UXのハニカム構造）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"ux-period","term":"UX Periods","ja":"UXの期間（UX白書）","meaning":"使う前の予期的UX、使っている最中の一時的UX、使った後のエピソード的UX、長く使った累積的UXの4つの期間でUXを捉える考え方。2010年の「UX白書」で示された。","example":"使っている最中の快適さだけでなく、使う前の期待や、振り返った時の印象も設計する。","labels":["process"],"src":"UX検定基礎 シラバス","srcItem":"UXとは（UX白書のモデル）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"value-proposition","term":"Value Proposition","ja":"バリュープロポジション","meaning":"顧客が他ではなくこの製品を選ぶ理由。顧客の「やりたいこと・悩み・得たいこと」と、製品が差し出すものを対応させて言葉にする。","example":"バリュープロポジションキャンバスで、悩みと解決策の対応を確かめる。","labels":["biz","research"],"src":"UX検定基礎 シラバス","srcItem":"理想の利用状況の想定（バリュープロポジション）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"visibility-status","term":"Visibility of System Status","ja":"システム状態の可視化","meaning":"いま何が起きているかを、適切なタイミングで利用者に知らせ続けるという原則。ニールセンの10原則の最初のひとつ。","example":"検索中に「84 / 1,794件を確認中」と進み具合を出す。","labels":["ui","ix"],"src":"UX検定基礎 シラバス","srcItem":"エキスパートレビュー（10ヒューリスティックス）","cat":"ux","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"wireframe","term":"Wireframe","ja":"ワイヤーフレーム","meaning":"画面に何をどこに置くかを、色や装飾を省いた線と箱で示した設計図。見た目より先に、情報の優先度と配置を合意するために使う。","example":"色が付く前に、ボタンの位置と文言だけで関係者と議論する。","labels":["ui","process"],"src":"UX検定基礎 シラバス","srcItem":"情報設計（ワイヤーフレーム）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"},{"id":"wizard-of-oz","term":"Wizard of Oz","ja":"オズの魔法使い（プロトタイピング）","meaning":"まだ作っていない機能を、裏で人が操作して本物のように見せ、ユーザーの反応を確かめるプロトタイプの手法。","example":"AIチャットを作る前に、裏で人が返信して、どんな質問が来るかを見る。","labels":["eval","process"],"src":"UX検定基礎 シラバス","srcItem":"プロトタイピング（オズの魔法使い）","cat":"other","source":"seed","level":0,"createdAt":"2026-08-11T09:36:00.000Z","seenAt":"2026-08-11T09:36:00.000Z"}];
+// 古い形式のカード(labels が無く cat だけ持つもの)をタグに読み替える
 const CAT_FALLBACK = { ux: ["ui"], hcd: ["process"], be: ["be"], me: [], other: [] };
 const LEVELS = ["知った", "覚えた", "説明できる"];
 const LEVEL_HINTS = ["言葉と意味に出会った", "意味を見なくても思い出せる", "人に30秒で説明できる"];
-// 理解の段階は「深さ」なので、1色の濃淡(浅い→深い)で表す
-const LVL_FILL = ["linear-gradient(180deg,#FFE27A 0%,#FFA53A 100%)", "linear-gradient(180deg,#FFB23F 0%,#F2542D 100%)", "linear-gradient(180deg,#FF6A2B 0%,#C21D1D 100%)"];
+// 理解の段階は炎の色で表す。浅いほど黄色、深いほど赤(色は style.css の --lv1〜3)
+const LVL_FILL = [1, 2, 3].map((n) => `linear-gradient(180deg,var(--lv${n}-a) 0%,var(--lv${n}-b) 100%)`);
 
 /* ================= 意味の軸(検索の照合と「理由」表示に使う) ================= */
 const CONCEPTS = {
@@ -76,11 +77,18 @@ const CONCEPT_IDS = Object.keys(CONCEPTS);
 
 /* ================= 状態 ================= */
 const S = {
-  cards: [], byId: new Map(), axis: new Map(), events: [],
-  db: null, sample: null, local: false, loaded: false,
+  // データ
+  cards: [], byId: new Map(), events: [],
+  db: null, sample: null, local: false, loaded: false, evLoaded: false,
+  // 画面
   view: "stage", cur: null, trail: [], layout: "pile",
-  drawerId: null, editing: null,
+  memo: new Map(),   // ホームの山で「◯週間前のあなたから」と添えるカード
+  landmark: null,    // 週・月の始めや久しぶりの訪問で出す一言
+  drawerId: null, lvBurst: null,
+  // Add Card / Edit のシート
+  editing: null, fFiles: [], tagOrder: [], tagTouched: false, meanTouched: false, aiTags: null,
 };
+const DAY_MS = 864e5;
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const store = {
@@ -208,9 +216,11 @@ function closeSide(silent) {
   $("side").classList.remove("open"); $("sideScrim").hidden = true; $("hamb").setAttribute("aria-expanded", "false");
   if (!silent) sideReturn?.focus?.();
 }
-$("hamb").onclick = openSide;
-$("sideClose").onclick = () => closeSide();
-$("sideScrim").onclick = () => closeSide();
+// ロゴは HTML ではサイドバーにだけ書き、狭い画面用のヘッダーには複製して置く
+$("hamb").after(document.querySelector(".side .logo").cloneNode(true));
+$("hamb").addEventListener("click", openSide);
+$("sideClose").addEventListener("click", () => closeSide());
+$("sideScrim").addEventListener("click", () => closeSide());
 
 function go(v, opts = {}) {
   S.view = v;
@@ -237,7 +247,14 @@ function renderSide() {
   const tc = {}; S.cards.forEach((c) => c.labels.forEach((t) => (tc[t] = (tc[t] || 0) + 1)));
   const curTag = S.view === "stage" && S.cur?.kind === "tag" ? S.cur.key : "";
   renderRank();
-  $("sideTags").innerHTML = TAG_IDS.map((k) => `<li><button type="button" class="t-${k}" data-tag="${k}" title="${esc(TAGS[k].hint)}" aria-current="${curTag === k}"><span class="dot"></span>${esc(TAGS[k].label)}<span class="n">${tc[k] || 0}</span></button>${curTag === k ? `<button type="button" class="tag-x" data-go="stage" data-home aria-label="${esc(TAGS[k].label)}の絞り込みを閉じて、すべてのカードへ">×</button>` : ""}</li>`).join("");
+  const tagItem = (k) => {
+    const label = esc(TAGS[k].label);
+    const tagBtn = `<button type="button" class="t-${k}" data-tag="${k}" title="${esc(TAGS[k].hint)}" aria-current="${curTag === k}">`
+      + `<span class="dot"></span>${label}<span class="n">${tc[k] || 0}</span></button>`;
+    const closeBtn = curTag === k ? `<button type="button" class="tag-x" data-go="stage" data-home aria-label="${label}の絞り込みを閉じて、すべてのカードへ">×</button>` : "";
+    return `<li>${tagBtn}${closeBtn}</li>`;
+  };
+  $("sideTags").innerHTML = TAG_IDS.map(tagItem).join("");
 }
 
 /* ================= 積み上げ(ファーストビュー) ================= */
@@ -251,7 +268,7 @@ function memoryPicks() {
     const dates = [...(c.source === "me" && c.createdAt ? [{ at: c.createdAt, kind: "書きとめた" }] : []), ...encOf(c).map((e) => ({ at: e.at, kind: "出会った" }))];
     let best = null;
     for (const x of dates) {
-      const age = Math.round((today - new Date(new Date(x.at).toDateString()).getTime()) / 864e5);
+      const age = Math.round((today - new Date(new Date(x.at).toDateString()).getTime()) / DAY_MS);
       for (const w of MEMO_WINDOWS) if (Math.abs(age - w.d) <= w.r && (!best || w.d > best.w.d)) best = { w, kind: x.kind };
     }
     if (best) picks.push({ c, text: `${best.w.label}のあなたから`, d: best.w.d });
@@ -302,6 +319,12 @@ function resultsFor(entry) {
     default: return [];
   }
 }
+// 「整列して見る / 山に戻す」ボタンのアイコン
+const ICON_GRID = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">'
+  + '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+const ICON_PILE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true">'
+  + '<rect x="3" y="11" width="10" height="7" rx="1.5" transform="rotate(-12 8 14.5)"/><rect x="11" y="9" width="10" height="7" rx="1.5" transform="rotate(10 16 12.5)"/>'
+  + '<rect x="6" y="3" width="10" height="7" rx="1.5" transform="rotate(-4 11 6.5)"/></svg>';
 function titleFor(cur) {
   if (cur.kind === "home") return "UIUX Stocker";
   if (cur.kind === "q" || cur.kind === "ai") return `「${esc(cur.label)}」に近い言葉`;
@@ -334,15 +357,17 @@ function renderStage(animate) {
   $("pile").hidden = !pileMode;
   $("gridwrap").hidden = pileMode;
   $("layoutFab").hidden = !res.length;
-  $("layoutFab").innerHTML = S.layout === "pile"
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>整列して見る'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="10" height="7" rx="1.5" transform="rotate(-12 8 14.5)"/><rect x="11" y="9" width="10" height="7" rx="1.5" transform="rotate(10 16 12.5)"/><rect x="6" y="3" width="10" height="7" rx="1.5" transform="rotate(-4 11 6.5)"/></svg>山に戻す';
+  $("layoutFab").innerHTML = S.layout === "pile" ? ICON_GRID + "整列して見る" : ICON_PILE + "山に戻す";
   if (!res.length) {
     pileClear(true);
     placeGridBelowSearch();
+    const isQ = cur.kind === "q";
+    const short = cur.label.length > 12 ? cur.label.slice(0, 12) + "…" : cur.label;
+    const aiBtn = S.sample && isQ ? '<button type="button" class="btn" data-ai2>Claudeに探し直してもらう</button>' : "";
+    const addBtn = isQ ? `<button type="button" class="btn primary" data-add-term="${esc(cur.label)}">「${esc(short)}」を書きとめる</button>` : "";
     $("gridInner").innerHTML = `<div class="st-empty" style="margin:16px auto 0"><h2 class="head-jp">関係するカードが見つかりませんでした</h2>
       <p>別の言い方で探すか、この言葉を新しく書きとめてください。</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">${S.sample && cur.kind === "q" ? '<button type="button" class="btn" data-ai2>Claudeに探し直してもらう</button>' : ""}${cur.kind === "q" ? `<button type="button" class="btn primary" data-add-term="${esc(cur.label)}">「${esc(cur.label.length > 12 ? cur.label.slice(0, 12) + "…" : cur.label)}」を書きとめる</button>` : ""}</div></div>`;
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${aiBtn}${addBtn}</div></div>`;
     return;
   }
   if (pileMode) {
@@ -379,8 +404,8 @@ $("sform").addEventListener("submit", (e) => {
   const q = $("q").value.trim(); if (!q) return;
   runSearch(q);
 });
-$("clearQ").onclick = () => go("stage", { home: true });
-$("layoutFab").onclick = () => { S.layout = S.layout === "pile" ? "grid" : "pile"; renderStage(true); };
+$("clearQ").addEventListener("click", () => go("stage", { home: true }));
+$("layoutFab").addEventListener("click", () => { S.layout = S.layout === "pile" ? "grid" : "pile"; renderStage(true); });
 // 候補：空なら「最近の検索」と「困りごとの例」、入力中は意味で近いカードを理由つきで即時に出す
 let sugItems = [], sugIdx = -1, suggestTimer = 0;
 const sugOpen = () => !$("sugg").hidden;
@@ -495,11 +520,16 @@ function renderFit(res, anim) {
   if (S.cur.kind === "home") list.sort((a, b) => TAG_IDS.indexOf(a.labels[0]) - TAG_IDS.indexOf(b.labels[0]) || titleOf(a).localeCompare(titleOf(b), "ja"));
   else list.sort((a, b) => titleOf(a).localeCompare(titleOf(b), "ja"));
   const g = 8, W = gw.clientWidth - 48, H = gw.clientHeight - 88, N = list.length, R = TILE_H / TILE_W;
+  // 列を1つずつ増やし、全部が高さに収まる最初の列数を選ぶ
   let best = null;
-  for (let cols = 1; cols <= N; cols++) { const w = Math.min(260, (W - (cols - 1) * g) / cols), rows = Math.ceil(N / cols); if (rows * w * R + (rows - 1) * g <= H) { best = { w, cols }; break; } }
+  for (let cols = 1; cols <= N; cols++) {
+    const w = Math.min(260, (W - (cols - 1) * g) / cols), rows = Math.ceil(N / cols);
+    if (rows * w * R + (rows - 1) * g <= H) { best = { w, cols }; break; }
+  }
   if (!best || best.w < 96) best = { w: 96, cols: Math.max(1, Math.floor((W + g) / (96 + g))) };
   const w = Math.floor(best.w), h = Math.round(w * R), k = w / TILE_W;
-  $("gridInner").innerHTML = `<div class="fit-grid${anim ? " anim" : ""}" style="grid-template-columns:repeat(${best.cols},${w}px);gap:${g}px">${list.map((c, i) => `<button type="button" class="ft" data-open="${esc(c.id)}" style="width:${w}px;height:${h}px;--i:${Math.min(i, 90)}" aria-label="${cardAria(c)}">${tileHTML(c, k)}</button>`).join("")}</div>`;
+  const tile = (c, i) => `<button type="button" class="ft" data-open="${esc(c.id)}" style="width:${w}px;height:${h}px;--i:${Math.min(i, 90)}" aria-label="${cardAria(c)}">${tileHTML(c, k)}</button>`;
+  $("gridInner").innerHTML = `<div class="fit-grid${anim ? " anim" : ""}" style="grid-template-columns:repeat(${best.cols},${w}px);gap:${g}px">${list.map(tile).join("")}</div>`;
 }
 // 札の中身。ホームの山と整列表示で共通(種の説明文だけ呼び出し側で変える)
 const SEED_HINT = "まだ意味を書いていない「種」。";
@@ -515,7 +545,7 @@ function miniCardHTML(c, k, memo) {
   return `<button type="button" class="pc tiny" data-pc="${esc(c.id)}" aria-label="${cardAria(c)}">
     <span class="zoom">${memo ? `<span class="memo-tag">${esc(memo)}</span>` : ""}${tileHTML(c, k, SEED_HINT + "ひらいて一言足せます。")}</span></button>`;
 }
-function pileCardHTML(c, rank, big) {
+function pileCardHTML(c, big) {
   return `<button type="button" class="pc ${c.meaning ? c.tc : "seed"}${big ? " big" : ""}" data-pc="${esc(c.id)}" aria-label="${cardAria(c)}">
     <span class="pc-top"><span class="pc-tag">${esc(tagLabel(c))}</span></span>
     <span class="title">${esc(titleOf(c))}</span>
@@ -588,7 +618,7 @@ async function pileShow(res, key, home) {
     const memo = home && S.memo?.get(c.id);
     // あの日の言葉は大きめ。ただし狭い画面では幅の6割まで
     const memoScale = memo ? (P.w < 600 ? 1.3 : Math.min(1.9, (P.w * 0.6) / w)) : 1;
-    wrap.innerHTML = home ? miniCardHTML(c, P.mini.k * memoScale, memo) : pileCardHTML(c, i + 1, big);
+    wrap.innerHTML = home ? miniCardHTML(c, P.mini.k * memoScale, memo) : pileCardHTML(c, big);
     const el = wrap.firstElementChild;
     const cw = memo ? Math.round(w * memoScale) : big ? Math.round(w * 1.15) : w, ch = memo ? Math.round(h * memoScale) : big ? Math.round(h * 1.18) : h;
     if (memo) el.classList.add("memo");
@@ -633,7 +663,7 @@ function pileDropOne(c) {
   if (!P.engine || P.live.has(c.id)) return;
   const { w, h } = P.mini || pileSizes();
   const wrap = document.createElement("div");
-  wrap.innerHTML = P.mini ? miniCardHTML(c, P.mini.k) : pileCardHTML(c, 0, false);
+  wrap.innerHTML = P.mini ? miniCardHTML(c, P.mini.k) : pileCardHTML(c, false);
   const el = wrap.firstElementChild;
   el.style.width = w + "px"; el.style.height = h + "px"; el.style.zIndex = String(++P.z);
   $("pile").appendChild(el);
@@ -735,10 +765,7 @@ window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer
   if (S.layout === "pile" && !$("pile").hidden) pileMeasure(); else { placeGridBelowSearch(); if ($("gridwrap").classList.contains("fit") && !$("gridwrap").hidden) renderStage(false); }
 }, 150); });
 
-/* ================= すべての言葉 ================= */
-
 /* ================= Stack(積み上げ・称号・バッジ) ================= */
-const DAY_MS = 864e5;
 const parseDay = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
 // 積み上げた記録＝自分で追加したカード＋理解を上げた記録
 function stackItems() {
@@ -790,7 +817,7 @@ const GYM_SHAPES = {
   oct: '<polygon points="31,5 69,5 95,31 95,69 69,95 31,95 5,69 5,31"/>',
   burst: '<polygon points="' + Array.from({ length: 24 }, (_, i) => { const r = i % 2 ? 34 : 46, a = (i / 24) * Math.PI * 2 - Math.PI / 2; return (50 + r * Math.cos(a)).toFixed(1) + "," + (50 + r * Math.sin(a)).toFixed(1); }).join(" ") + '"/>',
 };
-function gymSVG(g, got, i) {
+function gymSVG(g, got) {
   const sh = GYM_SHAPES[g.shape];
   return `<svg class="gym-svg${got ? " got" : ""}" viewBox="0 0 100 100" aria-hidden="true" style="--gc:var(${g.color})">
     <g class="gs-base">${sh}</g>
@@ -814,7 +841,7 @@ function checkRewards(silent) {
   return true;
 }
 const trainerName = () => store.get("uiux-name", "") || "あなた";
-function caseHTML(p, cls) { return `<ol class="${cls}" aria-label="バッジケース ${p.got.length}/${GYMS.length}">${p.gyms.map((g, i) => `<li title="${esc(g.name)}${g.got ? "" : "（未獲得）"}">${gymSVG(g, g.got, i)}</li>`).join("")}</ol>`; }
+function caseHTML(p, cls) { return `<ol class="${cls}" aria-label="バッジケース ${p.got.length}/${GYMS.length}">${p.gyms.map((g) => `<li title="${esc(g.name)}${g.got ? "" : "（未獲得）"}">${gymSVG(g, g.got)}</li>`).join("")}</ol>`; }
 function renderRank() {
   const el = $("sideRank"); if (!el || !S.loaded) return;
   const p = progressState(), n = trainerName();
@@ -840,8 +867,19 @@ function renderStack() {
   </section>
 ${stackMoreHTML()}`;
 }
+// バッジの条件1行(進み具合のバーつき)
+function badgeReqHTML(q) {
+  const done = q.v >= q.n;
+  const label = (done ? "✓ " : "") + q.label.replace(/を「(.+?)」/, "：$1");
+  const bar = `<span class="bd-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${q.n}" aria-valuenow="${q.v}" aria-label="${esc(q.label)}">`
+    + `<i style="width:${Math.round(q.v / q.n * 100)}%"></i></span>`;
+  return `<li class="${done ? "done" : ""}"><span class="bq-l">${label}</span><b>${q.v}/${q.n}${q.unit}</b>${bar}</li>`;
+}
+const SOURCE_NOTE = "最初から入っている用語は、次の公式資料の出題範囲から選んでいます。"
+  + "意味の説明はClaude（生成AI）が作成したものなので、正確な定義は各資料で確かめてください。各団体とは関係のない個人の制作物です。";
 // Profile：自分(名前・称号)→ 手に入れたバッジ → 次のバッジ → まだのバッジ
 function renderProfile() {
+  const sourceItems = Object.entries(SOURCES).map(([k, v]) => `<li>${srcLink(k)}<small>${esc(v.org)}</small></li>`).join("");
   const p = progressState(), n = trainerName();
   const cur = p.gyms.find((g) => g.id === p.titleId);
   const got = p.gyms.filter((g) => g.got), next = p.next;
@@ -864,34 +902,34 @@ function renderProfile() {
     <div class="bd-head"><h2 class="p-h" id="gymH">Badges</h2><p class="help">条件を満たすと手に入り、その称号を名乗れます。</p></div>
     <ol class="bd-list">${order.map((g) => { const done = g.reqs.filter((q) => q.v >= q.n).length, one = g.reqs.length === 1;
       return `<li class="bd-row${g.got ? " got" : g === next ? " next" : ""}">
-        ${gymSVG(g, g.got, GYMS.indexOf(g))}
+        ${gymSVG(g, g.got)}
         <div class="bd-main">
           <div class="bd-top"><b>${esc(g.name)}</b>${g === next ? '<span class="bd-pill">もうすぐ</span>' : ""}</div>
           <span class="bd-title">称号「${esc(g.title)}」</span>
-          ${g.got ? "" : `<ul class="bd-reqs">${g.reqs.map((q) => `<li class="${q.v >= q.n ? "done" : ""}"><span class="bq-l">${q.v >= q.n ? "✓ " : ""}${q.label.replace(/を「(.+?)」/, "：$1")}</span><b>${q.v}/${q.n}${q.unit}</b><span class="bd-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${q.n}" aria-valuenow="${q.v}" aria-label="${esc(q.label)}"><i style="width:${Math.round(q.v / q.n * 100)}%"></i></span></li>`).join("")}</ul>`}
+          ${g.got ? "" : `<ul class="bd-reqs">${g.reqs.map(badgeReqHTML).join("")}</ul>`}
         </div>
         <span class="bd-state">${g.got ? '<span class="bd-got">獲得</span>' : one ? `${Math.round(g.reqs[0].v / g.reqs[0].n * 100)}<small>%</small>` : `${done}/${g.reqs.length}<small>条件</small>`}</span>
       </li>`; }).join("")}</ol>
   </section>
   <section class="p-sec pf2-sec" aria-labelledby="setH">
     <h2 class="p-h" id="setH">Settings</h2>
-    <div class="set-row"><div><b>用語の出典</b><p class="help">最初から入っている用語は、次の公式資料の出題範囲から選んでいます。意味の説明はClaude（生成AI）が作成したものなので、正確な定義は各資料で確かめてください。各団体とは関係のない個人の制作物です。</p><ul class="src-list">${Object.entries(SOURCES).map(([k, v]) => `<li>${srcLink(k)}<small>${esc(v.org)}</small></li>`).join("")}</ul></div></div>
+    <div class="set-row"><div><b>用語の出典</b><p class="help">${SOURCE_NOTE}</p><ul class="src-list">${sourceItems}</ul></div></div>
     <div class="set-row"><div><b>データの保存先</b><p class="help">デモ版のため、このブラウザの中にだけ保存しています。アカウント連携による端末間の同期は今後対応予定です。</p></div></div>
     <div class="set-row"><div><b id="motionLbl">動きを減らす</b><p class="help">カードを降らせず、静かに置きます。画面の動きで酔いやすい方に。</p></div><button type="button" class="switch" id="motionSw" role="switch" aria-checked="${calmMotion()}" aria-labelledby="motionLbl"><i></i></button></div>
   </section>`;
-  $("motionSw").onclick = () => { store.set("uiux-motion", calmMotion() ? "fall" : "calm"); renderProfile(); $("motionSw").focus(); };
-  if ($("trTitleEdit")) $("trTitleEdit").onclick = () => {
+  $("motionSw").addEventListener("click", () => { store.set("uiux-motion", calmMotion() ? "fall" : "calm"); renderProfile(); $("motionSw").focus(); });
+  if ($("trTitleEdit")) $("trTitleEdit").addEventListener("click", () => {
     $("trTitleRow").innerHTML = `<label class="vh" for="trTitleSel">称号</label><select id="trTitleSel" class="tr-input">${got.map((g) => `<option value="${g.id}"${g.id === p.titleId ? " selected" : ""}>${esc(g.title)}</option>`).join("")}</select><button type="button" class="btn small" id="trTitleOk">OK</button>`;
-    $("trTitleOk").onclick = () => { store.set("uiux-title", $("trTitleSel").value); renderProfile(); renderRank(); $("trTitleEdit")?.focus(); };
+    $("trTitleOk").addEventListener("click", () => { store.set("uiux-title", $("trTitleSel").value); renderProfile(); renderRank(); $("trTitleEdit")?.focus(); });
     $("trTitleSel").focus();
-  };
-  $("trEdit").onclick = () => {
+  });
+  $("trEdit").addEventListener("click", () => {
     $("trNameRow").innerHTML = `<label class="vh" for="trInput">名前</label><input id="trInput" class="tr-input" maxlength="16" value="${esc(store.get("uiux-name", ""))}" placeholder="名前（16文字まで）" autocomplete="nickname"><button type="button" class="btn small" id="trSave">OK</button>`;
     const save = () => { store.set("uiux-name", $("trInput").value.trim()); renderProfile(); renderRank(); $("trEdit")?.focus(); };
-    $("trSave").onclick = save;
-    $("trInput").onkeydown = (e) => { if (e.key === "Enter" && !e.isComposing) save(); if (e.key === "Escape") { e.stopPropagation(); renderProfile(); } };
+    $("trSave").addEventListener("click", save);
+    $("trInput").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) save(); if (e.key === "Escape") { e.stopPropagation(); renderProfile(); } });
     $("trInput").focus();
-  };
+  });
 }
 /* 紙吹雪：アプリのタグ色で。動きを控えめにする設定では出さない */
 function confetti({ n = 180, spread = 1, at = null } = {}) {
@@ -925,7 +963,7 @@ function celebrate(gyms, p) {
   const last = gyms[gyms.length - 1];
   w.innerHTML = `<div class="cel-card" role="dialog" aria-modal="true" aria-labelledby="celH">
     <span class="cel-kicker">NEW BADGE</span>
-    <div class="cel-gyms">${gyms.map((g) => gymSVG(g, true, GYMS.indexOf(g))).join("")}</div>
+    <div class="cel-gyms">${gyms.map((g) => gymSVG(g, true)).join("")}</div>
     <h2 id="celH" class="cel-h">${esc(last.name)} ゲット！</h2>
     <p class="cel-sub">称号「<b>${esc(last.title)}</b>」を手に入れた</p>
     ${p.next ? `<p class="cel-next">つぎは <b>${esc(p.next.name)}</b>：${p.next.reqs.map((r) => `${r.label} ${r.v}/${r.n}${r.unit}`).join("・")}</p>` : '<p class="cel-next">すべてのバッジを集めました！</p>'}
@@ -940,29 +978,59 @@ function celebrate(gyms, p) {
 /* ================= 振り返り ================= */
 // 1語＝1ブロック。下から積み上がる
 const blocks = (n, color, start = 0) => Array.from({ length: n }, (_, i) => `<i style="background:${color};--k:${Math.min(start + i, 40)}"></i>`).join("");
-// 理解度・分野ごとの積み上げ(Stack の下段)
-function stackMoreHTML() {
-  const counts = levelCounts(), unread = S.cards.filter(isUnread).length;
-  const rows = TAG_IDS.map((k) => { const cs = S.cards.filter((c) => c.labels.includes(k)); const lc = [0, 0, 0]; let un = 0; cs.forEach((c) => (isUnread(c) ? un++ : lc[lvlOf(c)]++)); return { k, n: cs.length, lc, un }; }).filter((r) => r.n).sort((a, b) => sum(b.lc) - sum(a.lc) || b.n - a.n);
-  // 自分でAdd Cardした言葉の記録(新しい順)
-  const mine = S.cards.filter((c) => c.source === "me").sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
-  const RECENT = 10;
-  const added = `  <section class="p-sec" aria-labelledby="pAdd">
-    <h2 class="p-h" id="pAdd">Added<span class="opt">自分で足した言葉</span></h2>
-    ${mine.length ? `<ul class="added-list">${mine.slice(0, RECENT).map((c) => { const d = new Date(c.createdAt || Date.now()); return `<li><button type="button" class="added-row" data-open="${esc(c.id)}"><time datetime="${dayKey(d)}">${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}</time><span class="dot ${c.tc}"></span><b>${esc(titleOf(c))}</b></button></li>`; }).join("")}</ul>${mine.length > RECENT ? `<p class="help">新しい${RECENT}語を表示しています</p>` : ""}` : `<p class="help">まだありません。Add Card で足した言葉が、ここに記録されます。</p>`}
-  </section>`;
+// 分野ごとの集計：理解度ごとの語数(lc)と未読の数(un)。積み上がった語数の多い順
+function tagRows() {
+  return TAG_IDS.map((k) => {
+    const lc = [0, 0, 0]; let un = 0, n = 0;
+    S.cards.forEach((c) => { if (!c.labels.includes(k)) return; n++; if (isUnread(c)) un++; else lc[lvlOf(c)]++; });
+    return { k, n, lc, un };
+  }).filter((r) => r.n).sort((a, b) => sum(b.lc) - sum(a.lc) || b.n - a.n);
+}
+// Understanding：理解度ごとに炎を積む
+function understandingHTML(counts) {
+  const col = (l, i) => `<div class="lvl-col"><b class="lc-n">${counts[i]}<small>語</small></b><div class="blocks">${blocks(counts[i], LVL_FILL[i])}</div>`
+    + `<span class="lc-l"><i style="background:${LVL_FILL[i]}"></i>${l}</span></div>`;
   return `  <section class="p-sec" aria-labelledby="pUnd">
     <h2 class="p-h" id="pUnd">Understanding<span class="opt">理解の深さ</span></h2>
     <div class="lvl-cols" role="img" aria-label="${LEVELS.map((l, i) => `${l} ${counts[i]}語`).join("、")}">
-      ${LEVELS.map((l, i) => `<div class="lvl-col"><b class="lc-n">${counts[i]}<small>語</small></b><div class="blocks">${blocks(counts[i], LVL_FILL[i])}</div><span class="lc-l"><i style="background:${LVL_FILL[i]}"></i>${l}</span></div>`).join("")}
+      ${LEVELS.map(col).join("")}
     </div>
-  </section>
+  </section>`;
+}
+// By tag：分野ごとに、理解度の炎と未読の枠を積む
+function byTagHTML(rows) {
+  const col = (r) => {
+    const label = esc(TAGS[r.k].label), done = sum(r.lc);
+    const aria = `${label} ${r.n}語中${done}語が積み上がり：${LEVELS.map((l, i) => `${l}${r.lc[i]}`).join("、")}、未読${r.un}`;
+    const flames = r.lc.map((n, i) => blocks(n, LVL_FILL[i], sum(r.lc.slice(0, i)))).join("") + '<i class="un"></i>'.repeat(r.un);
+    return `<button type="button" class="tag-col t-${r.k}" data-tag="${r.k}" aria-label="${aria}"><b class="tc-n">${done}<small>/${r.n}</small></b>`
+      + `<span class="blocks sm">${flames}</span><span class="tc-l"><span class="dot"></span>${label}</span></button>`;
+  };
+  return `
   <section class="p-sec" aria-labelledby="pTag">
     <h2 class="p-h" id="pTag">By tag<span class="opt">分野の広がり。押すとその分野のカードへ</span></h2>
-    <div class="tag-cols">${rows.map((r) => `<button type="button" class="tag-col t-${r.k}" data-tag="${r.k}" aria-label="${esc(TAGS[r.k].label)} ${r.n}語中${sum(r.lc)}語が積み上がり：${LEVELS.map((l, i) => `${l}${r.lc[i]}`).join("、")}、未読${r.un}"><b class="tc-n">${sum(r.lc)}<small>/${r.n}</small></b><span class="blocks sm">${r.lc.map((n, i) => blocks(n, LVL_FILL[i], sum(r.lc.slice(0, i)))).join("")}${Array.from({ length: r.un }, () => '<i class="un"></i>').join("")}</span><span class="tc-l"><span class="dot"></span>${esc(TAGS[r.k].label)}</span></button>`).join("")}</div>
+    <div class="tag-cols">${rows.map(col).join("")}</div>
     <ul class="glegend">${LEVELS.map((l, i) => `<li><span class="sw" style="background:${LVL_FILL[i]}"></span>${l}</li>`).join("")}<li><span class="sw un"></span>未読</li></ul>
-  </section>` + added;
+  </section>`;
 }
+// Added：自分で Add Card した言葉(新しい順に最大10語)
+function addedHTML() {
+  const RECENT = 10;
+  const mine = S.cards.filter((c) => c.source === "me").sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+  const row = (c) => {
+    const d = new Date(c.createdAt || Date.now());
+    return `<li><button type="button" class="added-row" data-open="${esc(c.id)}"><time datetime="${dayKey(d)}">${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}</time>`
+      + `<span class="dot ${c.tc}"></span><b>${esc(titleOf(c))}</b></button></li>`;
+  };
+  const more = mine.length > RECENT ? `<p class="help">新しい${RECENT}語を表示しています</p>` : "";
+  const body = mine.length ? `<ul class="added-list">${mine.slice(0, RECENT).map(row).join("")}</ul>${more}` : `<p class="help">まだありません。Add Card で足した言葉が、ここに記録されます。</p>`;
+  return `  <section class="p-sec" aria-labelledby="pAdd">
+    <h2 class="p-h" id="pAdd">Added<span class="opt">自分で足した言葉</span></h2>
+    ${body}
+  </section>`;
+}
+// Stack の下段：理解度 → 分野 → 自分で足した言葉
+const stackMoreHTML = () => understandingHTML(levelCounts()) + byTagHTML(tagRows()) + addedHTML();
 
 /* ================= 詳細パネル ================= */
 let drawerReturn = null;
@@ -982,8 +1050,15 @@ function renderDrawer() {
   const c = S.byId.get(S.drawerId); if (!c) return closeDrawer();
   const lv = lvlOf(c);
   const refs = refsOf(c);
-  const refHTML = (r) => { const url = /^https?:\/\//i.test(r.value);
-    return `<li><span class="ref-kind">${esc(REF_TYPES[r.type]?.label || "メモ")}</span>${url ? `<a class="ref-link" href="${esc(r.value)}" target="_blank" rel="noopener noreferrer">${esc(r.value.replace(/^https?:\/\/(www\.)?/i, ""))}</a>` : `<span>${esc(r.value)}</span>`}</li>`; };
+  const refHTML = (r) => {
+    const value = /^https?:\/\//i.test(r.value)
+      ? `<a class="ref-link" href="${esc(r.value)}" target="_blank" rel="noopener noreferrer">${esc(r.value.replace(/^https?:\/\/(www\.)?/i, ""))}</a>`
+      : `<span>${esc(r.value)}</span>`;
+    return `<li><span class="ref-kind">${esc(REF_TYPES[r.type]?.label || "メモ")}</span>${value}</li>`;
+  };
+  const fileHTML = (f, i) => f.type.startsWith("image/")
+    ? `<li><button type="button" class="dfile img" data-file="${i}" aria-label="${esc(f.name)}をひらく"><img src="${f.data}" alt=""></button></li>`
+    : `<li><button type="button" class="dfile" data-file="${i}"><span class="fi-ext">${esc(extOf(f.name))}</span><span class="fi-n">${esc(f.name)}</span></button></li>`;
   $("drawer").innerHTML = `<article class="dcard ${c.meaning ? c.tc : "t-none"}">
     <header class="dc-head">
       <div class="dc-bar">
@@ -1001,13 +1076,13 @@ function renderDrawer() {
       ${c.src || refs.length || (c.files || []).length ? `<section class="dc-refs" aria-label="Reference"><span class="k">Reference</span>
         ${c.src ? `<p class="ref-official"><span class="ro-kind">Source</span>${officialSourceHTML(c)}</p>` : ""}
         ${refs.length ? `<ul class="ref-list">${refs.map(refHTML).join("")}</ul>` : ""}
-        ${(c.files || []).length ? `<ul class="dfiles">${c.files.map((f, i) => f.type.startsWith("image/") ? `<li><button type="button" class="dfile img" data-file="${i}" aria-label="${esc(f.name)}をひらく"><img src="${f.data}" alt=""></button></li>` : `<li><button type="button" class="dfile" data-file="${i}"><span class="fi-ext">${esc(extOf(f.name))}</span><span class="fi-n">${esc(f.name)}</span></button></li>`).join("")}</ul>` : ""}
+        ${(c.files || []).length ? `<ul class="dfiles">${c.files.map(fileHTML).join("")}</ul>` : ""}
         <button type="button" class="link dc-addref" data-edit="fRefs">＋ URL・ファイルを足す</button>
       </section>` : `<button type="button" class="link dc-addref" data-edit="fRefs">＋ Reference（URL・ファイル）を足す</button>`}
     </div>
     <footer class="dc-foot">
       <span class="k" id="lvlTitle">Understanding<span class="opt">いまの理解度</span></span>
-      <div class="levels meter lv-${lv}" role="group" aria-labelledby="lvlTitle">${LEVELS.map((l, i) => `<button type="button" data-lvl="${i}" aria-pressed="${lv === i}" class="${i <= lv ? "on" : ""}" title="${LEVEL_HINTS[i]}"><small>Lv${i + 1}</small>${l}</button>`).join("")}</div>
+      <div class="levels" role="group" aria-labelledby="lvlTitle">${LEVELS.map((l, i) => `<button type="button" data-lvl="${i}" aria-pressed="${lv === i}" class="${i <= lv ? "on" : ""}" title="${LEVEL_HINTS[i]}"><small>Lv${i + 1}</small>${l}</button>`).join("")}</div>
       <p class="lv-hint">${lv < 2 ? `次の「${LEVELS[lv + 1]}」の目安：${LEVEL_HINTS[lv + 1]}` : `「説明できる」＝${LEVEL_HINTS[2]}`}</p>
       ${c.meaning ? `<button type="button" class="btn small dc-near" id="dNear">似ている言葉を探す</button>` : ""}
     </footer>
@@ -1018,8 +1093,8 @@ function closeDrawer(silent) {
   $("drawerWrap").hidden = true; S.drawerId = null;
   if (!silent) drawerReturn?.focus?.();
 }
-$("scrim").onclick = () => closeDrawer();
-$("drawer").addEventListener("click", async (e) => {
+$("scrim").addEventListener("click", () => closeDrawer());
+$("drawer").addEventListener("click", (e) => {
   const t = e.target.closest("button"); if (!t) return;
   const c = S.byId.get(S.drawerId); if (!c) return;
   if (t.id === "dClose") return closeDrawer();
@@ -1067,8 +1142,9 @@ async function saveFields(id, fields) {
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 function logEvent(type, cardId) {
   const e = { type, cardId, day: dayKey(new Date()), at: new Date().toISOString() };
-  if (S.db) { S.events.push(e); S.db.collection("events").doc().set(e).catch(() => {}); }
-  else { S.events.push(e); store.set("uiux-stocker-events-local", S.events.slice(-3000)); }
+  S.events.push(e);
+  if (S.db) S.db.collection("events").doc().set(e).catch(() => {});
+  else store.set("uiux-stocker-events-local", S.events.slice(-3000));
 }
 async function markSeen(id) {
   const c = S.byId.get(id); if (!c) return;
@@ -1148,13 +1224,16 @@ document.querySelector(".attach-chips").addEventListener("click", (e) => {
   const open = b.getAttribute("aria-expanded") !== "true"; setSec(b.dataset.sec, open);
   if (open) { const f = $(b.dataset.sec).querySelector("input:not([type=file]),textarea"); f?.focus(); }
 });
-$("fX").onclick = () => closeSheet();
+$("fX").addEventListener("click", () => closeSheet());
 // 添付：画像は長辺1200pxのJPEGに縮めてカードに入れる(1枚あたり最大~350KB、合計700KBまで)
-S.fFiles = [];
 const FILE_MAX = 700e3;
 const extOf = (n) => (n.split(".").pop() || "file").slice(0, 4);
 function renderFiles() {
-  $("fFiles").innerHTML = S.fFiles.map((f, i) => `<li>${f.type.startsWith("image/") ? `<img src="${f.data}" alt="">` : `<span class="fi-ext">${esc(extOf(f.name))}</span>`}<span class="fi-n">${esc(f.name)}</span><button type="button" class="ref-del" data-fdel="${i}" aria-label="${esc(f.name)}を外す">×</button></li>`).join("");
+  const item = (f, i) => {
+    const thumb = f.type.startsWith("image/") ? `<img src="${f.data}" alt="">` : `<span class="fi-ext">${esc(extOf(f.name))}</span>`;
+    return `<li>${thumb}<span class="fi-n">${esc(f.name)}</span><button type="button" class="ref-del" data-fdel="${i}" aria-label="${esc(f.name)}を外す">×</button></li>`;
+  };
+  $("fFiles").innerHTML = S.fFiles.map(item).join("");
 }
 const readURL = (file) => new Promise((ok, ng) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = ng; r.readAsDataURL(file); });
 async function shrinkImage(file) {
@@ -1229,8 +1308,12 @@ function suggestTags(text) {
   const cv = conceptsOf(text); for (const k in cv) cv[k] *= 0.6;
   const probe = { _c: cv, _gw: weigh(grams(text)) };
   const nt = norm(text);
+  // 入力に名前がそのまま含まれるカードは、似ていなくても候補に入れる
+  const nameHit = (c) => ([c.ja, c.term].some((n) => n && norm(n).length >= 3 && nt.includes(norm(n))) ? 0.5 : 0);
   const w = {};
-  S.cards.filter((c) => c.id !== S.editing?.id).map((c) => { const hit = [c.ja, c.term].some((n) => n && norm(n).length >= 3 && nt.includes(norm(n))) ? 0.5 : 0; return { c, s: Math.max(simCards(probe, c), 0.9 * cos(probe._gw, c._gw), hit) }; }).filter((x) => x.s > 0.12)
+  S.cards.filter((c) => c.id !== S.editing?.id)
+    .map((c) => ({ c, s: Math.max(simCards(probe, c), 0.9 * cos(probe._gw, c._gw), nameHit(c)) }))
+    .filter((x) => x.s > 0.12)
     .sort((a, b) => b.s - a.s).slice(0, 6)
     .forEach(({ c, s }) => c.labels.forEach((t, i) => (w[t] = (w[t] || 0) + s * (i === 0 ? 1 : 0.5))));
   const top = Math.max(0, ...Object.values(w));
@@ -1246,7 +1329,12 @@ function refreshAssist() {
   // タグ：おすすめ＋選択済みだけ見せ、ほかは「ほかのタグ」に畳む
   const sug = suggestTags([f.name, f.alias, f.meaning].join(" "));
   // 新規のあいだは、手で触るまでおすすめを自動で選んでおく
-  if (!S.editing && !S.tagTouched) { const pick = sug.length ? sug : (S.aiTags || []); TAG_IDS.forEach((k) => ($("fTag-" + k).checked = pick.includes(k))); S.tagOrder = pick.slice(); f.labels = pick.slice(); if (!sug.length && pick.length) sug.push(...pick); }
+  if (!S.editing && !S.tagTouched) {
+    const pick = sug.length ? sug : (S.aiTags || []);
+    TAG_IDS.forEach((k) => ($("fTag-" + k).checked = pick.includes(k)));
+    S.tagOrder = pick.slice(); f.labels = pick.slice();
+    if (!sug.length && pick.length) sug.push(...pick);
+  }
   const show = new Set([...sug, ...f.labels]);
   const fold = !tagsOpen && sug.length > 0;
   TAG_IDS.forEach((k) => {
@@ -1260,17 +1348,26 @@ function refreshAssist() {
   $("fTagsHint").textContent = S.editing ? "" : sug.length && !S.tagTouched ? "自動で選びました。違えば押して変更" : !sug.length ? (f.name ? "近い言葉が見つからないので、押して選んでください" : "言葉を入れると自動で選びます") : "";
 }
 $("fTags").addEventListener("change", (e) => { S.tagTouched = true; const k = e.target.value; S.tagOrder = (S.tagOrder || []).filter((x) => x !== k); if (e.target.checked) S.tagOrder.push(k); refreshAssist(); });
-$("fTagsMore").onclick = () => { tagsOpen = true; refreshAssist(); $("fTags").querySelector("label:not([hidden])")?.focus(); };
+$("fTagsMore").addEventListener("click", () => { tagsOpen = true; refreshAssist(); $("fTags").querySelector("label:not([hidden])")?.focus(); });
 $("cardForm").addEventListener("input", () => {
   if (!S.editing) store.set("uiux-draft", formData());
   $("draftNote").hidden = true;
   clearTimeout(assistTimer); assistTimer = setTimeout(refreshAssist, 180);
 });
-$("draftClear").onclick = () => { store.del("uiux-draft"); ["fName", "fAlias", "fMeaning", "fNote"].forEach((id) => ($(id).value = "")); setRefRows([]); S.fFiles = []; renderFiles(); S.meanTouched = false; meaningDraftedFor = ""; TAG_IDS.forEach((k) => ($("fTag-" + k).checked = false)); S.tagOrder = []; $("draftNote").hidden = true; refreshAssist(); $("fName").focus(); };
-$("fDup").addEventListener("click", async (e) => {
+// 戻した書きかけを消して、まっさらなシートにする
+$("draftClear").addEventListener("click", () => {
+  store.del("uiux-draft");
+  ["fName", "fAlias", "fMeaning", "fNote"].forEach((id) => ($(id).value = ""));
+  setRefRows([]); S.fFiles = []; renderFiles();
+  S.meanTouched = false; meaningDraftedFor = "";
+  TAG_IDS.forEach((k) => ($("fTag-" + k).checked = false)); S.tagOrder = [];
+  $("draftNote").hidden = true;
+  refreshAssist(); $("fName").focus();
+});
+$("fDup").addEventListener("click", (e) => {
   const b = e.target.closest("[data-dup]"); if (!b) return; closeSheet(); openDrawer(b.dataset.dup);
 });
-$("fCancel").onclick = closeSheet;
+$("fCancel").addEventListener("click", closeSheet);
 $("sheetWrap").addEventListener("click", (e) => { if (e.target === $("sheetWrap")) closeSheet(); });
 $("cardForm").addEventListener("keydown", (e) => {
   if (e.key !== "Enter" || e.isComposing || e.keyCode === 229) return;
@@ -1314,7 +1411,7 @@ function afterSave(id, wasEdit, tries = 0) {
   toast(`「${titleOf(c)}」を積みました。`, "ひらく", () => openDrawer(id));
   if (!checkRewards()) confetti({ n: 70, spread: 0.5 });
 }
-$("fDelete").onclick = async () => {
+$("fDelete").addEventListener("click", async () => {
   const b = $("fDelete");
   if (!b.classList.contains("confirm")) { b.classList.add("confirm"); b.textContent = "もう一度押すと削除"; return; }
   const id = S.editing.id, t = titleOf(S.editing);
@@ -1323,7 +1420,7 @@ $("fDelete").onclick = async () => {
     else { S.cards = S.cards.filter((c) => c.id !== id); commitLocal(); }
     closeSheet(); toast(`「${t}」を削除しました。`);
   } catch { toast("削除できませんでした。もう一度お試しください。"); }
-};
+});
 
 /* ================= キー操作・トースト ================= */
 document.addEventListener("keydown", (e) => {
@@ -1338,7 +1435,7 @@ function toast(msg, actLabel, fn) {
   const a = $("toastAct"); a.hidden = !actLabel; a.textContent = actLabel || ""; toastAction = fn || null;
   $("toast").classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(() => $("toast").classList.remove("on"), actLabel ? 7000 : 4500);
 }
-$("toastAct").onclick = () => { $("toast").classList.remove("on"); toastAction?.(); };
+$("toastAct").addEventListener("click", () => { $("toast").classList.remove("on"); toastAction?.(); });
 
 /* ================= データ ================= */
 const stripIdx = (c) => { const o = {}; for (const k in c) if (k[0] !== "_" && k !== "tc") o[k] = c[k]; return o; };
@@ -1363,7 +1460,7 @@ function saveLocal() { if (S.local) store.set("uiux-stocker-cards-local", S.card
 function landmarkFor(last, now) {
   const d = new Date(now), l = last ? new Date(last) : null;
   const monday = new Date(d.toDateString()); monday.setDate(monday.getDate() - ((d.getDay() + 6) % 7));
-  if (l && now - last >= 3 * 864e5) return { key: "back:" + dayKey(d), text: "おかえりなさい。今日出会った言葉を、1つだけ置いてみませんか。" };
+  if (l && now - last >= 3 * DAY_MS) return { key: "back:" + dayKey(d), text: "おかえりなさい。今日出会った言葉を、1つだけ置いてみませんか。" };
   if (l && (l.getMonth() !== d.getMonth() || l.getFullYear() !== d.getFullYear())) return { key: "month:" + d.getFullYear() + "-" + (d.getMonth() + 1), text: `${d.getMonth() + 1}月のはじまりです。今月の1語目を置いてみませんか。` };
   if (l && l < monday) return { key: "week:" + dayKey(monday), text: "新しい週のはじまりです。今週の1語目を置いてみませんか。" };
   return null;
@@ -1394,7 +1491,7 @@ async function boot() {
   if (use) { try { db = await use("db"); } catch { db = null; } }
   if (db) {
     S.db = db;
-    const since = dayKey(new Date(Date.now() - 370 * 864e5));
+    const since = dayKey(new Date(Date.now() - 370 * DAY_MS));
     db.collection("events").where("day", ">=", since).onSnapshot((snap) => { S.events = snap.docs.map((d) => d.data()); if (S.view === "stack") renderStack(); S.evLoaded = true; checkRewards(true); renderRank(); }, () => {});
     db.collection("cards").onSnapshot((snap) => applyCards(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
       () => toast("保存先との接続が切れました。ページをひらき直すと再接続します。"));

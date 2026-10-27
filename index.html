@@ -22,18 +22,20 @@ if (location.hostname.endsWith(".vercel.app")) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Noto+Sans+JP:wght@400;500;700&family=Syne:wght@600;700;800&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js" defer></script>
 <link rel="stylesheet" href="style.css">
 
 <div class="shell">
   <aside class="side" id="side" aria-label="メニュー">
     <div class="side-head">
-      <button type="button" class="logo" data-go="stage" data-home aria-label="UIUX Stocker ホームへ"><span class="logo-plate" aria-hidden="true"><span class="logo-ascii"><pre class="a">██╗   ██╗██╗██╗   ██╗██╗  ██╗
+      <button type="button" class="logo" data-go="stage" data-home aria-label="UIUX Stocker ホームへ"><span class="logo-plate" aria-hidden="true"><span class="logo-ascii"><pre class="a">
+██╗   ██╗██╗██╗   ██╗██╗  ██╗
 ██║   ██║██║██║   ██║╚██╗██╔╝
 ██║   ██║██║██║   ██║ ╚███╔╝ 
 ██║   ██║██║██║   ██║ ██╔██╗ 
 ╚██████╔╝██║╚██████╔╝██╔╝ ██╗
- ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝</pre><pre class="b">███████╗████████╗ ██████╗  ██████╗██╗  ██╗███████╗██████╗ 
+ ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝</pre><pre class="b">
+███████╗████████╗ ██████╗  ██████╗██╗  ██╗███████╗██████╗ 
 ██╔════╝╚══██╔══╝██╔═══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
 ███████╗   ██║   ██║   ██║██║     █████╔╝ █████╗  ██████╔╝
 ╚════██║   ██║   ██║   ██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
@@ -53,23 +55,12 @@ if (location.hostname.endsWith(".vercel.app")) {
   <div class="main">
     <header class="mtop">
       <button type="button" class="hamb" id="hamb" aria-label="メニューを開く" aria-controls="side" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      <button type="button" class="logo" data-go="stage" data-home aria-label="UIUX Stocker ホームへ"><span class="logo-plate" aria-hidden="true"><span class="logo-ascii"><pre class="a">██╗   ██╗██╗██╗   ██╗██╗  ██╗
-██║   ██║██║██║   ██║╚██╗██╔╝
-██║   ██║██║██║   ██║ ╚███╔╝ 
-██║   ██║██║██║   ██║ ██╔██╗ 
-╚██████╔╝██║╚██████╔╝██╔╝ ██╗
- ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝</pre><pre class="b">███████╗████████╗ ██████╗  ██████╗██╗  ██╗███████╗██████╗ 
-██╔════╝╚══██╔══╝██╔═══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
-███████╗   ██║   ██║   ██║██║     █████╔╝ █████╗  ██████╔╝
-╚════██║   ██║   ██║   ██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
-███████║   ██║   ╚██████╔╝╚██████╗██║  ██╗███████╗██║  ██║
-╚══════╝   ╚═╝    ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝</pre></span></span></button>
       <span class="spacer"></span>
-      <button type="button" class="btn small mstack" data-go="stack" aria-label="Stack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="15" width="14" height="5" rx="1.5"/><rect x="3" y="9" width="14" height="5" rx="1.5" transform="rotate(-4 10 11.5)"/><rect x="6" y="3" width="13" height="5" rx="1.5" transform="rotate(3 12 5.5)"/></svg>Stack</button>
+      <button type="button" class="btn small mstack" data-go="stack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="15" width="14" height="5" rx="1.5"/><rect x="3" y="9" width="14" height="5" rx="1.5" transform="rotate(-4 10 11.5)"/><rect x="6" y="3" width="13" height="5" rx="1.5" transform="rotate(3 12 5.5)"/></svg>Stack</button>
       <button type="button" class="btn small primary" data-add aria-label="Add Card">＋<span class="long" aria-hidden="true"> Add Card</span></button>
     </header>
 
-    <section class="stage" id="vStage" aria-label="積み上げ">
+    <section class="stage" id="vStage" aria-label="ホーム">
       <div class="pile" id="pile" role="group" aria-label="カードの山。Tabキーで順にたどれます"></div>
       <div class="gridwrap" id="gridwrap" hidden><div class="inner" id="gridInner"></div></div>
       <button type="button" class="layout-fab" id="layoutFab" hidden></button>
@@ -91,7 +82,7 @@ if (location.hostname.endsWith(".vercel.app")) {
       </div>
     </section>
 
-    <section class="page" id="vStack" hidden aria-label="積み上げ"><div class="page-in" id="stackIn"></div></section>
+    <section class="page" id="vStack" hidden aria-label="Stack"><div class="page-in" id="stackIn"></div></section>
     <section class="page" id="vProfile" hidden aria-label="プロフィール"><div class="page-in" id="profileIn"></div></section>
   </div>
 </div>
@@ -157,4 +148,6 @@ if (location.hostname.endsWith(".vercel.app")) {
 <p class="vh" id="liveResult" aria-live="polite"></p>
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button type="button" id="toastAct" hidden></button></div>
 
-<script src="app.js"></script>
+<!-- 用語カードのデータ → アプリ本体の順に読む(どちらも Matter.js のあと) -->
+<script src="cards.js" defer></script>
+<script src="app.js" defer></script>
